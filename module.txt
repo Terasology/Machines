@@ -1,0 +1,9 @@
+{
+    "id" : "Machines",
+    "version" : "0.1.0",
+    "author" : "",
+    "displayName" : "Machines",
+    "description" : "",
+    "dependencies" : [],
+    "isServerSideOnly" : false
+}
