@@ -17,9 +17,11 @@ package org.terasology.machines.components;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
+import org.terasology.world.block.ForceBlockActive;
 
 import java.util.List;
 
+@ForceBlockActive
 public class MachineDefinitionComponent implements Component {
     public int blockInputSlots;
     public int requirementInputSlots;
@@ -27,4 +29,5 @@ public class MachineDefinitionComponent implements Component {
     public List<String> requirementsProvided = Lists.newArrayList();
     public boolean automaticProcessing;
     public String outputEntityType = "STANDARD";
+    public String inputEntityType = "STANDARD";
 }

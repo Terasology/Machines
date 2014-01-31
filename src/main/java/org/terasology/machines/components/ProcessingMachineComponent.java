@@ -27,7 +27,9 @@ import org.terasology.world.block.ForceBlockActive;
  */
 @ForceBlockActive
 public class ProcessingMachineComponent implements Component {
+    // mirrors the inputEntity and allows it to be persisted in case it is not the block itself
     @Owns
+    public EntityRef ownedInputEntity;
     public EntityRef inputEntity;
     // mirrors the outputEntity and allows it to be persisted in case it is not the block itself
     @Owns

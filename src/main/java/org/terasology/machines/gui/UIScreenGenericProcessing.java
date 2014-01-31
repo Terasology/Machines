@@ -22,9 +22,8 @@ import org.terasology.engine.Time;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.logic.common.DisplayInformationComponent;
-import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.players.LocalPlayer;
+import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.machines.ProcessingManager;
 import org.terasology.machines.components.DelayedProcessOutputComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
@@ -40,8 +39,6 @@ import org.terasology.rendering.gui.widgets.UILabel;
 import org.terasology.rendering.gui.widgets.UIProgressBar;
 import org.terasology.rendering.gui.widgets.UITransferSlotCursor;
 import org.terasology.rendering.gui.widgets.UIWindow;
-import org.terasology.world.block.BlockComponent;
-import org.terasology.world.block.items.BlockItemComponent;
 
 import javax.vecmath.Vector2f;
 
@@ -127,7 +124,7 @@ public class UIScreenGenericProcessing extends UIWindow {
         progressBar.setVisible(false);
         progressBar.setPosition(new Vector2f(600, 300));
         progressBar.setSize(new Vector2f(100, 15));
-        progressBar.setMax(1000);
+        progressBar.setMax(100);
 
         addDisplayElement(output);
         addDisplayElement(titleLabel);
@@ -158,8 +155,8 @@ public class UIScreenGenericProcessing extends UIWindow {
             if (delayedProcessOutput != null) {
                 float percentage = delayedProcessOutput.getPercentage(time.getGameTimeInMs());
                 progressBar.setVisible(true);
-                int progressValue = (int) (percentage * 1000f);
-                progressBar.setText((progressValue / 10f) + "%");
+                int progressValue = (int) (percentage * 100f);
+                progressBar.setText(progressValue + "%");
                 progressBar.setValue(progressValue);
             } else {
                 progressBar.setVisible(false);
@@ -174,8 +171,7 @@ public class UIScreenGenericProcessing extends UIWindow {
         machineEntity = entityRef;
 
         // set the machine title
-        titleLabel.setText(getLabelFor(entityRef));
-
+        titleLabel.setText(ExtendedInventoryManager.getLabelFor(entityRef));
 
         ProcessingMachineComponent processingMachine = entityRef.getComponent(ProcessingMachineComponent.class);
         MachineDefinitionComponent machineDefinition = entityRef.getComponent(MachineDefinitionComponent.class);
@@ -194,7 +190,7 @@ public class UIScreenGenericProcessing extends UIWindow {
         ProcessingMachineComponent processingMachine = machineEntity.getComponent(ProcessingMachineComponent.class);
         Prefab outputPrefab = processingManager.getProcessDefinition(processingMachine.inputEntity, processingMachine.outputEntity);
         String outputText = "";
-        if (output != null) {
+        if (outputPrefab != null) {
             for (Component component : outputPrefab.iterateComponents()) {
                 if (component instanceof ProcessDescriptor) {
                     outputText += ((ProcessDescriptor) component).getDescription();
@@ -202,26 +198,5 @@ public class UIScreenGenericProcessing extends UIWindow {
             }
         }
         outputLabel.setText(outputText);
-    }
-
-    private String getLabelFor(EntityRef item) {
-        BlockComponent block = item.getComponent(BlockComponent.class);
-        if (block != null) {
-            return block.getBlock().getBlockFamily().getDisplayName();
-        }
-
-        DisplayInformationComponent info = item.getComponent(DisplayInformationComponent.class);
-        if (info != null) {
-            return info.name;
-        }
-        BlockItemComponent blockItem = item.getComponent(BlockItemComponent.class);
-        if (blockItem != null) {
-            return blockItem.blockFamily.getDisplayName();
-        }
-        ItemComponent itemComponent = item.getComponent(ItemComponent.class);
-        if (itemComponent != null) {
-            return itemComponent.name;
-        }
-        return "";
     }
 }

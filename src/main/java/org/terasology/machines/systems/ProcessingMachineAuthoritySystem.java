@@ -40,6 +40,7 @@ import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.registry.In;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
+import org.terasology.world.block.BlockComponent;
 
 import javax.vecmath.Vector3f;
 
@@ -89,7 +90,7 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
             }
 
             // check for automatic machines
-            for (EntityRef entity : entityManager.getEntitiesWith(ProcessingMachineComponent.class)) {
+            for (EntityRef entity : entityManager.getEntitiesWith(ProcessingMachineComponent.class, BlockComponent.class, LocationComponent.class)) {
                 ProcessingMachineComponent processingMachineComponent = entity.getComponent(ProcessingMachineComponent.class);
                 // only automatically process if it does not have a delayed output
                 if (processingMachineComponent.automaticProcessing && !processingMachineComponent.outputEntity.hasComponent(DelayedProcessOutputComponent.class)) {
@@ -101,34 +102,37 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
     }
 
 
-    @ReceiveEvent
-    public void onAddedComponent(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
+    @ReceiveEvent(components = {LocationComponent.class, BlockComponent.class})
+    public void onMachineDefinitionAdded(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
         addProcessingMachine(entity, machineDefinition);
     }
 
     private void addProcessingMachine(EntityRef entity, MachineDefinitionComponent machineDefinition) {
         ProcessingMachineComponent processingMachineComponent = new ProcessingMachineComponent();
 
-        // create the input
-        EntityRef newEntity = entityManager.create(
-                new InventoryComponent(machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots),
-                new ProcessRequirementsProviderComponent(machineDefinition.requirementsProvided.toArray(new String[0])),
-                new NetworkComponent()
-        );
-        processingMachineComponent.inputEntity = newEntity;
+        // create/link the input
+        if (machineDefinition.inputEntityType.equalsIgnoreCase("STANDARD")) {
+            EntityRef newEntity = entityManager.create(new NetworkComponent());
+            processingMachineComponent.inputEntity = newEntity;
+            processingMachineComponent.ownedInputEntity = newEntity;
+        } else if (machineDefinition.inputEntityType.equalsIgnoreCase("SELF")) {
+            processingMachineComponent.inputEntity = entity;
+        }
+        processingMachineComponent.inputEntity.addComponent(new InventoryComponent(machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots));
+
+
+        // add the requirements provider to the input entity
+        processingMachineComponent.inputEntity.addComponent(new ProcessRequirementsProviderComponent(machineDefinition.requirementsProvided.toArray(new String[0])));
 
         // create/link the output
         if (machineDefinition.outputEntityType.equalsIgnoreCase("STANDARD")) {
-            newEntity = entityManager.create(
-                    new InventoryComponent(machineDefinition.blockOutputSlots),
-                    new NetworkComponent()
-            );
+            EntityRef newEntity = entityManager.create(new NetworkComponent());
             processingMachineComponent.outputEntity = newEntity;
             processingMachineComponent.ownedOutputEntity = newEntity;
         } else if (machineDefinition.outputEntityType.equalsIgnoreCase("SELF")) {
             processingMachineComponent.outputEntity = entity;
         }
-
+        processingMachineComponent.outputEntity.addComponent(new InventoryComponent(machineDefinition.blockOutputSlots));
         processingMachineComponent.automaticProcessing = machineDefinition.automaticProcessing;
 
         entity.addComponent(processingMachineComponent);
@@ -142,11 +146,8 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
 
     private void dropInventory(EntityRef entity, Vector3f location) {
         for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
-            int stackSize = inventoryManager.getStackSize(item);
-            for (int i = 0; i < stackSize; i++) {
-                EntityRef pickup = pickupBuilder.createPickupFor(item, location, 200);
-                pickup.send(new ImpulseEvent(random.nextVector3f(30.0f)));
-            }
+            EntityRef pickup = pickupBuilder.createPickupFor(item, location, 200, true);
+            pickup.send(new ImpulseEvent(random.nextVector3f(30.0f)));
         }
     }
 
@@ -154,5 +155,4 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
     public void onRequestProcessing(RequestProcessingEvent event, EntityRef entity, ProcessingMachineComponent processingMachine) {
         processingManager.performProcessing(processingMachine.inputEntity, processingMachine.outputEntity);
     }
-
 }

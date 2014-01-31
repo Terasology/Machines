@@ -1,9 +1,9 @@
 {
-    "id" : "Machines",
-    "version" : "0.1.0",
-    "author" : "",
-    "displayName" : "Machines",
-    "description" : "",
-    "dependencies" : [],
-    "isServerSideOnly" : false
+    "id":"Machines",
+    "version":"0.1.0",
+    "author":"Josharias",
+    "displayName":"Machines",
+    "description":"A library for machines",
+    "dependencies":[],
+    "isServerSideOnly":false
 }

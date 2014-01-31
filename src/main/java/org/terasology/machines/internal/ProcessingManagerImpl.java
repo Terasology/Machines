@@ -55,26 +55,28 @@ public class ProcessingManagerImpl implements ProcessingManager, ComponentSystem
 
     @Override
     public void performProcessing(EntityRef inputEntity, EntityRef outputEntity) {
-        Prefab process = getProcessDefinition(inputEntity, outputEntity);
+        if(!outputEntity.hasComponent(DelayedProcessOutputComponent.class)) {
+            Prefab process = getProcessDefinition(inputEntity, outputEntity);
 
-        if (process != null) {
-            resolveParts(inputEntity, process, false, false);
-            resolveParts(outputEntity, process, true, false);
+            if (process != null) {
+                resolveParts(inputEntity, process, false, false);
+                resolveParts(outputEntity, process, true, false);
 
-            // check for a delayed output
-            ProcessDefinitionComponent processDefinition = process.getComponent(ProcessDefinitionComponent.class);
-            DelayedProcessOutputComponent delayedProcessOutput = outputEntity.getComponent(DelayedProcessOutputComponent.class);
+                // check for a delayed output
+                ProcessDefinitionComponent processDefinition = process.getComponent(ProcessDefinitionComponent.class);
+                DelayedProcessOutputComponent delayedProcessOutput = outputEntity.getComponent(DelayedProcessOutputComponent.class);
 
-            if (delayedProcessOutput == null && processDefinition.processingTime > 0) {
-                // add a delayed process output
-                delayedProcessOutput = new DelayedProcessOutputComponent();
-                delayedProcessOutput.startTime = time.getGameTimeInMs();
-                delayedProcessOutput.endTime = delayedProcessOutput.startTime + processDefinition.processingTime;
-                delayedProcessOutput.process = process;
-                outputEntity.addComponent(delayedProcessOutput);
-            } else {
-                resolveParts(outputEntity, process, false, true);
-                resolveParts(outputEntity, process, true, true);
+                if (delayedProcessOutput == null && processDefinition.processingTime > 0) {
+                    // add a delayed process output
+                    delayedProcessOutput = new DelayedProcessOutputComponent();
+                    delayedProcessOutput.startTime = time.getGameTimeInMs();
+                    delayedProcessOutput.endTime = delayedProcessOutput.startTime + processDefinition.processingTime;
+                    delayedProcessOutput.process = process;
+                    outputEntity.addComponent(delayedProcessOutput);
+                } else {
+                    resolveParts(outputEntity, process, false, true);
+                    resolveParts(outputEntity, process, true, true);
+                }
             }
         }
     }
