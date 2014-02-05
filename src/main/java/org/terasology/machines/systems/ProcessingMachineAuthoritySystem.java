@@ -36,7 +36,6 @@ import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.machines.components.ProcessingMachineComponent;
 import org.terasology.machines.events.RequestProcessingEvent;
 import org.terasology.network.NetworkComponent;
-import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.registry.In;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
@@ -146,8 +145,7 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
 
     private void dropInventory(EntityRef entity, Vector3f location) {
         for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
-            EntityRef pickup = pickupBuilder.createPickupFor(item, location, 200, true);
-            pickup.send(new ImpulseEvent(random.nextVector3f(30.0f)));
+            ExtendedInventoryManager.dropItem(item, location);
         }
     }
 

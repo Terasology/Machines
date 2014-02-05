@@ -55,7 +55,7 @@ public class ProcessingManagerImpl implements ProcessingManager, ComponentSystem
 
     @Override
     public void performProcessing(EntityRef inputEntity, EntityRef outputEntity) {
-        if(!outputEntity.hasComponent(DelayedProcessOutputComponent.class)) {
+        if (!outputEntity.hasComponent(DelayedProcessOutputComponent.class)) {
             Prefab process = getProcessDefinition(inputEntity, outputEntity);
 
             if (process != null) {

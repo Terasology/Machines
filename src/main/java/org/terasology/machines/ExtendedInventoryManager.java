@@ -20,17 +20,24 @@ import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.logic.common.DisplayInformationComponent;
+import org.terasology.logic.common.DisplayNameComponent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.ItemComponent;
+import org.terasology.logic.inventory.PickupBuilder;
 import org.terasology.logic.inventory.SlotBasedInventoryManager;
+import org.terasology.physics.events.ImpulseEvent;
+import org.terasology.utilities.random.FastRandom;
+import org.terasology.utilities.random.Random;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.block.items.BlockItemComponent;
 
+import javax.vecmath.Vector3f;
 import java.util.List;
 
 public abstract class ExtendedInventoryManager {
+    static Random random = new FastRandom();
+
     public static EntityRef getItemByBlockFamily(SlotBasedInventoryManager inventoryManager, EntityRef inventoryEntity, BlockFamily blockFamily) {
         InventoryComponent inventoryComponent = inventoryEntity.getComponent(InventoryComponent.class);
         if (inventoryComponent != null) {
@@ -105,17 +112,13 @@ public abstract class ExtendedInventoryManager {
             return block.getBlock().getBlockFamily().getDisplayName();
         }
 
-        DisplayInformationComponent info = item.getComponent(DisplayInformationComponent.class);
+        DisplayNameComponent info = item.getComponent(DisplayNameComponent.class);
         if (info != null) {
             return info.name;
         }
         BlockItemComponent blockItem = item.getComponent(BlockItemComponent.class);
         if (blockItem != null) {
             return blockItem.blockFamily.getDisplayName();
-        }
-        ItemComponent itemComponent = item.getComponent(ItemComponent.class);
-        if (itemComponent != null) {
-            return itemComponent.name;
         }
         return "";
     }
@@ -125,5 +128,11 @@ public abstract class ExtendedInventoryManager {
         ItemComponent itemComponent = newItem.getComponent(ItemComponent.class);
         itemComponent.stackCount = (byte) stackCount;
         return newItem;
+    }
+
+    public static void dropItem(EntityRef item, Vector3f location) {
+        PickupBuilder pickupBuilder = new PickupBuilder();
+        EntityRef pickup = pickupBuilder.createPickupFor(item, location, 200, true);
+        pickup.send(new ImpulseEvent(random.nextVector3f(10.0f)));
     }
 }
