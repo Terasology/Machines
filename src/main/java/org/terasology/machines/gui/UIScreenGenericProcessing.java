@@ -150,8 +150,9 @@ public class UIScreenGenericProcessing extends UIWindow {
     @Override
     public void update() {
         if (isVisible()) {
-            ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
-            DelayedProcessOutputComponent delayedProcessOutput = processingMachineComponent.outputEntity.getComponent(DelayedProcessOutputComponent.class);
+
+
+            DelayedProcessOutputComponent delayedProcessOutput = getOutputEntity().getComponent(DelayedProcessOutputComponent.class);
             if (delayedProcessOutput != null) {
                 float percentage = delayedProcessOutput.getPercentage(time.getGameTimeInMs());
                 progressBar.setVisible(true);
@@ -166,6 +167,26 @@ public class UIScreenGenericProcessing extends UIWindow {
         super.update();
     }
 
+    EntityRef getOutputEntity() {
+        ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
+        EntityRef outputEntity = processingMachineComponent.outputEntity;
+        if( !outputEntity.exists()) {
+            // for some reason pointing to the machine block doesnt replicate across the network
+            outputEntity = machineEntity;
+        }
+        return outputEntity;
+    }
+
+    EntityRef getInputEntity() {
+        ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
+        EntityRef inputEntity = processingMachineComponent.inputEntity;
+        if( !inputEntity.exists()) {
+            // for some reason pointing to the machine block doesnt replicate across the network
+            inputEntity = machineEntity;
+        }
+        return inputEntity;
+    }
+
     public void linkMachine(EntityRef entityRef) {
 
         machineEntity = entityRef;
@@ -176,11 +197,11 @@ public class UIScreenGenericProcessing extends UIWindow {
         ProcessingMachineComponent processingMachine = entityRef.getComponent(ProcessingMachineComponent.class);
         MachineDefinitionComponent machineDefinition = entityRef.getComponent(MachineDefinitionComponent.class);
         goButton.setVisible(!processingMachine.automaticProcessing);
-        input.linkToEntity(processingMachine.inputEntity, 0, machineDefinition.blockInputSlots);
+        input.linkToEntity(getInputEntity(), 0, machineDefinition.blockInputSlots);
         inputTitle.setVisible(machineDefinition.blockInputSlots > 0);
-        requirementsInput.linkToEntity(processingMachine.inputEntity, machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots);
+        requirementsInput.linkToEntity(getInputEntity(), machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots);
         requirementsInputTitle.setVisible(machineDefinition.requirementInputSlots > 0);
-        output.linkToEntity(processingMachine.outputEntity, 0, machineDefinition.blockOutputSlots);
+        output.linkToEntity(getOutputEntity(), 0, machineDefinition.blockOutputSlots);
 
         refreshOutput();
     }

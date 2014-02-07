@@ -17,12 +17,15 @@ package org.terasology.machines.components;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
+import org.terasology.network.Replicate;
 import org.terasology.world.block.ForceBlockActive;
 
 import java.util.List;
 
 @ForceBlockActive
 public class ProcessRequirementsProviderComponent implements Component, ProvidesProcessRequirements {
+
+    @Replicate
     public List<String> requirements = Lists.newArrayList();
 
     public ProcessRequirementsProviderComponent() {

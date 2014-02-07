@@ -17,10 +17,16 @@ package org.terasology.machines.components;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.prefab.Prefab;
+import org.terasology.network.Replicate;
+import org.terasology.world.block.ForceBlockActive;
 
+@ForceBlockActive
 public class DelayedProcessOutputComponent implements Component {
+    @Replicate
     public long startTime;
+    @Replicate
     public long endTime;
+    @Replicate
     public Prefab process;
 
     public float getPercentage(long currentTime) {

@@ -18,6 +18,7 @@ package org.terasology.machines.components;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.Owns;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.network.Replicate;
 import org.terasology.world.block.ForceBlockActive;
 
 /*
@@ -30,11 +31,14 @@ public class ProcessingMachineComponent implements Component {
     // mirrors the inputEntity and allows it to be persisted in case it is not the block itself
     @Owns
     public EntityRef ownedInputEntity;
+    @Replicate
     public EntityRef inputEntity;
     // mirrors the outputEntity and allows it to be persisted in case it is not the block itself
     @Owns
     public EntityRef ownedOutputEntity;
+    @Replicate
     public EntityRef outputEntity;
+    @Replicate
     public boolean automaticProcessing;
 
 }

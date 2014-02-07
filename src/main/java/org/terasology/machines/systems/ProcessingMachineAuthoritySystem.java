@@ -117,7 +117,11 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
         } else if (machineDefinition.inputEntityType.equalsIgnoreCase("SELF")) {
             processingMachineComponent.inputEntity = entity;
         }
-        processingMachineComponent.inputEntity.addComponent(new InventoryComponent(machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots));
+        if(!processingMachineComponent.inputEntity.hasComponent(InventoryComponent.class) ) {
+            InventoryComponent inventoryComponent = new InventoryComponent(machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots);
+            inventoryComponent.privateToOwner = false;
+            processingMachineComponent.inputEntity.addComponent(inventoryComponent);
+        }
 
 
         // add the requirements provider to the input entity
@@ -131,7 +135,11 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
         } else if (machineDefinition.outputEntityType.equalsIgnoreCase("SELF")) {
             processingMachineComponent.outputEntity = entity;
         }
-        processingMachineComponent.outputEntity.addComponent(new InventoryComponent(machineDefinition.blockOutputSlots));
+        if(!processingMachineComponent.outputEntity.hasComponent(InventoryComponent.class) ) {
+            InventoryComponent inventoryComponent = new InventoryComponent(machineDefinition.blockOutputSlots);
+            inventoryComponent.privateToOwner = false;
+            processingMachineComponent.outputEntity.addComponent(inventoryComponent);
+        }
         processingMachineComponent.automaticProcessing = machineDefinition.automaticProcessing;
 
         entity.addComponent(processingMachineComponent);
