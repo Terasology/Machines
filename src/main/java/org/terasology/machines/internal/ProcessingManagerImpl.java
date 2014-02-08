@@ -24,7 +24,6 @@ import org.terasology.entitySystem.prefab.PrefabManager;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.SlotBasedInventoryManager;
 import org.terasology.machines.ProcessingManager;
 import org.terasology.machines.components.DelayedProcessOutputComponent;
 import org.terasology.machines.processParts.ProcessDefinitionComponent;
@@ -46,8 +45,6 @@ public class ProcessingManagerImpl implements ProcessingManager, ComponentSystem
     PrefabManager prefabManager;
     @In
     InventoryManager inventoryManager;
-    @In
-    SlotBasedInventoryManager slotBasedInventoryManager;
     @In
     Time time;
 

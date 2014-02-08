@@ -20,7 +20,7 @@ import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.SlotBasedInventoryManager;
+import org.terasology.logic.inventory.action.GiveItemAction;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.BlockManager;
@@ -52,13 +52,14 @@ public class BlockOutputComponent implements Component, ProcessPart, ProcessDesc
         InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         for (EntityRef item : createItems()) {
-            inventoryManager.giveItem(outputEntity, item);
+            GiveItemAction giveItemAction = new GiveItemAction(outputEntity, item);
+            outputEntity.send(giveItemAction);
         }
     }
 
     @Override
     public boolean validate(EntityRef entity) {
-        SlotBasedInventoryManager inventoryManager = CoreRegistry.get(SlotBasedInventoryManager.class);
+        InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         // find a spot for each item
         List<EntityRef> items = createItems();

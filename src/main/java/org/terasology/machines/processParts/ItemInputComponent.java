@@ -18,7 +18,8 @@ package org.terasology.machines.processParts;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.logic.inventory.SlotBasedInventoryManager;
+import org.terasology.logic.inventory.InventoryManager;
+import org.terasology.logic.inventory.action.RemoveItemAction;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.BlockManager;
@@ -30,19 +31,20 @@ public class ItemInputComponent implements Component, ProcessPart {
 
     @Override
     public void resolve(EntityRef inputEntity) {
-        SlotBasedInventoryManager inventoryManager = CoreRegistry.get(SlotBasedInventoryManager.class);
+        InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
         EntityManager entityManager = CoreRegistry.get(EntityManager.class);
 
         for (Map.Entry<String, Integer> entry : items.entrySet()) {
             EntityRef inputItem = ExtendedInventoryManager.getItemByItemName(inventoryManager, inputEntity, entry.getKey());
             int stackSize = inventoryManager.getStackSize(inputItem);
-            inventoryManager.setStackSize(inputEntity, inputItem, stackSize - entry.getValue());
+            RemoveItemAction removeItemAction = new RemoveItemAction(inputEntity, inputItem, false, entry.getValue());
+            inputEntity.send(removeItemAction);
         }
     }
 
     @Override
     public boolean validate(EntityRef entity) {
-        SlotBasedInventoryManager inventoryManager = CoreRegistry.get(SlotBasedInventoryManager.class);
+        InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
         BlockManager blockManager = CoreRegistry.get(BlockManager.class);
 
 

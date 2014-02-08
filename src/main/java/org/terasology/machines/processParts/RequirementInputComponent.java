@@ -18,7 +18,7 @@ package org.terasology.machines.processParts;
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.logic.inventory.SlotBasedInventoryManager;
+import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.registry.CoreRegistry;
@@ -34,7 +34,7 @@ public class RequirementInputComponent implements Component, ProcessPart {
 
     @Override
     public boolean validate(EntityRef entity) {
-        SlotBasedInventoryManager inventoryManager = CoreRegistry.get(SlotBasedInventoryManager.class);
+        InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         List<String> requirementsProvided = Lists.newArrayList();
 

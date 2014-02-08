@@ -25,8 +25,8 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.logic.health.DoDestroyEvent;
 import org.terasology.logic.inventory.InventoryComponent;
+import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.PickupBuilder;
-import org.terasology.logic.inventory.SlotBasedInventoryManager;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.machines.ProcessingManager;
@@ -54,7 +54,7 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
     @In
     ProcessingManager processingManager;
     @In
-    SlotBasedInventoryManager inventoryManager;
+    InventoryManager inventoryManager;
 
     long nextUpdateTime;
     Random random;
@@ -117,7 +117,7 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
         } else if (machineDefinition.inputEntityType.equalsIgnoreCase("SELF")) {
             processingMachineComponent.inputEntity = entity;
         }
-        if(!processingMachineComponent.inputEntity.hasComponent(InventoryComponent.class) ) {
+        if (!processingMachineComponent.inputEntity.hasComponent(InventoryComponent.class)) {
             InventoryComponent inventoryComponent = new InventoryComponent(machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots);
             inventoryComponent.privateToOwner = false;
             processingMachineComponent.inputEntity.addComponent(inventoryComponent);
@@ -135,7 +135,7 @@ public class ProcessingMachineAuthoritySystem implements UpdateSubscriberSystem 
         } else if (machineDefinition.outputEntityType.equalsIgnoreCase("SELF")) {
             processingMachineComponent.outputEntity = entity;
         }
-        if(!processingMachineComponent.outputEntity.hasComponent(InventoryComponent.class) ) {
+        if (!processingMachineComponent.outputEntity.hasComponent(InventoryComponent.class)) {
             InventoryComponent inventoryComponent = new InventoryComponent(machineDefinition.blockOutputSlots);
             inventoryComponent.privateToOwner = false;
             processingMachineComponent.outputEntity.addComponent(inventoryComponent);

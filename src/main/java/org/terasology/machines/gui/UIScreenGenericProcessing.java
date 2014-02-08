@@ -170,7 +170,7 @@ public class UIScreenGenericProcessing extends UIWindow {
     EntityRef getOutputEntity() {
         ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
         EntityRef outputEntity = processingMachineComponent.outputEntity;
-        if( !outputEntity.exists()) {
+        if (!outputEntity.exists()) {
             // for some reason pointing to the machine block doesnt replicate across the network
             outputEntity = machineEntity;
         }
@@ -180,7 +180,7 @@ public class UIScreenGenericProcessing extends UIWindow {
     EntityRef getInputEntity() {
         ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
         EntityRef inputEntity = processingMachineComponent.inputEntity;
-        if( !inputEntity.exists()) {
+        if (!inputEntity.exists()) {
             // for some reason pointing to the machine block doesnt replicate across the network
             inputEntity = machineEntity;
         }
