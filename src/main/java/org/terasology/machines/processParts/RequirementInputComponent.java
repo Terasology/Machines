@@ -20,6 +20,7 @@ import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ExtendedInventoryManager;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.registry.CoreRegistry;
 
@@ -46,7 +47,7 @@ public class RequirementInputComponent implements Component, ProcessPart {
         }
 
         // get the requirements provided by items (tools)
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity, CategorizedInventoryComponent.INPUT)) {
             for (Component component : item.iterateComponents()) {
                 if (component instanceof ProvidesProcessRequirements) {
                     requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));

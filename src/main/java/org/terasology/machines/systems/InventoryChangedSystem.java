@@ -18,30 +18,32 @@ package org.terasology.machines.systems;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.logic.characters.CharacterComponent;
-import org.terasology.logic.players.event.OnPlayerSpawnedEvent;
-import org.terasology.machines.components.MachineDefinitionComponent;
+import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
+import org.terasology.logic.inventory.events.InventorySlotStackSizeChangedEvent;
+import org.terasology.machines.components.ProcessingMachineComponent;
+import org.terasology.machines.events.ProcessingMachineChanged;
 
-@RegisterSystem(RegisterMode.AUTHORITY)
-public class TheHumanMachineAuthoritySystem implements ComponentSystem {
+@RegisterSystem
+public class InventoryChangedSystem implements ComponentSystem {
 
     @Override
     public void initialise() {
+
     }
 
     @Override
     public void shutdown() {
+
     }
 
-    @ReceiveEvent(components = {CharacterComponent.class})
-    public void onPlayerSpawn(OnPlayerSpawnedEvent event, EntityRef player) {
-        MachineDefinitionComponent machineDefinition = new MachineDefinitionComponent();
-        machineDefinition.blockInputSlots = 2;
-        machineDefinition.blockOutputSlots = 1;
-        machineDefinition.requirementInputSlots = 1;
-        machineDefinition.requirementsProvided.add("Assembly");
-        player.addComponent(machineDefinition);
+    @ReceiveEvent(components = {ProcessingMachineComponent.class})
+    public void onInventoryChanged(InventorySlotChangedEvent event, EntityRef processingMachine) {
+        processingMachine.send(new ProcessingMachineChanged());
+    }
+
+    @ReceiveEvent(components = {ProcessingMachineComponent.class})
+    public void onInventoryStackSizeChanged(InventorySlotStackSizeChangedEvent event, EntityRef processingMachine) {
+        processingMachine.send(new ProcessingMachineChanged());
     }
 }

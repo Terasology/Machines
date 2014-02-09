@@ -152,7 +152,7 @@ public class UIScreenGenericProcessing extends UIWindow {
         if (isVisible()) {
 
 
-            DelayedProcessOutputComponent delayedProcessOutput = getOutputEntity().getComponent(DelayedProcessOutputComponent.class);
+            DelayedProcessOutputComponent delayedProcessOutput = machineEntity.getComponent(DelayedProcessOutputComponent.class);
             if (delayedProcessOutput != null) {
                 float percentage = delayedProcessOutput.getPercentage(time.getGameTimeInMs());
                 progressBar.setVisible(true);
@@ -167,26 +167,6 @@ public class UIScreenGenericProcessing extends UIWindow {
         super.update();
     }
 
-    EntityRef getOutputEntity() {
-        ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
-        EntityRef outputEntity = processingMachineComponent.outputEntity;
-        if (!outputEntity.exists()) {
-            // for some reason pointing to the machine block doesnt replicate across the network
-            outputEntity = machineEntity;
-        }
-        return outputEntity;
-    }
-
-    EntityRef getInputEntity() {
-        ProcessingMachineComponent processingMachineComponent = machineEntity.getComponent(ProcessingMachineComponent.class);
-        EntityRef inputEntity = processingMachineComponent.inputEntity;
-        if (!inputEntity.exists()) {
-            // for some reason pointing to the machine block doesnt replicate across the network
-            inputEntity = machineEntity;
-        }
-        return inputEntity;
-    }
-
     public void linkMachine(EntityRef entityRef) {
 
         machineEntity = entityRef;
@@ -197,11 +177,11 @@ public class UIScreenGenericProcessing extends UIWindow {
         ProcessingMachineComponent processingMachine = entityRef.getComponent(ProcessingMachineComponent.class);
         MachineDefinitionComponent machineDefinition = entityRef.getComponent(MachineDefinitionComponent.class);
         goButton.setVisible(!processingMachine.automaticProcessing);
-        input.linkToEntity(getInputEntity(), 0, machineDefinition.blockInputSlots);
+        input.linkToEntity(machineEntity, 0, machineDefinition.blockInputSlots);
         inputTitle.setVisible(machineDefinition.blockInputSlots > 0);
-        requirementsInput.linkToEntity(getInputEntity(), machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots);
+        requirementsInput.linkToEntity(machineEntity, machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots);
         requirementsInputTitle.setVisible(machineDefinition.requirementInputSlots > 0);
-        output.linkToEntity(getOutputEntity(), 0, machineDefinition.blockOutputSlots);
+        output.linkToEntity(machineEntity, machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots, machineDefinition.blockOutputSlots);
 
         refreshOutput();
     }
@@ -209,7 +189,7 @@ public class UIScreenGenericProcessing extends UIWindow {
     public void refreshOutput() {
         ProcessingManager processingManager = CoreRegistry.get(ProcessingManager.class);
         ProcessingMachineComponent processingMachine = machineEntity.getComponent(ProcessingMachineComponent.class);
-        Prefab outputPrefab = processingManager.getProcessDefinition(processingMachine.inputEntity, processingMachine.outputEntity);
+        Prefab outputPrefab = processingManager.getProcessDefinition(machineEntity, machineEntity);
         String outputText = "";
         if (outputPrefab != null) {
             for (Component component : outputPrefab.iterateComponents()) {
@@ -219,5 +199,9 @@ public class UIScreenGenericProcessing extends UIWindow {
             }
         }
         outputLabel.setText(outputText);
+    }
+
+    public EntityRef getMachineEntity() {
+        return machineEntity;
     }
 }

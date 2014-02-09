@@ -22,6 +22,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.action.GiveItemAction;
 import org.terasology.machines.ExtendedInventoryManager;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.registry.CoreRegistry;
 
 import java.util.List;
@@ -49,8 +50,16 @@ public class ItemOutputComponent implements Component, ProcessPart, ProcessDescr
         InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         for (EntityRef item : createItems()) {
-            GiveItemAction giveItemAction = new GiveItemAction(outputEntity, item);
-            outputEntity.send(giveItemAction);
+            CategorizedInventoryComponent categorizedInventoryComponent = outputEntity.getComponent(CategorizedInventoryComponent.class);
+            List<Integer> slots = categorizedInventoryComponent.slotMapping.get(CategorizedInventoryComponent.OUTPUT);
+
+            for (int slot : slots) {
+                GiveItemAction giveItemAction = new GiveItemAction(outputEntity, item, slot);
+                outputEntity.send(giveItemAction);
+                if (!giveItemAction.isConsumed()) {
+                    break;
+                }
+            }
         }
     }
 
@@ -60,7 +69,7 @@ public class ItemOutputComponent implements Component, ProcessPart, ProcessDescr
 
         // find a spot for each item
         List<EntityRef> itemEntities = createItems();
-        return ExtendedInventoryManager.hasInventorySpace(inventoryManager, entity, itemEntities);
+        return ExtendedInventoryManager.hasInventorySpace(inventoryManager, entity, CategorizedInventoryComponent.OUTPUT, itemEntities);
     }
 
 

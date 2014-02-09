@@ -25,6 +25,7 @@ import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.inventory.PickupBuilder;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
@@ -38,10 +39,10 @@ import java.util.List;
 public abstract class ExtendedInventoryManager {
     static Random random = new FastRandom();
 
-    public static EntityRef getItemByBlockFamily(InventoryManager inventoryManager, EntityRef inventoryEntity, BlockFamily blockFamily) {
+    public static EntityRef getItemByBlockFamily(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory, BlockFamily blockFamily) {
         InventoryComponent inventoryComponent = inventoryEntity.getComponent(InventoryComponent.class);
         if (inventoryComponent != null) {
-            for (EntityRef item : iterateItems(inventoryManager, inventoryEntity)) {
+            for (EntityRef item : iterateItems(inventoryManager, inventoryEntity, inventoryCategory)) {
                 BlockItemComponent blockItemComponent = item.getComponent(BlockItemComponent.class);
                 if (blockItemComponent != null && blockItemComponent.blockFamily.getURI().equals(blockFamily.getURI())) {
                     return item;
@@ -52,10 +53,10 @@ public abstract class ExtendedInventoryManager {
         return null;
     }
 
-    public static EntityRef getItemByItemName(InventoryManager inventoryManager, EntityRef inventoryEntity, String itemName) {
+    public static EntityRef getItemByItemName(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory, String itemName) {
         InventoryComponent inventoryComponent = inventoryEntity.getComponent(InventoryComponent.class);
         if (inventoryComponent != null) {
-            for (EntityRef existingItem : iterateItems(inventoryManager, inventoryEntity)) {
+            for (EntityRef existingItem : iterateItems(inventoryManager, inventoryEntity, inventoryCategory)) {
                 Prefab existingItemPrefab = existingItem.getParentPrefab();
                 Prefab itemPrefab = Assets.getPrefab(itemName);
                 if (itemPrefab != null && itemPrefab.equals(existingItemPrefab)) {
@@ -65,6 +66,16 @@ public abstract class ExtendedInventoryManager {
         }
 
         return null;
+    }
+
+    public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory) {
+        CategorizedInventoryComponent categorizedInventoryComponent = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
+
+        if (categorizedInventoryComponent != null) {
+            return categorizedInventoryComponent.iterateItems(inventoryEntity, inventoryCategory);
+        }
+
+        return Lists.newArrayList();
     }
 
     public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity) {
@@ -78,10 +89,10 @@ public abstract class ExtendedInventoryManager {
     }
 
 
-    public static boolean hasInventorySpace(InventoryManager inventoryManager, EntityRef entity, List<EntityRef> items) {
+    public static boolean hasInventorySpace(InventoryManager inventoryManager, EntityRef entity, String inventoryCategory, List<EntityRef> items) {
         int emptySlots = 0;
         // loop through all the items in the inventory
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity, inventoryCategory)) {
             if (inventoryManager.getStackSize(item) == 0) {
                 emptySlots++;
                 continue;

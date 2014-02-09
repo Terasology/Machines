@@ -20,6 +20,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.action.RemoveItemAction;
 import org.terasology.machines.ExtendedInventoryManager;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.family.BlockFamily;
@@ -36,7 +37,7 @@ public class BlockInputComponent implements Component, ProcessPart {
 
         for (Map.Entry<String, Integer> entry : blocks.entrySet()) {
             BlockFamily blockFamily = blockManager.getBlockFamily(entry.getKey());
-            EntityRef inputBlock = ExtendedInventoryManager.getItemByBlockFamily(inventoryManager, inputEntity, blockFamily);
+            EntityRef inputBlock = ExtendedInventoryManager.getItemByBlockFamily(inventoryManager, inputEntity, CategorizedInventoryComponent.INPUT, blockFamily);
             int stackSize = inventoryManager.getStackSize(inputBlock);
 
             RemoveItemAction removeItemAction = new RemoveItemAction(inputEntity, inputBlock, true, entry.getValue());
@@ -51,7 +52,7 @@ public class BlockInputComponent implements Component, ProcessPart {
 
         for (Map.Entry<String, Integer> entry : blocks.entrySet()) {
             BlockFamily blockFamily = blockManager.getBlockFamily(entry.getKey());
-            EntityRef itemStack = ExtendedInventoryManager.getItemByBlockFamily(inventoryManager, entity, blockFamily);
+            EntityRef itemStack = ExtendedInventoryManager.getItemByBlockFamily(inventoryManager, entity, CategorizedInventoryComponent.INPUT, blockFamily);
 
             if (itemStack == null || entry.getValue() > inventoryManager.getStackSize(itemStack)) {
                 return false;

@@ -21,15 +21,13 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.ComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.input.ButtonState;
 import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.common.ActivateEvent;
-import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
 import org.terasology.logic.manager.GUIManager;
 import org.terasology.machines.ProcessingManager;
-import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.machines.components.ProcessingActionComponent;
-import org.terasology.machines.events.PlayerProcessingButton;
+import org.terasology.machines.components.ProcessingMachineComponent;
+import org.terasology.machines.events.ProcessingMachineChanged;
 import org.terasology.machines.gui.UIScreenGenericProcessing;
 import org.terasology.network.ClientComponent;
 import org.terasology.registry.In;
@@ -54,32 +52,18 @@ public class ProcessingMachineClientSystem implements ComponentSystem {
     public void shutdown() {
     }
 
-    @ReceiveEvent(components = CharacterComponent.class)
-    public void onPlayerProcessingButton(PlayerProcessingButton event, EntityRef entity) {
-        if (event.getState() == ButtonState.DOWN) {
-            guiManager.toggleWindow(UIScreenGenericProcessing.UIGENERICPROCESSINGID);
-            UIScreenGenericProcessing screen = (UIScreenGenericProcessing) guiManager.getWindowById(UIScreenGenericProcessing.UIGENERICPROCESSINGID);
-
-            if (screen.isVisible()) {
-                screen.linkMachine(entity);
-            }
-            event.consume();
-        }
-    }
-
     @ReceiveEvent
-    public void onInventorySlotChangedEvent(InventorySlotChangedEvent event, EntityRef entity, ProcessRequirementsProviderComponent keyEntity) {
+    public void onProcessingMachineChanged(ProcessingMachineChanged event, EntityRef processingMachine, ProcessingMachineComponent processingMachineComponent) {
         // recalculate the assembly result for display
         UIWindow focusedWindow = guiManager.getFocusedWindow();
         if (UIScreenGenericProcessing.class.isAssignableFrom(focusedWindow.getClass())) {
             UIScreenGenericProcessing screen = (UIScreenGenericProcessing) focusedWindow;
-            if (screen.isVisible()) {
+            if (screen.isVisible() && processingMachine.equals(screen.getMachineEntity())) {
                 screen.refreshOutput();
             }
         }
 
     }
-
 
     @ReceiveEvent
     public void onActivate(ActivateEvent event, EntityRef entity, ProcessingActionComponent processingAction) {

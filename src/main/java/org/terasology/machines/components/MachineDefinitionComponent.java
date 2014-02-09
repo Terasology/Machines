@@ -28,6 +28,4 @@ public class MachineDefinitionComponent implements Component {
     public int blockOutputSlots;
     public List<String> requirementsProvided = Lists.newArrayList();
     public boolean automaticProcessing;
-    public String outputEntityType = "STANDARD";
-    public String inputEntityType = "STANDARD";
 }
