@@ -15,8 +15,6 @@
  */
 package org.terasology.itemRendering.systems;
 
-import org.terasology.asset.AssetType;
-import org.terasology.asset.AssetUri;
 import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
@@ -30,11 +28,9 @@ import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.location.Location;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Rotation;
-import org.terasology.rendering.assets.mesh.Mesh;
-import org.terasology.rendering.icons.Icon;
+import org.terasology.rendering.iconmesh.IconMeshFactory;
 import org.terasology.rendering.logic.LightComponent;
 import org.terasology.rendering.logic.MeshComponent;
-import org.terasology.rendering.primitives.MeshFactory;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.family.BlockFamily;
@@ -83,16 +79,9 @@ public class RenderItemClientSystem implements ComponentSystem {
         if (itemComponent != null) {
             MeshComponent meshComponent = new MeshComponent();
             meshComponent.material = Assets.getMaterial("engine:droppedItem");
-            if (meshComponent.mesh == null && itemComponent.icon != null) {
-                String iconMeshUri = "engine:icon." + itemComponent.icon;
-                Mesh itemMesh = Assets.getMesh(iconMeshUri);
-                if (itemMesh == null) {
-                    Icon icon = Icon.get(itemComponent.icon);
-                    itemMesh = MeshFactory.generateItemMesh(new AssetUri(AssetType.MESH, iconMeshUri), icon.getTextureRegion());
-                }
-                meshComponent.mesh = itemMesh;
+            if (itemComponent.icon != null) {
+                meshComponent.mesh = IconMeshFactory.getIconMesh(itemComponent.icon);
             }
-
             entityRef.addComponent(meshComponent);
         }
     }
