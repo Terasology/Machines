@@ -75,6 +75,4 @@ public class ProcessingMachineClientSystem implements ComponentSystem {
             screen.open();
         }
     }
-
-
 }

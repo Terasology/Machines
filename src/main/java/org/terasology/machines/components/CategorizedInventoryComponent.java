@@ -31,6 +31,7 @@ import java.util.Map;
 public class CategorizedInventoryComponent implements Component {
     public static final String INPUT = "INPUT";
     public static final String OUTPUT = "OUTPUT";
+    public static final String REQUIREMENTS = "REQUIREMENTS";
 
     @Replicate
     public Map<String, List<Integer>> slotMapping = Maps.newHashMap();

@@ -122,11 +122,12 @@ public class ProcessingMachineAuthoritySystem implements ComponentSystem {
 
         // configure the categorized inventory
         if (!entity.hasComponent(CategorizedInventoryComponent.class)) {
-            CategorizedInventoryComponent categorizedInventoryComponent = new CategorizedInventoryComponent();
+            CategorizedInventoryComponent categorizedInventory = new CategorizedInventoryComponent();
             int totalInputSlots = machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots;
-            categorizedInventoryComponent.slotMapping.put(CategorizedInventoryComponent.INPUT, createSlotRange(0, totalInputSlots));
-            categorizedInventoryComponent.slotMapping.put(CategorizedInventoryComponent.OUTPUT, createSlotRange(totalInputSlots, machineDefinition.blockOutputSlots));
-            entity.addComponent(categorizedInventoryComponent);
+            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.INPUT, createSlotRange(0, machineDefinition.blockInputSlots));
+            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.REQUIREMENTS, createSlotRange(machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots));
+            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.OUTPUT, createSlotRange(totalInputSlots, machineDefinition.blockOutputSlots));
+            entity.addComponent(categorizedInventory);
         }
 
         // add the requirements provider to the input entity

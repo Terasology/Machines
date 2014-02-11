@@ -47,7 +47,7 @@ public class RequirementInputComponent implements Component, ProcessPart {
         }
 
         // get the requirements provided by items (tools)
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity, CategorizedInventoryComponent.INPUT)) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity, CategorizedInventoryComponent.REQUIREMENTS)) {
             for (Component component : item.iterateComponents()) {
                 if (component instanceof ProvidesProcessRequirements) {
                     requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));

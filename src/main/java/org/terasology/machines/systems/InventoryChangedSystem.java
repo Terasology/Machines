@@ -38,12 +38,12 @@ public class InventoryChangedSystem implements ComponentSystem {
     }
 
     @ReceiveEvent(components = {ProcessingMachineComponent.class})
-    public void onInventoryChanged(InventorySlotChangedEvent event, EntityRef processingMachine) {
+    public void onProcessingMachineInventoryChanged(InventorySlotChangedEvent event, EntityRef processingMachine) {
         processingMachine.send(new ProcessingMachineChanged());
     }
 
     @ReceiveEvent(components = {ProcessingMachineComponent.class})
-    public void onInventoryStackSizeChanged(InventorySlotStackSizeChangedEvent event, EntityRef processingMachine) {
+    public void onProcessingMachineInventoryStackSizeChanged(InventorySlotStackSizeChangedEvent event, EntityRef processingMachine) {
         processingMachine.send(new ProcessingMachineChanged());
     }
 }
