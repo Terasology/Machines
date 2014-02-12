@@ -17,7 +17,7 @@ package org.terasology.itemRendering.systems;
 
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.RenderInventoryInCategoryComponent;
@@ -32,20 +32,10 @@ import org.terasology.world.block.BlockComponent;
 import java.util.List;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class RenderInventoryInCategoryClientSystem implements ComponentSystem {
+public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
 
     @In
     InventoryManager inventoryManager;
-
-    @Override
-    public void initialise() {
-
-    }
-
-    @Override
-    public void shutdown() {
-
-    }
 
     @ReceiveEvent(components = {BlockComponent.class, LocationComponent.class})
     public void addToolDisplayItem(InventorySlotChangedEvent event, EntityRef inventoryEntity, RenderInventoryInCategoryComponent renderInventoryInCategory, CategorizedInventoryComponent categorizedInventory) {

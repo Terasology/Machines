@@ -17,7 +17,7 @@ package org.terasology.machines.systems;
 
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
 import org.terasology.logic.inventory.events.InventorySlotStackSizeChangedEvent;
@@ -25,18 +25,7 @@ import org.terasology.machines.components.ProcessingMachineComponent;
 import org.terasology.machines.events.ProcessingMachineChanged;
 
 @RegisterSystem
-public class InventoryChangedSystem implements ComponentSystem {
-
-    @Override
-    public void initialise() {
-
-    }
-
-    @Override
-    public void shutdown() {
-
-    }
-
+public class InventoryChangedSystem extends BaseComponentSystem {
     @ReceiveEvent(components = {ProcessingMachineComponent.class})
     public void onProcessingMachineInventoryChanged(InventorySlotChangedEvent event, EntityRef processingMachine) {
         processingMachine.send(new ProcessingMachineChanged());

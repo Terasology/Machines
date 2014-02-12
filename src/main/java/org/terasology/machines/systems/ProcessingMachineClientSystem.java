@@ -18,7 +18,7 @@ package org.terasology.machines.systems;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.characters.CharacterComponent;
@@ -34,7 +34,7 @@ import org.terasology.registry.In;
 import org.terasology.rendering.gui.widgets.UIWindow;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class ProcessingMachineClientSystem implements ComponentSystem {
+public class ProcessingMachineClientSystem extends BaseComponentSystem {
 
     @In
     GUIManager guiManager;
@@ -46,10 +46,6 @@ public class ProcessingMachineClientSystem implements ComponentSystem {
     @Override
     public void initialise() {
         guiManager.registerWindow(UIScreenGenericProcessing.UIGENERICPROCESSINGID, UIScreenGenericProcessing.class);
-    }
-
-    @Override
-    public void shutdown() {
     }
 
     @ReceiveEvent

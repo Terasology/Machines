@@ -20,7 +20,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.RenderItemTransformComponent;
@@ -39,18 +39,13 @@ import org.terasology.world.block.items.BlockItemComponent;
 import javax.vecmath.Vector3f;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class RenderItemClientSystem implements ComponentSystem {
+public class RenderItemClientSystem extends BaseComponentSystem {
 
     Random rand;
 
     @Override
     public void initialise() {
         rand = new FastRandom();
-    }
-
-    @Override
-    public void shutdown() {
-
     }
 
     @ReceiveEvent

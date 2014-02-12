@@ -21,7 +21,7 @@ import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.delay.AddDelayedActionEvent;
@@ -48,7 +48,7 @@ import org.terasology.world.block.BlockComponent;
 import java.util.List;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
-public class ProcessingMachineAuthoritySystem implements ComponentSystem {
+public class ProcessingMachineAuthoritySystem extends BaseComponentSystem {
     public static final String DELAYEDPROCESSOUTPUTACTION = "DelayedProcessOutputAction";
     public static final String CHECKAUTOMATICPROCESSINGACTION = "CheckAutomaticProcessingAction";
 
@@ -70,11 +70,6 @@ public class ProcessingMachineAuthoritySystem implements ComponentSystem {
     public void initialise() {
         random = new FastRandom();
         pickupBuilder = new PickupBuilder();
-    }
-
-    @Override
-    public void shutdown() {
-
     }
 
     @ReceiveEvent

@@ -21,7 +21,7 @@ import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.prefab.PrefabManager;
-import org.terasology.entitySystem.systems.ComponentSystem;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ProcessingManager;
@@ -35,7 +35,7 @@ import org.terasology.world.block.items.BlockItemFactory;
 
 @RegisterSystem
 @Share(ProcessingManager.class)
-public class ProcessingManagerImpl implements ProcessingManager, ComponentSystem {
+public class ProcessingManagerImpl extends BaseComponentSystem implements ProcessingManager {
 
     @In
     EntityManager entityManager;
@@ -118,10 +118,5 @@ public class ProcessingManagerImpl implements ProcessingManager, ComponentSystem
     @Override
     public void initialise() {
         blockItemFactory = new BlockItemFactory(entityManager);
-    }
-
-    @Override
-    public void shutdown() {
-
     }
 }
