@@ -26,6 +26,7 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.inventory.PickupBuilder;
 import org.terasology.machines.components.CategorizedInventoryComponent;
+import org.terasology.math.Side;
 import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
@@ -68,14 +69,18 @@ public abstract class ExtendedInventoryManager {
         return null;
     }
 
+    public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, Side side) {
+        return iterateItems(inventoryManager, inventoryEntity, side.toString());
+    }
+
     public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory) {
         CategorizedInventoryComponent categorizedInventoryComponent = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
 
         if (categorizedInventoryComponent != null) {
             return categorizedInventoryComponent.iterateItems(inventoryEntity, inventoryCategory);
+        } else {
+            return iterateItems(inventoryManager, inventoryEntity);
         }
-
-        return Lists.newArrayList();
     }
 
     public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity) {

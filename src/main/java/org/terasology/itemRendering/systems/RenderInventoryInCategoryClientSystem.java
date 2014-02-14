@@ -38,11 +38,16 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
     InventoryManager inventoryManager;
 
     @ReceiveEvent(components = {BlockComponent.class, LocationComponent.class})
-    public void addToolDisplayItem(InventorySlotChangedEvent event, EntityRef inventoryEntity, RenderInventoryInCategoryComponent renderInventoryInCategory, CategorizedInventoryComponent categorizedInventory) {
+    public void addItemRendering(InventorySlotChangedEvent event,
+                                 EntityRef inventoryEntity,
+                                 RenderInventoryInCategoryComponent renderInventoryInCategory,
+                                 CategorizedInventoryComponent categorizedInventory) {
         EntityRef oldItem = event.getOldItem();
         if (oldItem.exists()) {
-            // ensure that rendered items get reset
-            oldItem.removeComponent(RenderItemTransformComponent.class);
+            if (!oldItem.getOwner().hasComponent(RenderInventoryInCategoryComponent.class)) {
+                // ensure that rendered items get reset
+                oldItem.removeComponent(RenderItemTransformComponent.class);
+            }
         }
 
         EntityRef newItem = event.getNewItem();
@@ -50,7 +55,13 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
             List<Integer> slots = categorizedInventory.slotMapping.get(renderInventoryInCategory.category);
             int newItemSlot = inventoryManager.findSlotWithItem(inventoryEntity, newItem);
             if (slots.contains(newItemSlot)) {
-                newItem.addComponent(renderInventoryInCategory.createRenderItemTransformComponent(inventoryEntity, newItem));
+                // this item exists, and is in the specified inventory category
+                RenderItemTransformComponent renderItemTransform = renderInventoryInCategory.createRenderItemTransformComponent(inventoryEntity, newItem);
+                if (newItem.hasComponent(RenderItemTransformComponent.class)) {
+                    newItem.saveComponent(renderItemTransform);
+                } else {
+                    newItem.addComponent(renderItemTransform);
+                }
             }
         }
     }

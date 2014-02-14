@@ -40,6 +40,7 @@ import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.machines.components.ProcessingMachineComponent;
 import org.terasology.machines.events.ProcessingMachineChanged;
 import org.terasology.machines.events.RequestProcessingEvent;
+import org.terasology.math.Side;
 import org.terasology.registry.In;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
@@ -119,9 +120,21 @@ public class ProcessingMachineAuthoritySystem extends BaseComponentSystem {
         if (!entity.hasComponent(CategorizedInventoryComponent.class)) {
             CategorizedInventoryComponent categorizedInventory = new CategorizedInventoryComponent();
             int totalInputSlots = machineDefinition.blockInputSlots + machineDefinition.requirementInputSlots;
-            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.INPUT, createSlotRange(0, machineDefinition.blockInputSlots));
-            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.REQUIREMENTS, createSlotRange(machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots));
-            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.OUTPUT, createSlotRange(totalInputSlots, machineDefinition.blockOutputSlots));
+            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.INPUT,
+                    createSlotRange(0, machineDefinition.blockInputSlots));
+            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.REQUIREMENTS,
+                    createSlotRange(machineDefinition.blockInputSlots, machineDefinition.requirementInputSlots));
+            categorizedInventory.slotMapping.put(CategorizedInventoryComponent.OUTPUT,
+                    createSlotRange(totalInputSlots, machineDefinition.blockOutputSlots));
+
+            // add default input
+            categorizedInventory.slotMapping.put(Side.TOP.toString(), categorizedInventory.slotMapping.get(CategorizedInventoryComponent.INPUT));
+
+            // add default output
+            for (Side side : Side.horizontalSides()) {
+                categorizedInventory.slotMapping.put(side.toString(), categorizedInventory.slotMapping.get(CategorizedInventoryComponent.OUTPUT));
+            }
+
             entity.addComponent(categorizedInventory);
         }
 

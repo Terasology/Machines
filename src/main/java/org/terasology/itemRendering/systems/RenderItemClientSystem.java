@@ -19,6 +19,7 @@ import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
@@ -46,6 +47,18 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     @Override
     public void initialise() {
         rand = new FastRandom();
+    }
+
+    @ReceiveEvent
+    public void onChangedItemDisplay(OnChangedComponent event, EntityRef entity, RenderItemTransformComponent itemDisplay) {
+        LocationComponent location = entity.getComponent(LocationComponent.class);
+        if (location != null) {
+            location.setLocalScale(itemDisplay.size);
+            Rotation rotation = Rotation.rotate(itemDisplay.yaw, itemDisplay.pitch, itemDisplay.roll);
+            entity.saveComponent(location);
+
+            Location.attachChild(entity.getOwner(), entity, itemDisplay.translate, rotation.getQuat4f());
+        }
     }
 
     @ReceiveEvent

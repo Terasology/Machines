@@ -17,8 +17,8 @@ package org.terasology.itemRendering.components;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.math.Pitch;
+import org.terasology.world.block.items.BlockItemComponent;
 
 import javax.vecmath.Vector3f;
 
@@ -30,15 +30,30 @@ public class RenderInventoryInCategoryComponent implements Component {
     public String category;
     public Vector3f translate = new Vector3f();
     public float size = 0.3f;
-    public boolean itemsAreFlat = true;
+    public boolean itemsAreFlat;
+    public boolean verticalAlignmentBottom;
 
     public RenderItemTransformComponent createRenderItemTransformComponent(EntityRef referenceBlock, EntityRef item) {
         RenderItemTransformComponent renderItemTransform = new RenderItemTransformComponent();
-        if (itemsAreFlat && item.hasComponent(ItemComponent.class)) {
+
+        boolean isBlockItem = item.hasComponent(BlockItemComponent.class);
+
+        if (itemsAreFlat && !isBlockItem) {
             // make it flat
             renderItemTransform.pitch = Pitch.CLOCKWISE_90;
         }
-        renderItemTransform.translate = translate;
+
+        renderItemTransform.translate = new Vector3f(translate);
+        if (verticalAlignmentBottom) {
+            if (!isBlockItem && itemsAreFlat) {
+                // shift items up half their thickness
+                renderItemTransform.translate.y += 0.125f * 0.25f;
+            } else {
+                renderItemTransform.translate.y += size * 0.5f;
+            }
+        }
+
+
         renderItemTransform.size = size;
 
         return renderItemTransform;
