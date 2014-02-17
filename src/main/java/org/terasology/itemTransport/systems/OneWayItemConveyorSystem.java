@@ -32,7 +32,7 @@ import org.terasology.logic.inventory.action.GiveItemAction;
 import org.terasology.logic.inventory.action.RemoveItemAction;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.ExtendedInventoryManager;
-import org.terasology.machines.world.DirectionalPlacementFamily;
+import org.terasology.world.block.family.DirectionalPlacementFamily;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
 import org.terasology.math.Vector3i;

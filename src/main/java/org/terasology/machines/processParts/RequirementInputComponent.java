@@ -16,38 +16,37 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ExtendedInventoryManager;
-import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.workstation.process.InvalidProcessException;
+import org.terasology.workstation.process.ProcessPart;
 
 import java.util.List;
+import java.util.Set;
 
 public class RequirementInputComponent implements Component, ProcessPart {
     public List<String> requirements = Lists.newArrayList();
 
     @Override
-    public void resolve(EntityRef inputEntity) {
-    }
-
-    @Override
-    public boolean validate(EntityRef entity) {
+    public Set<String> validate(EntityRef instigator, EntityRef workstation) throws InvalidProcessException {
         InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         List<String> requirementsProvided = Lists.newArrayList();
 
         // get the requirements provided by the machine
-        for (Component component : entity.iterateComponents()) {
+        for (Component component : workstation.iterateComponents()) {
             if (component instanceof ProvidesProcessRequirements) {
                 requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));
             }
         }
 
         // get the requirements provided by items (tools)
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity, CategorizedInventoryComponent.REQUIREMENTS)) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, "REQUIREMENTS")) {
             for (Component component : item.iterateComponents()) {
                 if (component instanceof ProvidesProcessRequirements) {
                     requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));
@@ -55,16 +54,27 @@ public class RequirementInputComponent implements Component, ProcessPart {
             }
         }
 
-        return requirementsProvided.containsAll(requirements);
+        if (requirementsProvided.containsAll(requirements)) {
+            Set<String> results = Sets.newHashSet();
+            results.add("");
+            return results;
+        } else {
+            return null;
+        }
     }
 
     @Override
-    public boolean isOutput() {
-        return false;
+    public long getDuration(EntityRef instigator, EntityRef workstation, String result) {
+        return 0;
     }
 
     @Override
-    public boolean isEnd() {
-        return false;
+    public void executeStart(EntityRef instigator, EntityRef workstation, String result) {
+
+    }
+
+    @Override
+    public void executeEnd(EntityRef instigator, EntityRef workstation, String result) {
+
     }
 }

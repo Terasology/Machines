@@ -29,7 +29,7 @@ import javax.vecmath.Vector3f;
 public class RenderInventoryInCategoryComponent implements Component {
     public String category;
     public Vector3f translate = new Vector3f();
-    public float size = 0.3f;
+    public float blockSize = 0.3f;
     public boolean itemsAreFlat;
     public boolean verticalAlignmentBottom;
 
@@ -49,12 +49,15 @@ public class RenderInventoryInCategoryComponent implements Component {
                 // shift items up half their thickness
                 renderItemTransform.translate.y += 0.125f * 0.25f;
             } else {
-                renderItemTransform.translate.y += size * 0.5f;
+                renderItemTransform.translate.y += blockSize * 0.5f;
             }
         }
 
-
-        renderItemTransform.size = size;
+        if( isBlockItem) {
+            renderItemTransform.size = blockSize;
+        }else {
+            renderItemTransform.size = 0.3f;
+        }
 
         return renderItemTransform;
     }

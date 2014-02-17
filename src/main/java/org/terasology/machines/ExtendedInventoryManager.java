@@ -25,11 +25,11 @@ import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.inventory.PickupBuilder;
-import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.math.Side;
 import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
+import org.terasology.workstation.component.WorkstationInventoryComponent;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.block.items.BlockItemComponent;
@@ -74,10 +74,18 @@ public abstract class ExtendedInventoryManager {
     }
 
     public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory) {
-        CategorizedInventoryComponent categorizedInventoryComponent = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
+        WorkstationInventoryComponent categorizedInventory = inventoryEntity.getComponent(WorkstationInventoryComponent.class);
 
-        if (categorizedInventoryComponent != null) {
-            return categorizedInventoryComponent.iterateItems(inventoryEntity, inventoryCategory);
+        if (categorizedInventory != null) {
+                List<EntityRef> items = Lists.newArrayList();
+
+                if (categorizedInventory.slotAssignments.containsKey(inventoryCategory)) {
+                    List<Integer> slots = categorizedInventory.slotAssignments.get(inventoryCategory);
+                    for (int i : slots) {
+                        items.add(inventoryManager.getItemInSlot(inventoryEntity, i));
+                    }
+                }
+                return items;
         } else {
             return iterateItems(inventoryManager, inventoryEntity);
         }
