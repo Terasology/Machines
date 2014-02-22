@@ -25,8 +25,8 @@ import org.terasology.itemRendering.components.RenderItemTransformComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.registry.In;
-import org.terasology.workstation.component.WorkstationInventoryComponent;
 import org.terasology.world.block.BlockComponent;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
     public void addItemRendering(InventorySlotChangedEvent event,
                                  EntityRef inventoryEntity,
                                  RenderInventoryInCategoryComponent renderInventoryInCategory,
-                                 WorkstationInventoryComponent categorizedInventory) {
+                                 CategorizedInventoryComponent categorizedInventory) {
         EntityRef oldItem = event.getOldItem();
         if (oldItem.exists()) {
             if (!oldItem.getOwner().hasComponent(RenderInventoryInCategoryComponent.class)) {
@@ -52,7 +52,7 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
 
         EntityRef newItem = event.getNewItem();
         if (newItem.exists()) {
-            List<Integer> slots = categorizedInventory.slotAssignments.get(renderInventoryInCategory.category);
+            List<Integer> slots = categorizedInventory.slotMapping.get(renderInventoryInCategory.category);
             int newItemSlot = inventoryManager.findSlotWithItem(inventoryEntity, newItem);
             if (slots.contains(newItemSlot)) {
                 // this item exists, and is in the specified inventory category

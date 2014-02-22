@@ -26,22 +26,22 @@ public class ProcessingTimeComponent implements Component, ProcessPart {
     public long duration;
 
     @Override
-    public Set<String> validate(EntityRef instigator, EntityRef workstation) throws InvalidProcessException {
+    public Set<String> validate(EntityRef instigator, EntityRef workstation, String parameter) throws InvalidProcessException {
         return null;
     }
 
     @Override
-    public long getDuration(EntityRef instigator, EntityRef workstation, String result) {
+    public long getDuration(EntityRef instigator, EntityRef workstation, String result, String parameter) {
         return duration;
     }
 
     @Override
-    public void executeStart(EntityRef instigator, EntityRef workstation, String result) {
+    public void executeStart(EntityRef instigator, EntityRef workstation, String result, String parameter) {
 
     }
 
     @Override
-    public void executeEnd(EntityRef instigator, EntityRef workstation, String result) {
+    public void executeEnd(EntityRef instigator, EntityRef workstation, String result, String parameter) {
 
     }
 }

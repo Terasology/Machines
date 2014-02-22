@@ -25,10 +25,10 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.block.DropBlockInventoryComponent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.math.Side;
-import org.terasology.workstation.component.AutomaticProcessingComponent;
 import org.terasology.workstation.component.WorkstationInventoryComponent;
 import org.terasology.world.block.BlockComponent;
 
@@ -56,23 +56,32 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
             entity.addComponent(inventoryComponent);
         }
 
-        // configure the categorized inventory
+        // configure the workstation inventory
         if (!entity.hasComponent(WorkstationInventoryComponent.class)) {
-            WorkstationInventoryComponent categorizedInventory = new WorkstationInventoryComponent();
+            WorkstationInventoryComponent workstationInventory = new WorkstationInventoryComponent();
             int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
-            categorizedInventory.slotAssignments.put("INPUT",
+            workstationInventory.slotAssignments.put("INPUT", new WorkstationInventoryComponent.SlotAssignment(0, machineDefinition.inputSlots));
+            workstationInventory.slotAssignments.put("OUTPUT", new WorkstationInventoryComponent.SlotAssignment(totalInputSlots, machineDefinition.outputSlots));
+            entity.addComponent(workstationInventory);
+        }
+
+            // configure the categorized inventory
+        if (!entity.hasComponent(CategorizedInventoryComponent.class)) {
+            CategorizedInventoryComponent categorizedInventory = new CategorizedInventoryComponent();
+            int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
+            categorizedInventory.slotMapping.put("INPUT",
                     createSlotRange(0, machineDefinition.inputSlots));
-            categorizedInventory.slotAssignments.put("REQUIREMENTS",
+            categorizedInventory.slotMapping.put("REQUIREMENTS",
                     createSlotRange(machineDefinition.inputSlots, machineDefinition.requirementSlots));
-            categorizedInventory.slotAssignments.put("OUTPUT",
+            categorizedInventory.slotMapping.put("OUTPUT",
                     createSlotRange(totalInputSlots, machineDefinition.outputSlots));
 
             // add default input
-            categorizedInventory.slotAssignments.put(Side.TOP.toString(), categorizedInventory.slotAssignments.get("INPUT"));
+            categorizedInventory.slotMapping.put(Side.TOP.toString(), categorizedInventory.slotMapping.get("INPUT"));
 
             // add default output
             for (Side side : Side.horizontalSides()) {
-                categorizedInventory.slotAssignments.put(side.toString(), categorizedInventory.slotAssignments.get("OUTPUT"));
+                categorizedInventory.slotMapping.put(side.toString(), categorizedInventory.slotMapping.get("OUTPUT"));
             }
 
             entity.addComponent(categorizedInventory);
@@ -83,10 +92,6 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
 
         // automatically drop the inventory
         entity.addComponent(new DropBlockInventoryComponent());
-
-        if(machineDefinition.automaticProcessing) {
-            entity.addComponent(new AutomaticProcessingComponent());
-        }
     }
 
     List<Integer> createSlotRange(int startIndex, int length) {

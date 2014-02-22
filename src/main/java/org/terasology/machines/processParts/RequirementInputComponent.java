@@ -33,7 +33,7 @@ public class RequirementInputComponent implements Component, ProcessPart {
     public List<String> requirements = Lists.newArrayList();
 
     @Override
-    public Set<String> validate(EntityRef instigator, EntityRef workstation) throws InvalidProcessException {
+    public Set<String> validate(EntityRef instigator, EntityRef workstation, String parameter) throws InvalidProcessException {
         InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         List<String> requirementsProvided = Lists.newArrayList();
@@ -64,17 +64,17 @@ public class RequirementInputComponent implements Component, ProcessPart {
     }
 
     @Override
-    public long getDuration(EntityRef instigator, EntityRef workstation, String result) {
+    public long getDuration(EntityRef instigator, EntityRef workstation, String result, String parameter) {
         return 0;
     }
 
     @Override
-    public void executeStart(EntityRef instigator, EntityRef workstation, String result) {
+    public void executeStart(EntityRef instigator, EntityRef workstation, String result, String parameter) {
 
     }
 
     @Override
-    public void executeEnd(EntityRef instigator, EntityRef workstation, String result) {
+    public void executeEnd(EntityRef instigator, EntityRef workstation, String result, String parameter) {
 
     }
 }

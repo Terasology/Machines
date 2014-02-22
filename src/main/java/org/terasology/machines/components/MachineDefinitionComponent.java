@@ -27,5 +27,4 @@ public class MachineDefinitionComponent implements Component {
     public int requirementSlots;
     public int outputSlots;
     public List<String> requirementsProvided = Lists.newArrayList();
-    public boolean automaticProcessing;
 }

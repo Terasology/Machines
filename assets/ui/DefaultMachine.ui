@@ -1,77 +1,97 @@
 {
-    "type": "DefaultMachineWindow",
-    "skin": "Machines:DefaultMachine",
-    "contents": {
-        "type": "relativeLayout",
+  "type": "DefaultMachineWindow",
+  "skin": "Machines:DefaultMachine",
+  "contents": {
+    "type": "ColumnLayout",
+    "contents": [
+      {
+        "type": "RowLayout",
+        "layoutInfo": {
+          "use-content-width": true,
+          "use-content-height": true,
+          "position-horizontal-center": {
+            
+          },
+          "position-vertical-center": {
+            
+          }
+        },
         "contents": [
-            {
-                "type": "ColumnLayout",
-                "contents": [
-                    {
-                        "type": "ScrollableArea",
-                        "content": {
-                            "type": "InventoryGrid",
-                            "id": "ingredientsInventory"
-                        },
-                        "layoutInfo": {
-                            "width": 184,
-                            "height": 250,
-                            "position-left": {
-                                "offset": 5
-                            },
-                            "position-top": {
-                                "offset": 45
-                            }
-                        }
-                    },
-                    {
-                        "type": "InventoryGrid",
-                        "id": "toolsInventory",
-                        "layoutInfo": {
-                            "width": 200,
-                            "height": 56,
-                            "position-left": {
-                                "offset": 194
-                            },
-                            "position-top": {
-                                "offset": 316
-                            }
-                        }
-                    },
-                    {
-                        "type": "InventoryGrid",
-                        "id": "resultInventory",
-                        "layoutInfo": {
-                            "width": 56,
-                            "height": 56,
-                            "position-left": {
-                                "offset": 509
-                            },
-                            "position-top": {
-                                "offset": 316
-                            }
-                        }
-                    },
-                    {
-                        "type": "InventoryGrid",
-                        "id": "playerInventory",
-                        "layoutInfo": {
-                            "width": 560,
-                            "height": 168,
-                            "position-left": {
-                                "offset": 5
-                            },
-                            "position-top": {
-                                "offset": 377
-                            }
-                        }
-                    }
-                ],
-                "layoutInfo": {
-                    "position-horizontal-center": {},
-                    "position-vertical-center": {}
-                }
-            }
+          {
+            "type": "ColumnLayout",
+            "layoutInfo": {
+              "use-content-width": true,
+              "use-content-height": true,
+              "position-horizontal-center": {
+
+              },
+              "position-vertical-center": {
+
+              }
+            },
+            "contents": [
+              {
+                "type": "UILabel",
+                "text": "Materials"
+              },
+              {
+                "type": "InventoryGrid",
+                "id": "ingredientsInventory"
+              }
+            ]
+          },
+          {
+            "type": "ColumnLayout",
+            "layoutInfo": {
+              "use-content-width": true,
+              "use-content-height": true,
+              "position-horizontal-center": {
+
+              },
+              "position-vertical-center": {
+
+              }
+            },
+            "contents": [
+              {
+                "type": "UILabel",
+                "text": "Tools"
+              },
+              {
+                "type": "InventoryGrid",
+                "id": "toolsInventory"
+              }
+            ]
+          },
+          {
+            "type": "ColumnLayout",
+            "layoutInfo": {
+              "use-content-width": true,
+              "use-content-height": true,
+              "position-horizontal-center": {
+
+              },
+              "position-vertical-center": {
+
+              }
+            },
+            "contents": [
+              {
+                "type": "UILabel",
+                "text": "Result"
+              },
+              {
+                "type": "InventoryGrid",
+                "id": "resultInventory"
+              }
+            ]
+          }
         ]
-    }
+      },
+      {
+        "type": "InventoryGrid",
+        "id": "playerInventory"
+      }
+    ]
+  }
 }

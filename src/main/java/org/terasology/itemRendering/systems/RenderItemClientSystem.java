@@ -100,6 +100,10 @@ public class RenderItemClientSystem extends BaseComponentSystem {
         BlockItemComponent blockItemComponent = entityRef.getComponent(BlockItemComponent.class);
         BlockFamily blockFamily = blockItemComponent.blockFamily;
 
+        if( blockFamily == null) {
+            return;
+        }
+
         mesh.mesh = blockFamily.getArchetypeBlock().getMesh();
         mesh.material = Assets.getMaterial("engine:terrain");
 

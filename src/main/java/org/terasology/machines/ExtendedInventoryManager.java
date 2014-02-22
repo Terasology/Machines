@@ -25,11 +25,11 @@ import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.inventory.PickupBuilder;
+import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.math.Side;
 import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
-import org.terasology.workstation.component.WorkstationInventoryComponent;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.block.items.BlockItemComponent;
@@ -73,14 +73,21 @@ public abstract class ExtendedInventoryManager {
         return iterateItems(inventoryManager, inventoryEntity, side.toString());
     }
 
+    /**
+     * returns the items in the inventory category. If there is no categorized inventory component, returns all the items.
+     * @param inventoryManager
+     * @param inventoryEntity
+     * @param inventoryCategory
+     * @return
+     */
     public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory) {
-        WorkstationInventoryComponent categorizedInventory = inventoryEntity.getComponent(WorkstationInventoryComponent.class);
+        CategorizedInventoryComponent categorizedInventory = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
 
         if (categorizedInventory != null) {
                 List<EntityRef> items = Lists.newArrayList();
 
-                if (categorizedInventory.slotAssignments.containsKey(inventoryCategory)) {
-                    List<Integer> slots = categorizedInventory.slotAssignments.get(inventoryCategory);
+                if (categorizedInventory.slotMapping.containsKey(inventoryCategory)) {
+                    List<Integer> slots = categorizedInventory.slotMapping.get(inventoryCategory);
                     for (int i : slots) {
                         items.add(inventoryManager.getItemInSlot(inventoryEntity, i));
                     }

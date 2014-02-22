@@ -41,6 +41,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         result = find("resultInventory", InventoryGrid.class);
         player = find("playerInventory", InventoryGrid.class);
         stationBackground = find("stationBackground", UIImage.class);
+
     }
 
     @Override
@@ -52,21 +53,29 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         int blockInputSlots = machineDefinition.inputSlots;
         int blockOutputSlots = machineDefinition.outputSlots;
 
-        ingredients.setTargetEntity(station);
-        ingredients.setCellOffset(0);
-        ingredients.setMaxCellCount(blockInputSlots);
+        if( ingredients != null) {
+            ingredients.setTargetEntity(station);
+            ingredients.setCellOffset(0);
+            ingredients.setMaxCellCount(blockInputSlots);
+        }
 
-        tools.setTargetEntity(station);
-        tools.setCellOffset(blockInputSlots);
-        tools.setMaxCellCount(requirementInputSlots);
+        if( tools != null ) {
+            tools.setTargetEntity(station);
+            tools.setCellOffset(blockInputSlots);
+            tools.setMaxCellCount(requirementInputSlots);
+        }
 
-        result.setTargetEntity(station);
-        result.setCellOffset(requirementInputSlots + blockInputSlots);
-        result.setMaxCellCount(blockOutputSlots);
+        if( result != null) {
+            result.setTargetEntity(station);
+            result.setCellOffset(requirementInputSlots + blockInputSlots);
+            result.setMaxCellCount(blockOutputSlots);
+        }
 
-        player.setTargetEntity(CoreRegistry.get(LocalPlayer.class).getCharacterEntity());
-        player.setCellOffset(10);
-        player.setMaxCellCount(30);
+        if( player != null) {
+            player.setTargetEntity(CoreRegistry.get(LocalPlayer.class).getCharacterEntity());
+            player.setCellOffset(10);
+            player.setMaxCellCount(30);
+        }
 
     }
 
