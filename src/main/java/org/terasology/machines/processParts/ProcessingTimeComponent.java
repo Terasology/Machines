@@ -20,28 +20,26 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.workstation.process.InvalidProcessException;
 import org.terasology.workstation.process.ProcessPart;
 
-import java.util.Set;
-
 public class ProcessingTimeComponent implements Component, ProcessPart {
     public long duration;
 
     @Override
-    public Set<String> validate(EntityRef instigator, EntityRef workstation, String parameter) throws InvalidProcessException {
-        return null;
+    public boolean validate(EntityRef instigator, EntityRef workstation, EntityRef processEntity) throws InvalidProcessException {
+        return true;
     }
 
     @Override
-    public long getDuration(EntityRef instigator, EntityRef workstation, String result, String parameter) {
+    public long getDuration(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
         return duration;
     }
 
     @Override
-    public void executeStart(EntityRef instigator, EntityRef workstation, String result, String parameter) {
+    public void executeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
 
     }
 
     @Override
-    public void executeEnd(EntityRef instigator, EntityRef workstation, String result, String parameter) {
+    public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
 
     }
 }

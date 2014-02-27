@@ -23,7 +23,6 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.inventory.block.DropBlockInventoryComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
@@ -89,9 +88,6 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
 
         // add the requirements provider to the input entity
         entity.addComponent(new ProcessRequirementsProviderComponent(machineDefinition.requirementsProvided.toArray(new String[0])));
-
-        // automatically drop the inventory
-        entity.addComponent(new DropBlockInventoryComponent());
     }
 
     List<Integer> createSlotRange(int startIndex, int length) {

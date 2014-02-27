@@ -16,7 +16,6 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
@@ -27,13 +26,12 @@ import org.terasology.workstation.process.InvalidProcessException;
 import org.terasology.workstation.process.ProcessPart;
 
 import java.util.List;
-import java.util.Set;
 
 public class RequirementInputComponent implements Component, ProcessPart {
     public List<String> requirements = Lists.newArrayList();
 
     @Override
-    public Set<String> validate(EntityRef instigator, EntityRef workstation, String parameter) throws InvalidProcessException {
+    public boolean validate(EntityRef instigator, EntityRef workstation, EntityRef processEntity) throws InvalidProcessException {
         InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         List<String> requirementsProvided = Lists.newArrayList();
@@ -55,26 +53,24 @@ public class RequirementInputComponent implements Component, ProcessPart {
         }
 
         if (requirementsProvided.containsAll(requirements)) {
-            Set<String> results = Sets.newHashSet();
-            results.add("");
-            return results;
+            return true;
         } else {
-            return null;
+            return false;
         }
     }
 
     @Override
-    public long getDuration(EntityRef instigator, EntityRef workstation, String result, String parameter) {
+    public long getDuration(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
         return 0;
     }
 
     @Override
-    public void executeStart(EntityRef instigator, EntityRef workstation, String result, String parameter) {
+    public void executeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
 
     }
 
     @Override
-    public void executeEnd(EntityRef instigator, EntityRef workstation, String result, String parameter) {
+    public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
 
     }
 }
