@@ -17,14 +17,13 @@ package org.terasology.machines.processParts;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.workstation.process.InvalidProcessException;
 import org.terasology.workstation.process.ProcessPart;
 
 public class ProcessingTimeComponent implements Component, ProcessPart {
     public long duration;
 
     @Override
-    public boolean validate(EntityRef instigator, EntityRef workstation, EntityRef processEntity) throws InvalidProcessException {
+    public boolean validateBeforeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
         return true;
     }
 

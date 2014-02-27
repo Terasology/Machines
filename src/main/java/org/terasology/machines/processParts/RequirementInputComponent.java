@@ -22,7 +22,6 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.workstation.process.InvalidProcessException;
 import org.terasology.workstation.process.ProcessPart;
 
 import java.util.List;
@@ -31,7 +30,7 @@ public class RequirementInputComponent implements Component, ProcessPart {
     public List<String> requirements = Lists.newArrayList();
 
     @Override
-    public boolean validate(EntityRef instigator, EntityRef workstation, EntityRef processEntity) throws InvalidProcessException {
+    public boolean validateBeforeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
         InventoryManager inventoryManager = CoreRegistry.get(InventoryManager.class);
 
         List<String> requirementsProvided = Lists.newArrayList();
