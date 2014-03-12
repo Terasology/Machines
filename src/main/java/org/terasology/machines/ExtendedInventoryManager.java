@@ -24,17 +24,14 @@ import org.terasology.logic.common.DisplayNameComponent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
-import org.terasology.logic.inventory.PickupBuilder;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.math.Side;
-import org.terasology.physics.events.ImpulseEvent;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.block.items.BlockItemComponent;
 
-import javax.vecmath.Vector3f;
 import java.util.List;
 
 public abstract class ExtendedInventoryManager {
@@ -159,11 +156,5 @@ public abstract class ExtendedInventoryManager {
         ItemComponent itemComponent = newItem.getComponent(ItemComponent.class);
         itemComponent.stackCount = (byte) stackCount;
         return newItem;
-    }
-
-    public static void dropItem(EntityRef item, Vector3f location) {
-        PickupBuilder pickupBuilder = new PickupBuilder();
-        EntityRef pickup = pickupBuilder.createPickupFor(item, location, 200, true);
-        pickup.send(new ImpulseEvent(random.nextVector3f(10.0f)));
     }
 }

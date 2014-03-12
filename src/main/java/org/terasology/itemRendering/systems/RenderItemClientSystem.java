@@ -74,6 +74,7 @@ public class RenderItemClientSystem extends BaseComponentSystem {
             // update the location
             LocationComponent location = new LocationComponent();
             location.setLocalScale(itemDisplay.size);
+
             Rotation rotation = Rotation.rotate(itemDisplay.yaw, itemDisplay.pitch, itemDisplay.roll);
             entity.addComponent(location);
 
