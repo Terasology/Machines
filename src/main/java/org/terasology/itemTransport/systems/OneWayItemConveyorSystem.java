@@ -32,7 +32,6 @@ import org.terasology.logic.inventory.action.GiveItemAction;
 import org.terasology.logic.inventory.action.RemoveItemAction;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.ExtendedInventoryManager;
-import org.terasology.world.block.family.DirectionalPlacementFamily;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
 import org.terasology.math.Vector3i;
@@ -149,8 +148,7 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
 
                 // find out what way this block is pointed
                 Block block = blockComponent.getBlock();
-                DirectionalPlacementFamily directionalPlacementFamily = (DirectionalPlacementFamily) block.getBlockFamily();
-                Side side = directionalPlacementFamily.getSideAttachedTo(block).getRelativeSide(pullInventoryInDirectionComponent.direction);
+                Side side = block.getDirection().getRelativeSide(pullInventoryInDirectionComponent.direction);
 
                 // get target inventory
                 Vector3i adjacentPos = side.getAdjacentPos(new Vector3i(locationComponent.getWorldPosition()));
@@ -191,8 +189,7 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
         // find out what way this block is pointed
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
         Block block = blockComponent.getBlock();
-        DirectionalPlacementFamily directionalPlacementFamily = (DirectionalPlacementFamily) block.getBlockFamily();
-        return directionalPlacementFamily.getSideAttachedTo(block).getRelativeSide(direction);
+        return block.getDirection().getRelativeSide(direction);
     }
 
 }

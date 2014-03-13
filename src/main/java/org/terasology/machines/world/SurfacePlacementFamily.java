@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.world.block.family;
+package org.terasology.machines.world;
 
 import com.google.common.collect.Maps;
 import org.terasology.math.Side;
@@ -27,18 +27,11 @@ import org.terasology.world.block.family.AbstractBlockFamily;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * @author Immortius <immortius@gmail.com>
- */
-public class DirectionalPlacementFamily extends AbstractBlockFamily {
+public class SurfacePlacementFamily extends AbstractBlockFamily {
     private Map<Side, Block> blocks = Maps.newEnumMap(Side.class);
     private Block archetype;
 
-    /**
-     * @param uri    The uri for the block group.
-     * @param blocks The set of blocks that make up the group. Front, Back, Left and Right must be provided - the rest is ignored.
-     */
-    public DirectionalPlacementFamily(BlockUri uri, Map<Side, Block> blocks, Iterable<String> categories) {
+    public SurfacePlacementFamily(BlockUri uri, Map<Side, Block> blocks, Iterable<String> categories) {
         super(uri, categories);
         for (Side side : Side.values()) {
             Block block = blocks.get(side);
@@ -81,14 +74,5 @@ public class DirectionalPlacementFamily extends AbstractBlockFamily {
     @Override
     public Iterable<Block> getBlocks() {
         return blocks.values();
-    }
-
-    public Side getSideAttachedTo(Block block) {
-        for (Map.Entry<Side, Block> sideBlockEntry : blocks.entrySet()) {
-            if (sideBlockEntry.getValue().equals(block)) {
-                return sideBlockEntry.getKey();
-            }
-        }
-        return null;
     }
 }

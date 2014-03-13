@@ -25,7 +25,7 @@ import javax.vecmath.Vector3f;
 /**
  * Add this to a block that will display an item and it will be copied to each item that is displayed
  */
-public class RenderItemTransformComponent implements Component {
+public class RenderItemComponent implements Component {
     public Vector3f translate = new Vector3f(0, 0, 0);
     public float size = 0.3f;
     public Yaw yaw = Yaw.NONE;

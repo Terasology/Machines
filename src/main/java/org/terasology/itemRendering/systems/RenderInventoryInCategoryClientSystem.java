@@ -21,7 +21,7 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.RenderInventoryInCategoryComponent;
-import org.terasology.itemRendering.components.RenderItemTransformComponent;
+import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
 import org.terasology.logic.location.LocationComponent;
@@ -46,7 +46,7 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
         if (oldItem.exists()) {
             if (!oldItem.getOwner().hasComponent(RenderInventoryInCategoryComponent.class)) {
                 // ensure that rendered items get reset
-                oldItem.removeComponent(RenderItemTransformComponent.class);
+                oldItem.removeComponent(RenderItemComponent.class);
             }
         }
 
@@ -56,8 +56,8 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
             int newItemSlot = inventoryManager.findSlotWithItem(inventoryEntity, newItem);
             if (slots.contains(newItemSlot)) {
                 // this item exists, and is in the specified inventory category
-                RenderItemTransformComponent renderItemTransform = renderInventoryInCategory.createRenderItemTransformComponent(inventoryEntity, newItem);
-                if (newItem.hasComponent(RenderItemTransformComponent.class)) {
+                RenderItemComponent renderItemTransform = renderInventoryInCategory.createRenderItemComponent(inventoryEntity, newItem);
+                if (newItem.hasComponent(RenderItemComponent.class)) {
                     newItem.saveComponent(renderItemTransform);
                 } else {
                     newItem.addComponent(renderItemTransform);

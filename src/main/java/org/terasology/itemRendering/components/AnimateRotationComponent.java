@@ -25,4 +25,5 @@ public class AnimateRotationComponent implements Component {
     public Pitch pitch = Pitch.NONE;
     public Roll roll = Roll.NONE;
     public float speed = 1;
+    public boolean isSynchronized;
 }

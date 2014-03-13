@@ -24,7 +24,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.itemRendering.components.RenderItemTransformComponent;
+import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.location.Location;
 import org.terasology.logic.location.LocationComponent;
@@ -50,7 +50,7 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void onChangedItemDisplay(OnChangedComponent event, EntityRef entity, RenderItemTransformComponent itemDisplay) {
+    public void onChangedItemDisplay(OnChangedComponent event, EntityRef entity, RenderItemComponent itemDisplay) {
         LocationComponent location = entity.getComponent(LocationComponent.class);
         if (location != null) {
             location.setLocalScale(itemDisplay.size);
@@ -62,7 +62,7 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void onAddedItemDisplay(OnAddedComponent event, EntityRef entity, RenderItemTransformComponent itemDisplay) {
+    public void onAddedItemDisplay(OnAddedComponent event, EntityRef entity, RenderItemComponent itemDisplay) {
         LocationComponent blockLocation = entity.getOwner().getComponent(LocationComponent.class);
         if (blockLocation != null) {
             if (entity.hasComponent(BlockItemComponent.class)) {
@@ -120,7 +120,7 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void onRemoveItemDisplay(BeforeDeactivateComponent event, EntityRef entity, RenderItemTransformComponent itemDisplay) {
+    public void onRemoveItemDisplay(BeforeDeactivateComponent event, EntityRef entity, RenderItemComponent itemDisplay) {
         Location.removeChild(entity.getOwner(), entity);
         entity.removeComponent(LocationComponent.class);
         entity.removeComponent(MeshComponent.class);

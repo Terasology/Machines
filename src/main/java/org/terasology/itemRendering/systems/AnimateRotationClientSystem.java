@@ -26,26 +26,19 @@ import org.terasology.itemRendering.components.AnimateRotationComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Rotation;
 import org.terasology.registry.In;
-import org.terasology.utilities.random.FastRandom;
-import org.terasology.utilities.random.Random;
 
 import javax.vecmath.Quat4f;
 
 @RegisterSystem(RegisterMode.CLIENT)
 public class AnimateRotationClientSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
-    //static final long UPDATE_INTERVAL = 100;
 
     @In
     Time time;
     @In
     EntityManager entityManager;
 
-    Random rand;
-    long nextUpdateTime;
-
     @Override
     public void initialise() {
-        rand = new FastRandom();
     }
 
     @Override

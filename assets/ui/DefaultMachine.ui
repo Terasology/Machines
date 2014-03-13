@@ -1,96 +1,85 @@
 {
-  "type": "DefaultMachineWindow",
+  "type": "Machines:DefaultMachineWindow",
   "skin": "Machines:DefaultMachine",
   "contents": {
-    "type": "ColumnLayout",
+    "type": "RelativeLayout",
     "contents": [
-      {
-        "type": "RowLayout",
+    {
+        "type": "ColumnLayout",
         "layoutInfo": {
-          "use-content-width": true,
-          "use-content-height": true,
-          "position-horizontal-center": {
-            
-          },
-          "position-vertical-center": {
-            
-          }
-        },
-        "contents": [
-          {
-            "type": "ColumnLayout",
-            "layoutInfo": {
-              "use-content-width": true,
-              "use-content-height": true,
-              "position-horizontal-center": {
+            "use-content-width": true,
+            "use-content-height": true,
+            "verticalSpacing": 20,
+            "position-horizontal-center": {
 
-              },
-              "position-vertical-center": {
-
-              }
             },
-            "contents": [
+            "position-vertical-center": {
+            }
+          },
+          "contents": [
               {
-                "type": "UILabel",
-                "text": "Materials"
+                "type": "FlowLayout",
+                "contents": [
+                  {
+                    "type": "ColumnLayout",
+                    "fillVerticalSpace": false,
+                    "autoSizeColumns": true,
+                    "contents": [
+                      {
+                        "type": "UILabel",
+                        "text": "Materials",
+                        "id": "ingredientsInventoryLabel"
+                      },
+                      {
+                        "type": "InventoryGrid",
+                        "id": "ingredientsInventory"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "ColumnLayout",
+                    "fillVerticalSpace": false,
+                    "autoSizeColumns": true,
+                    "contents": [
+                      {
+                        "type": "UILabel",
+                        "text": "Tools",
+                        "id": "toolsInventoryLabel"
+                      },
+                      {
+                        "type": "InventoryGrid",
+                        "id": "toolsInventory"
+                      }
+                    ]
+                  },
+                  {
+                      "type": "HorizontalProgressBar",
+                      "width": 100,
+                      "id": "progressBar"
+                  },
+                  {
+                    "type": "ColumnLayout",
+                    "fillVerticalSpace": false,
+                    "autoSizeColumns": true,
+                    "contents": [
+                      {
+                        "type": "UILabel",
+                        "text": "Result",
+                        "id": "resultInventoryLabel"
+                      },
+                      {
+                        "type": "InventoryGrid",
+                        "id": "resultInventory"
+                      }
+                    ]
+                  }
+                ]
               },
               {
                 "type": "InventoryGrid",
-                "id": "ingredientsInventory"
+                "id": "playerInventory"
               }
-            ]
-          },
-          {
-            "type": "ColumnLayout",
-            "layoutInfo": {
-              "use-content-width": true,
-              "use-content-height": true,
-              "position-horizontal-center": {
-
-              },
-              "position-vertical-center": {
-
-              }
-            },
-            "contents": [
-              {
-                "type": "UILabel",
-                "text": "Tools"
-              },
-              {
-                "type": "InventoryGrid",
-                "id": "toolsInventory"
-              }
-            ]
-          },
-          {
-            "type": "ColumnLayout",
-            "layoutInfo": {
-              "use-content-width": true,
-              "use-content-height": true,
-              "position-horizontal-center": {
-
-              },
-              "position-vertical-center": {
-
-              }
-            },
-            "contents": [
-              {
-                "type": "UILabel",
-                "text": "Result"
-              },
-              {
-                "type": "InventoryGrid",
-                "id": "resultInventory"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "type": "InventoryGrid",
-        "id": "playerInventory"
+          ]
       }
     ]
   }

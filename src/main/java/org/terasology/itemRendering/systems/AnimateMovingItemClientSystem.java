@@ -26,7 +26,7 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.itemRendering.components.AnimatedMovingItemComponent;
-import org.terasology.itemRendering.components.RenderItemTransformComponent;
+import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.registry.In;
 import org.terasology.utilities.random.FastRandom;
@@ -58,12 +58,12 @@ public class AnimateMovingItemClientSystem extends BaseComponentSystem implement
 
     @Override
     public void update(float delta) {
-        for (EntityRef entity : entityManager.getEntitiesWith(AnimatedMovingItemComponent.class,LocationComponent.class, RenderItemTransformComponent.class )) {
+        for (EntityRef entity : entityManager.getEntitiesWith(AnimatedMovingItemComponent.class,LocationComponent.class, RenderItemComponent.class )) {
             AnimatedMovingItemComponent animatedMovingItemComponent = entity.getComponent(AnimatedMovingItemComponent.class);
             LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
-            RenderItemTransformComponent renderItemTransformComponent = entity.getComponent(RenderItemTransformComponent.class);
+            RenderItemComponent renderItemComponent = entity.getComponent(RenderItemComponent.class);
 
-            updateItemLocation(locationComponent, animatedMovingItemComponent, renderItemTransformComponent);
+            updateItemLocation(locationComponent, animatedMovingItemComponent, renderItemComponent);
             entity.saveComponent(locationComponent);
         }
     }
@@ -72,10 +72,10 @@ public class AnimateMovingItemClientSystem extends BaseComponentSystem implement
     public void onUpdateMovingItem(OnChangedComponent event,
                                    EntityRef entityRef,
                                    AnimatedMovingItemComponent animatedMovingItemComponent,
-                                   RenderItemTransformComponent renderItemTransformComponent) {
+                                   RenderItemComponent renderItemComponent) {
         LocationComponent locationComponent = entityRef.getComponent(LocationComponent.class);
         if (locationComponent != null) {
-            updateItemLocation(locationComponent, animatedMovingItemComponent, renderItemTransformComponent);
+            updateItemLocation(locationComponent, animatedMovingItemComponent, renderItemComponent);
             entityRef.saveComponent(locationComponent);
         }
     }
@@ -83,7 +83,7 @@ public class AnimateMovingItemClientSystem extends BaseComponentSystem implement
 
     private void updateItemLocation(LocationComponent locationComponent,
                                     AnimatedMovingItemComponent animatedMovingItemComponent,
-                                    RenderItemTransformComponent renderItemTransformComponent) {
+                                    RenderItemComponent renderItemComponent) {
         float percentToTarget = 1.0f - (float) (animatedMovingItemComponent.arrivalTime - time.getGameTimeInMs())
                 / (float) (animatedMovingItemComponent.arrivalTime - animatedMovingItemComponent.startTime);
         if (percentToTarget < 0f) {
@@ -108,14 +108,14 @@ public class AnimateMovingItemClientSystem extends BaseComponentSystem implement
         relativePosition.y *= percentToTarget;
         relativePosition.z *= percentToTarget;
 
-        relativePosition.add(renderItemTransformComponent.translate);
+        relativePosition.add(renderItemComponent.translate);
 
         locationComponent.setLocalPosition(relativePosition);
 
     }
 
     @ReceiveEvent
-    public void onRemoveMovingItem(BeforeDeactivateComponent event, EntityRef entityRef, RenderItemTransformComponent renderItemTransform) {
+    public void onRemoveMovingItem(BeforeDeactivateComponent event, EntityRef entityRef, RenderItemComponent renderItemTransform) {
         entityRef.removeComponent(AnimatedMovingItemComponent.class);
     }
 }

@@ -24,7 +24,7 @@ import javax.vecmath.Vector3f;
 
 /**
  * Add this to a block that you want items displayed from an inventory category.
- * Also add the RenderItemTransformComponent to adjust the location of the item,  otherwise it will be in the center of the containing block.
+ * Also add the RenderItemComponent to adjust the location of the item,  otherwise it will be in the center of the containing block.
  */
 public class RenderInventoryInCategoryComponent implements Component {
     public String category;
@@ -33,32 +33,32 @@ public class RenderInventoryInCategoryComponent implements Component {
     public boolean itemsAreFlat;
     public boolean verticalAlignmentBottom;
 
-    public RenderItemTransformComponent createRenderItemTransformComponent(EntityRef referenceBlock, EntityRef item) {
-        RenderItemTransformComponent renderItemTransform = new RenderItemTransformComponent();
+    public RenderItemComponent createRenderItemComponent(EntityRef referenceBlock, EntityRef item) {
+        RenderItemComponent renderItem = new RenderItemComponent();
 
         boolean isBlockItem = item.hasComponent(BlockItemComponent.class);
 
         if (itemsAreFlat && !isBlockItem) {
             // make it flat
-            renderItemTransform.pitch = Pitch.CLOCKWISE_90;
+            renderItem.pitch = Pitch.CLOCKWISE_90;
         }
 
-        renderItemTransform.translate = new Vector3f(translate);
+        renderItem.translate = new Vector3f(translate);
         if (verticalAlignmentBottom) {
             if (!isBlockItem && itemsAreFlat) {
                 // shift items up half their thickness
-                renderItemTransform.translate.y += 0.125f * 0.25f;
+                renderItem.translate.y += 0.125f * 0.25f;
             } else {
-                renderItemTransform.translate.y += blockSize * 0.5f;
+                renderItem.translate.y += blockSize * 0.5f;
             }
         }
 
         if( isBlockItem) {
-            renderItemTransform.size = blockSize;
+            renderItem.size = blockSize;
         }else {
-            renderItemTransform.size = 0.3f;
+            renderItem.size = 0.3f;
         }
 
-        return renderItemTransform;
+        return renderItem;
     }
 }

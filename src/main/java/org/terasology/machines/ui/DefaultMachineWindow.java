@@ -15,6 +15,7 @@
  */
 package org.terasology.machines.ui;
 
+import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.players.LocalPlayer;
 import org.terasology.machines.components.MachineDefinitionComponent;
@@ -23,24 +24,34 @@ import org.terasology.rendering.nui.CoreScreenLayer;
 import org.terasology.rendering.nui.NUIManager;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
 import org.terasology.rendering.nui.widgets.UIImage;
+import org.terasology.rendering.nui.widgets.UILabel;
+import org.terasology.workstation.component.WorkstationProcessingComponent;
 import org.terasology.workstation.ui.WorkstationUI;
 
 public class DefaultMachineWindow extends CoreScreenLayer implements WorkstationUI {
     private InventoryGrid ingredients;
     private InventoryGrid tools;
     private InventoryGrid result;
+    private UILabel ingredientsLabel;
+    private UILabel toolsLabel;
+    private UILabel resultLabel;
     private InventoryGrid player;
     private UIImage stationBackground;
+    private HorizontalProgressBar progressBar;
 
-    private EntityRef station;
+    protected EntityRef station;
 
     @Override
     public void initialise() {
         ingredients = find("ingredientsInventory", InventoryGrid.class);
         tools = find("toolsInventory", InventoryGrid.class);
         result = find("resultInventory", InventoryGrid.class);
+        ingredientsLabel = find("ingredientsInventoryLabel", UILabel.class);
+        toolsLabel = find("toolsInventoryLabel", UILabel.class);
+        resultLabel = find("resultInventoryLabel", UILabel.class);
         player = find("playerInventory", InventoryGrid.class);
         stationBackground = find("stationBackground", UIImage.class);
+        progressBar = find("progressBar", HorizontalProgressBar.class);
 
     }
 
@@ -53,29 +64,34 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         int blockInputSlots = machineDefinition.inputSlots;
         int blockOutputSlots = machineDefinition.outputSlots;
 
-        if( ingredients != null) {
+        if (ingredients != null) {
             ingredients.setTargetEntity(station);
             ingredients.setCellOffset(0);
             ingredients.setMaxCellCount(blockInputSlots);
+            ingredientsLabel.setVisible(blockInputSlots > 0);
         }
 
-        if( tools != null ) {
+        if (tools != null) {
             tools.setTargetEntity(station);
             tools.setCellOffset(blockInputSlots);
             tools.setMaxCellCount(requirementInputSlots);
+            toolsLabel.setVisible(requirementInputSlots > 0);
         }
 
-        if( result != null) {
+        if (result != null) {
             result.setTargetEntity(station);
             result.setCellOffset(requirementInputSlots + blockInputSlots);
             result.setMaxCellCount(blockOutputSlots);
+            resultLabel.setVisible(blockOutputSlots > 0);
         }
 
-        if( player != null) {
+        if (player != null) {
             player.setTargetEntity(CoreRegistry.get(LocalPlayer.class).getCharacterEntity());
             player.setCellOffset(10);
             player.setMaxCellCount(30);
         }
+
+        progressBar.setVisible(false);
 
     }
 
@@ -84,6 +100,19 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         if (!station.exists()) {
             CoreRegistry.get(NUIManager.class).closeScreen(this);
             return;
+        } else {
+            WorkstationProcessingComponent processing = station.getComponent(WorkstationProcessingComponent.class);
+            if (processing != null && processing.processes.size() > 0) {
+                for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
+                    Time time = CoreRegistry.get(Time.class);
+                    long currentTime = time.getGameTimeInMs();
+                    float value = 1.0f - (float) (processDef.processingFinishTime - currentTime) / (float) (processDef.processingFinishTime - processDef.processingStartTime);
+                    progressBar.setValue(Math.max(value, 0f));
+                    progressBar.setVisible(true);
+                }
+            } else {
+                progressBar.setVisible(false);
+            }
         }
         super.update(delta);
     }
