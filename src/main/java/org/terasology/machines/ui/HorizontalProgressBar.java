@@ -16,11 +16,9 @@
 package org.terasology.machines.ui;
 
 import org.terasology.asset.Assets;
-import org.terasology.engine.Time;
 import org.terasology.math.Rect2i;
 import org.terasology.math.TeraMath;
 import org.terasology.math.Vector2i;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.assets.texture.TextureRegion;
 import org.terasology.rendering.nui.Canvas;
 import org.terasology.rendering.nui.CoreWidget;
@@ -29,60 +27,29 @@ import org.terasology.rendering.nui.ScaleMode;
 import org.terasology.rendering.nui.databinding.Binding;
 import org.terasology.rendering.nui.databinding.DefaultBinding;
 
-/**
- * @author Immortius
- */
 public class HorizontalProgressBar extends CoreWidget {
-
     @LayoutConfig
     private TextureRegion fillTexture = Assets.getTexture("statusBar");
-    @LayoutConfig
-    private int width = -1;
-    @LayoutConfig
-    private boolean animate = true;
-
-    private Binding<Float> value = new DefaultBinding<>(0f);
-    private Time time = CoreRegistry.get(Time.class);
+    private Binding<Float> value = new DefaultBinding<>();
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (fillTexture != null) {
-            int size = TeraMath.floorToInt(canvas.size().x * getValue());
-            int barWidth = fillTexture.getWidth();
-            int offset = 0;
-            if (time != null && animate) {
-                offset = (int) ((time.getRealTimeInMs() / 10) % barWidth);
-            }
-            int drawnWidth = 0;
-            // Draw Offset
-            if (offset != 0) {
-                int drawWidth = Math.min(size, offset);
-                canvas.drawTextureRaw(fillTexture, Rect2i.createFromMinAndSize(0, 0, drawWidth, canvas.size().y)
-                        , ScaleMode.STRETCH, barWidth - offset, 0, drawWidth, canvas.size().y);
-                drawnWidth += drawWidth;
-            }
-            // Draw Remainder
-            while (drawnWidth < size) {
-                int drawWidth = Math.min(size - drawnWidth, barWidth);
-                canvas.drawTextureRaw(fillTexture, Rect2i.createFromMinAndSize(drawnWidth, 0, drawWidth, canvas.size().y)
-                        , ScaleMode.STRETCH, 0, 0, drawWidth, canvas.size().y);
-                drawnWidth += drawWidth;
-            }
+        if(fillTexture != null) {
+            float result = (float) TeraMath.clamp(getValue());
+
+            Vector2i size = canvas.size();
+            int drawWidth = Math.round(result * fillTexture.getWidth());
+            canvas.drawTextureRaw(fillTexture, Rect2i.createFromMinAndSize(0, 0, drawWidth, size.y), ScaleMode.STRETCH,
+                    0f, 0f, 1f, result);
         }
     }
 
     @Override
     public Vector2i getPreferredContentSize(Canvas canvas, Vector2i sizeHint) {
-        if( width == -1 ) {
-            return Vector2i.zero();
-        }else{
-            return new Vector2i(width, 0);
+        if (fillTexture != null) {
+            return fillTexture.size();
         }
-    }
-
-    @Override
-    public void update(float delta) {
-        super.update(delta);
+        return Vector2i.zero();
     }
 
     public TextureRegion getFillTexture() {
@@ -93,23 +60,15 @@ public class HorizontalProgressBar extends CoreWidget {
         this.fillTexture = fillTexture;
     }
 
-    public boolean isAnimate() {
-        return animate;
-    }
-
-    public void setAnimate(boolean animate) {
-        this.animate = animate;
-    }
-
-    public void bindValue(Binding<Float> binding) {
-        value = binding;
-    }
-
     public float getValue() {
         return value.get();
     }
 
-    public void setValue(float val) {
-        value.set(val);
+    public void setValue(float value) {
+        this.value.set(value);
+    }
+
+    public void bindValue(Binding<Float> binding) {
+        this.value = binding;
     }
 }
