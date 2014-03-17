@@ -30,6 +30,7 @@ public class RenderInventoryInCategoryComponent implements Component {
     public String category;
     public Vector3f translate = new Vector3f();
     public float blockSize = 0.3f;
+    public float itemSize = 0.3f;
     public boolean itemsAreFlat;
     public boolean verticalAlignmentBottom;
 
@@ -53,10 +54,10 @@ public class RenderInventoryInCategoryComponent implements Component {
             }
         }
 
-        if( isBlockItem) {
+        if (isBlockItem) {
             renderItem.size = blockSize;
-        }else {
-            renderItem.size = 0.3f;
+        } else {
+            renderItem.size = itemSize;
         }
 
         return renderItem;

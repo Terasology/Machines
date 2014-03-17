@@ -64,7 +64,7 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
             entity.addComponent(workstationInventory);
         }
 
-            // configure the categorized inventory
+        // configure the categorized inventory
         if (!entity.hasComponent(CategorizedInventoryComponent.class)) {
             CategorizedInventoryComponent categorizedInventory = new CategorizedInventoryComponent();
             int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;

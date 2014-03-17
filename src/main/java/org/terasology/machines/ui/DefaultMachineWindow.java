@@ -29,6 +29,9 @@ import org.terasology.workstation.component.WorkstationProcessingComponent;
 import org.terasology.workstation.ui.WorkstationUI;
 
 public class DefaultMachineWindow extends CoreScreenLayer implements WorkstationUI {
+
+    protected EntityRef station;
+
     private InventoryGrid ingredients;
     private InventoryGrid tools;
     private InventoryGrid result;
@@ -38,8 +41,6 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
     private InventoryGrid player;
     private UIImage stationBackground;
     private HorizontalProgressBar progressBar;
-
-    protected EntityRef station;
 
     @Override
     public void initialise() {
@@ -122,3 +123,4 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         return false;
     }
 }
+

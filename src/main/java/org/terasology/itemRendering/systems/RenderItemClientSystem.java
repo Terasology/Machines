@@ -65,10 +65,12 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     public void onAddedItemDisplay(OnAddedComponent event, EntityRef entity, RenderItemComponent itemDisplay) {
         LocationComponent blockLocation = entity.getOwner().getComponent(LocationComponent.class);
         if (blockLocation != null) {
-            if (entity.hasComponent(BlockItemComponent.class)) {
-                addBlockRendering(entity);
-            } else {
-                addItemRendering(entity);
+            if (!entity.hasComponent(MeshComponent.class)) {
+                if (entity.hasComponent(BlockItemComponent.class)) {
+                    addBlockRendering(entity);
+                } else {
+                    addItemRendering(entity);
+                }
             }
 
             // update the location
@@ -101,7 +103,7 @@ public class RenderItemClientSystem extends BaseComponentSystem {
         BlockItemComponent blockItemComponent = entityRef.getComponent(BlockItemComponent.class);
         BlockFamily blockFamily = blockItemComponent.blockFamily;
 
-        if( blockFamily == null) {
+        if (blockFamily == null) {
             return;
         }
 

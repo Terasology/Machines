@@ -72,6 +72,7 @@ public abstract class ExtendedInventoryManager {
 
     /**
      * returns the items in the inventory category. If there is no categorized inventory component, returns all the items.
+     *
      * @param inventoryManager
      * @param inventoryEntity
      * @param inventoryCategory
@@ -81,15 +82,15 @@ public abstract class ExtendedInventoryManager {
         CategorizedInventoryComponent categorizedInventory = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
 
         if (categorizedInventory != null) {
-                List<EntityRef> items = Lists.newArrayList();
+            List<EntityRef> items = Lists.newArrayList();
 
-                if (categorizedInventory.slotMapping.containsKey(inventoryCategory)) {
-                    List<Integer> slots = categorizedInventory.slotMapping.get(inventoryCategory);
-                    for (int i : slots) {
-                        items.add(inventoryManager.getItemInSlot(inventoryEntity, i));
-                    }
+            if (categorizedInventory.slotMapping.containsKey(inventoryCategory)) {
+                List<Integer> slots = categorizedInventory.slotMapping.get(inventoryCategory);
+                for (int i : slots) {
+                    items.add(inventoryManager.getItemInSlot(inventoryEntity, i));
                 }
-                return items;
+            }
+            return items;
         } else {
             return iterateItems(inventoryManager, inventoryEntity);
         }

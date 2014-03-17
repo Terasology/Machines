@@ -51,11 +51,7 @@ public class RequirementInputComponent implements Component, ProcessPart {
             }
         }
 
-        if (requirementsProvided.containsAll(requirements)) {
-            return true;
-        } else {
-            return false;
-        }
+        return requirementsProvided.containsAll(requirements);
     }
 
     @Override

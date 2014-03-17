@@ -34,7 +34,7 @@ public class HorizontalProgressBar extends CoreWidget {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if(fillTexture != null) {
+        if (fillTexture != null) {
             float result = (float) TeraMath.clamp(getValue());
 
             Vector2i size = canvas.size();

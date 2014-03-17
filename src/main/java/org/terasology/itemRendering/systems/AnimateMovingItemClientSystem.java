@@ -58,7 +58,7 @@ public class AnimateMovingItemClientSystem extends BaseComponentSystem implement
 
     @Override
     public void update(float delta) {
-        for (EntityRef entity : entityManager.getEntitiesWith(AnimatedMovingItemComponent.class,LocationComponent.class, RenderItemComponent.class )) {
+        for (EntityRef entity : entityManager.getEntitiesWith(AnimatedMovingItemComponent.class, LocationComponent.class, RenderItemComponent.class)) {
             AnimatedMovingItemComponent animatedMovingItemComponent = entity.getComponent(AnimatedMovingItemComponent.class);
             LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
             RenderItemComponent renderItemComponent = entity.getComponent(RenderItemComponent.class);
