@@ -23,9 +23,9 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
+import org.terasology.machines.components.NestedMachineComponent;
 import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.math.Side;
 import org.terasology.workstation.component.WorkstationInventoryComponent;
@@ -40,8 +40,13 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
     public void initialise() {
     }
 
-    @ReceiveEvent(components = {LocationComponent.class, BlockComponent.class})
+    @ReceiveEvent(components = {BlockComponent.class})
     public void onMachineDefinitionAdded(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
+        addProcessingMachine(entity, machineDefinition);
+    }
+
+    @ReceiveEvent(components = {NestedMachineComponent.class})
+    public void onNestedMachineDefinitionAdded(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
         addProcessingMachine(entity, machineDefinition);
     }
 

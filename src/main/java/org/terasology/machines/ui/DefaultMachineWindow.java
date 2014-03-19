@@ -22,10 +22,19 @@ import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.CoreScreenLayer;
 import org.terasology.rendering.nui.NUIManager;
+import org.terasology.rendering.nui.UIWidget;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
+import org.terasology.rendering.nui.widgets.ActivateEventListener;
+import org.terasology.rendering.nui.widgets.UIButton;
 import org.terasology.rendering.nui.widgets.UIImage;
 import org.terasology.rendering.nui.widgets.UILabel;
+import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.component.WorkstationProcessingComponent;
+import org.terasology.workstation.event.WorkstationProcessRequest;
+import org.terasology.workstation.process.DescribeProcess;
+import org.terasology.workstation.process.ValidateProcess;
+import org.terasology.workstation.process.WorkstationProcess;
+import org.terasology.workstation.system.WorkstationRegistry;
 import org.terasology.workstation.ui.WorkstationUI;
 
 public class DefaultMachineWindow extends CoreScreenLayer implements WorkstationUI {
@@ -41,6 +50,10 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
     private InventoryGrid player;
     private UIImage stationBackground;
     private HorizontalProgressBar progressBar;
+    private UIButton executeButton;
+    private UILabel processResult;
+
+    private String validProcessId;
 
     @Override
     public void initialise() {
@@ -53,13 +66,29 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         player = find("playerInventory", InventoryGrid.class);
         stationBackground = find("stationBackground", UIImage.class);
         progressBar = find("progressBar", HorizontalProgressBar.class);
+        executeButton = find("executeButton", UIButton.class);
+        if (executeButton != null) {
+            executeButton.subscribe(new ActivateEventListener() {
+                @Override
+                public void onActivated(UIWidget button) {
+                    requestProcessExecution();
+                }
+            });
+        }
+        processResult = find("processResult", UILabel.class);
+    }
 
+    private void requestProcessExecution() {
+        if (validProcessId != null) {
+            station.send(new WorkstationProcessRequest(CoreRegistry.get(LocalPlayer.class).getCharacterEntity(), validProcessId));
+        }
     }
 
     @Override
     public void initializeWorkstation(final EntityRef entity) {
         this.station = entity;
 
+        WorkstationComponent workstation = station.getComponent(WorkstationComponent.class);
         MachineDefinitionComponent machineDefinition = station.getComponent(MachineDefinitionComponent.class);
         int requirementInputSlots = machineDefinition.requirementSlots;
         int blockInputSlots = machineDefinition.inputSlots;
@@ -92,7 +121,14 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             player.setMaxCellCount(30);
         }
 
-        progressBar.setVisible(false);
+        if (progressBar != null) {
+            progressBar.setVisible(false);
+        }
+
+        if (executeButton != null) {
+            // hide the button, if there arent any manual processes
+            executeButton.setVisible(workstation.supportedProcessTypes.values().contains(false));
+        }
 
     }
 
@@ -102,20 +138,53 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             CoreRegistry.get(NUIManager.class).closeScreen(this);
             return;
         } else {
-            WorkstationProcessingComponent processing = station.getComponent(WorkstationProcessingComponent.class);
-            if (processing != null && processing.processes.size() > 0) {
-                for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
-                    Time time = CoreRegistry.get(Time.class);
-                    long currentTime = time.getGameTimeInMs();
-                    float value = 1.0f - (float) (processDef.processingFinishTime - currentTime) / (float) (processDef.processingFinishTime - processDef.processingStartTime);
-                    progressBar.setValue(Math.max(value, 0f));
-                    progressBar.setVisible(true);
+            if (progressBar != null) {
+                WorkstationProcessingComponent processing = station.getComponent(WorkstationProcessingComponent.class);
+                if (processing != null && processing.processes.size() > 0) {
+                    for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
+                        Time time = CoreRegistry.get(Time.class);
+                        long currentTime = time.getGameTimeInMs();
+                        float value = 1.0f - (float) (processDef.processingFinishTime - currentTime) / (float) (processDef.processingFinishTime - processDef.processingStartTime);
+                        progressBar.setValue(Math.max(value, 0f));
+                        progressBar.setVisible(true);
+                    }
+                } else {
+                    progressBar.setVisible(false);
                 }
-            } else {
-                progressBar.setVisible(false);
             }
+
+            if (processResult != null) {
+                // check for valid processes
+                EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
+                WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+                WorkstationComponent workstation = station.getComponent(WorkstationComponent.class);
+                validProcessId = null;
+                processResult.setText("");
+
+                WorkstationProcess mostComplexProcess = null;
+                for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
+                    if (process instanceof ValidateProcess) {
+                        ValidateProcess validateProcess = (ValidateProcess) process;
+                        if (validateProcess.isValid(character, station)) {
+                            if (process instanceof DescribeProcess) {
+                                if (mostComplexProcess == null || ((DescribeProcess) process).getComplexity() > ((DescribeProcess) mostComplexProcess).getComplexity()) {
+                                    mostComplexProcess = process;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (mostComplexProcess != null) {
+                    validProcessId = mostComplexProcess.getId();
+                    if (mostComplexProcess instanceof DescribeProcess) {
+                        processResult.setText(((DescribeProcess) mostComplexProcess).getDescription());
+                    }
+                }
+            }
+
+            super.update(delta);
         }
-        super.update(delta);
     }
 
     @Override

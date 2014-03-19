@@ -76,6 +76,22 @@
                 ]
               },
               {
+                  "type": "ColumnLayout",
+                  "fillVerticalSpace": false,
+                  "autoSizeColumns": true,
+                  "contents": [
+                    {
+                      "type": "UILabel",
+                      "id": "processResult"
+                    },
+                    {
+                      "type": "UIButton",
+                      "text": "Execute",
+                      "id": "executeButton"
+                    }
+                  ]
+              },
+              {
                 "type": "InventoryGrid",
                 "id": "playerInventory"
               }
