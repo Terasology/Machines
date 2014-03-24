@@ -29,7 +29,7 @@ import org.terasology.rendering.nui.databinding.DefaultBinding;
 
 public class HorizontalProgressBar extends CoreWidget {
     @LayoutConfig
-    private TextureRegion fillTexture = Assets.getTexture("statusBar");
+    private TextureRegion fillTexture = Assets.getTexture("horizontalProgressBar");
     private Binding<Float> value = new DefaultBinding<>();
 
     @Override
@@ -40,7 +40,7 @@ public class HorizontalProgressBar extends CoreWidget {
             Vector2i size = canvas.size();
             int drawWidth = Math.round(result * fillTexture.getWidth());
             canvas.drawTextureRaw(fillTexture, Rect2i.createFromMinAndSize(0, 0, drawWidth, size.y), ScaleMode.STRETCH,
-                    0f, 0f, 1f, result);
+                    0f, 0f, result, 1f);
         }
     }
 
