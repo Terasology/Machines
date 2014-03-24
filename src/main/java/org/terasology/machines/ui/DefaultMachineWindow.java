@@ -99,6 +99,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             ingredients.setCellOffset(0);
             ingredients.setMaxCellCount(blockInputSlots);
             ingredientsLabel.setVisible(blockInputSlots > 0);
+            ingredientsLabel.setText(machineDefinition.inputSlotsTitle);
         }
 
         if (tools != null) {
@@ -106,6 +107,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             tools.setCellOffset(blockInputSlots);
             tools.setMaxCellCount(requirementInputSlots);
             toolsLabel.setVisible(requirementInputSlots > 0);
+            toolsLabel.setText(machineDefinition.requirementSlotsTitle);
         }
 
         if (result != null) {
@@ -113,6 +115,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             result.setCellOffset(requirementInputSlots + blockInputSlots);
             result.setMaxCellCount(blockOutputSlots);
             resultLabel.setVisible(blockOutputSlots > 0);
+            resultLabel.setText(machineDefinition.outputSlotsTitle);
         }
 
         if (player != null) {
@@ -128,6 +131,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         if (executeButton != null) {
             // hide the button, if there arent any manual processes
             executeButton.setVisible(workstation.supportedProcessTypes.values().contains(false));
+            executeButton.setText(machineDefinition.actionTitle);
         }
 
     }

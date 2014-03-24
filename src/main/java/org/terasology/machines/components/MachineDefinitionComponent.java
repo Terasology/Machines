@@ -24,7 +24,11 @@ import java.util.List;
 @ForceBlockActive
 public class MachineDefinitionComponent implements Component {
     public int inputSlots;
+    public String inputSlotsTitle = "Input";
     public int requirementSlots;
+    public String requirementSlotsTitle = "Requirements";
     public int outputSlots;
+    public String outputSlotsTitle = "Output";
     public List<String> requirementsProvided = Lists.newArrayList();
+    public String actionTitle = "Execute";
 }

@@ -32,6 +32,7 @@
                       },
                       {
                         "type": "InventoryGrid",
+                        "maxHorizontalCells": 2,
                         "id": "ingredientsInventory"
                       }
                     ]
@@ -48,6 +49,7 @@
                       },
                       {
                         "type": "InventoryGrid",
+                        "maxHorizontalCells": 2,
                         "id": "toolsInventory"
                       }
                     ]
@@ -69,6 +71,7 @@
                       },
                       {
                         "type": "InventoryGrid",
+                        "maxHorizontalCells": 2,
                         "id": "resultInventory"
                       }
                     ]
