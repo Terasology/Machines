@@ -26,6 +26,7 @@ import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.itemRendering.components.AnimatedMovingItemComponent;
 import org.terasology.itemTransport.components.PullInventoryInDirectionComponent;
 import org.terasology.itemTransport.components.PushInventoryInDirectionComponent;
+import org.terasology.itemTransport.events.ConveyorItemStuckEvent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.action.GiveItemAction;
@@ -126,11 +127,20 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
 
                         alreadyMovedItems.add(item);
                         // send the item to the target inventory
-                        GiveItemAction giveItemAction = new GiveItemAction(entity, item);
-                        targetEntity.send(giveItemAction);
-                        if (giveItemAction.isConsumed()) {
-                            entity.send(new RemoveItemAction(entity, item, false));
+                        if (inventoryManager.giveItem(targetEntity, entity, item)) {
+                            inventoryManager.removeItem(entity, entity, item, false);
                         }
+                    }
+                } else {
+                    boolean hasItems = false;
+                    for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
+                        if (item.exists()) {
+                            hasItems = true;
+                            break;
+                        }
+                    }
+                    if (hasItems) {
+                        entity.send(new ConveyorItemStuckEvent(adjacentPos));
                     }
                 }
             }
