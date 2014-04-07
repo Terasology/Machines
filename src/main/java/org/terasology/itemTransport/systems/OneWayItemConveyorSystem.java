@@ -29,8 +29,6 @@ import org.terasology.itemTransport.components.PushInventoryInDirectionComponent
 import org.terasology.itemTransport.events.ConveyorItemStuckEvent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.action.GiveItemAction;
-import org.terasology.logic.inventory.action.RemoveItemAction;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.math.Direction;
@@ -169,10 +167,9 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
                     for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity, side.reverse())) {
                         if (item.exists()) {
                             // grab the item to the target inventory
-                            GiveItemAction giveItemAction = new GiveItemAction(entity, item);
-                            entity.send(giveItemAction);
-                            if (giveItemAction.isConsumed()) {
-                                targetEntity.send(new RemoveItemAction(entity, item, false));
+
+                            if (inventoryManager.giveItem(entity, entity, item)) {
+                                inventoryManager.removeItem(targetEntity, entity, item, false);
                             }
                             // only do one stack at a time
                             break;
