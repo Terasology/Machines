@@ -148,7 +148,8 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                     for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
                         Time time = CoreRegistry.get(Time.class);
                         long currentTime = time.getGameTimeInMs();
-                        float value = 1.0f - (float) (processDef.processingFinishTime - currentTime) / (float) (processDef.processingFinishTime - processDef.processingStartTime);
+                        float value = 1.0f - (float) (processDef.processingFinishTime - currentTime)
+                                / (float) (processDef.processingFinishTime - processDef.processingStartTime);
                         progressBar.setValue(Math.max(value, 0f));
                         progressBar.setVisible(true);
                     }
@@ -196,4 +197,3 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         return false;
     }
 }
-
