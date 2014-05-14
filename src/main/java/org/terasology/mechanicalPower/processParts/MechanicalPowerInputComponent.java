@@ -18,9 +18,10 @@ package org.terasology.mechanicalPower.processParts;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
+import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 
-public class MechanicalPowerInputComponent implements Component, ProcessPart {
+public class MechanicalPowerInputComponent implements Component, ProcessPart, DescribeProcess {
     public float power;
 
     @Override
@@ -51,5 +52,20 @@ public class MechanicalPowerInputComponent implements Component, ProcessPart {
     @Override
     public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
 
+    }
+
+    @Override
+    public String getOutputDescription() {
+        return null;
+    }
+
+    @Override
+    public String getInputDescription() {
+        return power + " energy";
+    }
+
+    @Override
+    public int getComplexity() {
+        return 0;
     }
 }

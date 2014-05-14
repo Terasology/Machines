@@ -15,6 +15,7 @@
  */
 package org.terasology.machines.processParts;
 
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -22,11 +23,12 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 
 import java.util.List;
 
-public class RequirementInputComponent implements Component, ProcessPart {
+public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess {
     public List<String> requirements = Lists.newArrayList();
 
     @Override
@@ -67,5 +69,20 @@ public class RequirementInputComponent implements Component, ProcessPart {
     @Override
     public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
 
+    }
+
+    @Override
+    public String getOutputDescription() {
+        return null;
+    }
+
+    @Override
+    public String getInputDescription() {
+        return Joiner.on(", ").join(requirements);
+    }
+
+    @Override
+    public int getComplexity() {
+        return 0;
     }
 }

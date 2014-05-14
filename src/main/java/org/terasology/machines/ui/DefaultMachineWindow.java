@@ -35,6 +35,7 @@ import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ValidateProcess;
 import org.terasology.workstation.process.WorkstationProcess;
 import org.terasology.workstation.system.WorkstationRegistry;
+import org.terasology.workstation.ui.ProcessListWidget;
 import org.terasology.workstation.ui.WorkstationUI;
 
 public class DefaultMachineWindow extends CoreScreenLayer implements WorkstationUI {
@@ -52,6 +53,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
     private HorizontalProgressBar progressBar;
     private UIButton executeButton;
     private UILabel processResult;
+    private ProcessListWidget processList;
 
     private String validProcessId;
 
@@ -76,6 +78,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             });
         }
         processResult = find("processResult", UILabel.class);
+        processList = find("processList", ProcessListWidget.class);
     }
 
     private void requestProcessExecution() {
@@ -134,6 +137,9 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             executeButton.setText(machineDefinition.actionTitle);
         }
 
+        if (processList != null) {
+            processList.initializeWorkstation(station);
+        }
     }
 
     @Override
@@ -158,6 +164,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                 }
             }
 
+            // find the process that will run
             if (processResult != null) {
                 // check for valid processes
                 EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
@@ -183,7 +190,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                 if (mostComplexProcess != null) {
                     validProcessId = mostComplexProcess.getId();
                     if (mostComplexProcess instanceof DescribeProcess) {
-                        processResult.setText(((DescribeProcess) mostComplexProcess).getDescription());
+                        processResult.setText(((DescribeProcess) mostComplexProcess).getOutputDescription());
                     }
                 }
             }

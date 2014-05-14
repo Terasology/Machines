@@ -26,9 +26,9 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.registry.In;
 import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
+import org.terasology.registry.In;
 import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 

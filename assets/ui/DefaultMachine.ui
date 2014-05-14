@@ -2,18 +2,20 @@
   "type": "Machines:DefaultMachineWindow",
   "skin": "Machines:DefaultMachine",
   "contents": {
-    "type": "RelativeLayout",
+    "type": "RowLayout",
     "contents": [
     {
+      "type": "RelativeLayout",
+      "contents": [
+      {
         "type": "ColumnLayout",
         "layoutInfo": {
             "use-content-width": true,
             "use-content-height": true,
             "verticalSpacing": 20,
-            "position-horizontal-center": {
-
-            },
             "position-vertical-center": {
+            },
+            "position-horizontal-center": {
             }
           },
           "contents": [
@@ -100,6 +102,18 @@
               }
           ]
       }
+      ]
+    },
+    {
+        "type": "ScrollableArea",
+        "layoutInfo": {
+          "useContentWidth": true
+        },
+        "content": {
+              "type": "ProcessListWidget",
+              "id": "processList"
+        }
+    }
     ]
   }
 }
