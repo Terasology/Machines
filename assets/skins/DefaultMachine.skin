@@ -16,5 +16,18 @@
                 "right": 0
             }
         }
+    },
+    "families": {
+        "processlist": {
+            "elements": {
+                "ItemIcon" : {
+                            "fixed-width" : 24,
+                            "fixed-height" : 24,
+                            "texture-scale-mode" : "scale fit",
+                            "text-align-horizontal" : "right",
+                            "text-align-vertical" : "bottom"
+                        }
+            }
+        }
     }
 }

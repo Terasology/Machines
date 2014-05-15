@@ -190,7 +190,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                 if (mostComplexProcess != null) {
                     validProcessId = mostComplexProcess.getId();
                     if (mostComplexProcess instanceof DescribeProcess) {
-                        processResult.setText(((DescribeProcess) mostComplexProcess).getOutputDescription());
+                        processResult.setText(((DescribeProcess) mostComplexProcess).getOutputDescription().toString());
                     }
                 }
             }

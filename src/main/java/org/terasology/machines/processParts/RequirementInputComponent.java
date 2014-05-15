@@ -25,6 +25,7 @@ import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
+import org.terasology.workstation.process.ProcessPartDescription;
 
 import java.util.List;
 
@@ -72,13 +73,13 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
     }
 
     @Override
-    public String getOutputDescription() {
+    public ProcessPartDescription getOutputDescription() {
         return null;
     }
 
     @Override
-    public String getInputDescription() {
-        return Joiner.on(", ").join(requirements);
+    public ProcessPartDescription getInputDescription() {
+        return new ProcessPartDescription(Joiner.on(", ").join(requirements));
     }
 
     @Override

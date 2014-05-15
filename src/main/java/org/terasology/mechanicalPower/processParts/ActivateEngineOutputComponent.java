@@ -20,6 +20,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
+import org.terasology.workstation.process.ProcessPartDescription;
 
 public class ActivateEngineOutputComponent implements Component, ProcessPart, DescribeProcess {
     public long activateTime;
@@ -57,12 +58,12 @@ public class ActivateEngineOutputComponent implements Component, ProcessPart, De
     }
 
     @Override
-    public String getOutputDescription() {
-        return (activateTime / 1000) + " sec";
+    public ProcessPartDescription getOutputDescription() {
+        return new ProcessPartDescription((activateTime / 1000) + " sec");
     }
 
     @Override
-    public String getInputDescription() {
+    public ProcessPartDescription getInputDescription() {
         return null;
     }
 

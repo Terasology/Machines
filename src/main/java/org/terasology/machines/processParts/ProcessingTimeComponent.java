@@ -19,6 +19,7 @@ import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
+import org.terasology.workstation.process.ProcessPartDescription;
 
 public class ProcessingTimeComponent implements Component, ProcessPart, DescribeProcess {
     public long duration;
@@ -44,13 +45,13 @@ public class ProcessingTimeComponent implements Component, ProcessPart, Describe
     }
 
     @Override
-    public String getOutputDescription() {
+    public ProcessPartDescription getOutputDescription() {
         return null;
     }
 
     @Override
-    public String getInputDescription() {
-        return (duration / 1000) + " sec";
+    public ProcessPartDescription getInputDescription() {
+        return new ProcessPartDescription((duration / 1000) + " sec");
     }
 
     @Override
