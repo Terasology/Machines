@@ -25,6 +25,7 @@ import org.terasology.rendering.nui.NUIManager;
 import org.terasology.rendering.nui.UIWidget;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
 import org.terasology.rendering.nui.widgets.ActivateEventListener;
+import org.terasology.rendering.nui.widgets.UIBox;
 import org.terasology.rendering.nui.widgets.UIButton;
 import org.terasology.rendering.nui.widgets.UIImage;
 import org.terasology.rendering.nui.widgets.UILabel;
@@ -52,7 +53,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
     private UIImage stationBackground;
     private HorizontalProgressBar progressBar;
     private UIButton executeButton;
-    private UILabel processResult;
+    private UIBox processResult;
     private ProcessListWidget processList;
 
     private String validProcessId;
@@ -77,7 +78,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                 }
             });
         }
-        processResult = find("processResult", UILabel.class);
+        processResult = find("processResult", UIBox.class);
         processList = find("processList", ProcessListWidget.class);
     }
 
@@ -149,6 +150,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
             return;
         } else {
             if (progressBar != null) {
+                // update the progress bar
                 WorkstationProcessingComponent processing = station.getComponent(WorkstationProcessingComponent.class);
                 if (processing != null && processing.processes.size() > 0) {
                     for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
@@ -171,8 +173,8 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                 WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
                 WorkstationComponent workstation = station.getComponent(WorkstationComponent.class);
                 validProcessId = null;
-                processResult.setText("");
 
+                // isolate the valid processes to one single process
                 WorkstationProcess mostComplexProcess = null;
                 for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
                     if (process instanceof ValidateProcess) {
@@ -186,12 +188,17 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                         }
                     }
                 }
-
                 if (mostComplexProcess != null) {
                     validProcessId = mostComplexProcess.getId();
                     if (mostComplexProcess instanceof DescribeProcess) {
-                        processResult.setText(((DescribeProcess) mostComplexProcess).getOutputDescription().toString());
+                        processResult.setContent(((DescribeProcess) mostComplexProcess).getOutputDescription().getWidget());
+                    } else {
+                        UILabel processIdLabel = new UILabel();
+                        processIdLabel.setText(validProcessId);
+                        processResult.setContent(processIdLabel);
                     }
+                } else {
+                    processResult.setContent(new UILabel());
                 }
             }
 

@@ -86,7 +86,7 @@
                   "autoSizeColumns": true,
                   "contents": [
                     {
-                      "type": "UILabel",
+                      "type": "UIBox",
                       "id": "processResult"
                     },
                     {
