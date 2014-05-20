@@ -52,16 +52,26 @@ public class AnimateRotationClientSystem extends BaseComponentSystem implements 
             AnimateRotationComponent animateRotationComponent = entity.getComponent(AnimateRotationComponent.class);
             LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
 
-            Rotation rotation = Rotation.rotate(animateRotationComponent.yaw, animateRotationComponent.pitch, animateRotationComponent.roll);
-            Quat4f rotationDirection = rotation.getQuat4f();
-            Quat4f rotationAmount = new Quat4f(0, 0, 0, 1f);
-            rotationAmount.interpolate(rotationDirection, delta * animateRotationComponent.speed);
+            if (animateRotationComponent.isSynchronized) {
+                float percentThroughRotation = (time.getGameTime() % (1 / animateRotationComponent.speed)) / (1 / animateRotationComponent.speed);
 
-            Quat4f currentRotation = locationComponent.getLocalRotation();
-            currentRotation.mul(rotationAmount);
-            currentRotation.normalize();
-            locationComponent.setLocalRotation(currentRotation);
+                Rotation rotation = Rotation.rotate(animateRotationComponent.yaw, animateRotationComponent.pitch, animateRotationComponent.roll);
+                Quat4f rotationDirection = rotation.getQuat4f();
+                Quat4f rotationAmount = new Quat4f(0, 0, 0, 1f);
+                rotationAmount.interpolate(rotationDirection, percentThroughRotation);
 
+                locationComponent.setLocalRotation(rotationAmount);
+            } else {
+                Rotation rotation = Rotation.rotate(animateRotationComponent.yaw, animateRotationComponent.pitch, animateRotationComponent.roll);
+                Quat4f rotationDirection = rotation.getQuat4f();
+                Quat4f rotationAmount = new Quat4f(0, 0, 0, 1f);
+                rotationAmount.interpolate(rotationDirection, delta * animateRotationComponent.speed);
+
+                Quat4f currentRotation = locationComponent.getLocalRotation();
+                currentRotation.mul(rotationAmount);
+                currentRotation.normalize();
+                locationComponent.setLocalRotation(currentRotation);
+            }
             entity.saveComponent(locationComponent);
         }
     }
