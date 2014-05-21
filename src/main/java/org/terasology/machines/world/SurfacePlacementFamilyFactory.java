@@ -18,7 +18,9 @@ package org.terasology.machines.world;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonObject;
 import org.terasology.asset.AssetUri;
+import org.terasology.math.Rotation;
 import org.terasology.math.Side;
+import org.terasology.math.Yaw;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockUri;
 import org.terasology.world.block.family.BlockBuilderHelper;
@@ -47,7 +49,10 @@ public class SurfacePlacementFamilyFactory implements BlockFamilyFactory {
         }
         BlockDefinition sideDef = blockBuilder.getBlockDefinitionForSection(blockDefJson, SIDES);
         if (sideDef != null) {
-            blockMap.putAll(blockBuilder.constructHorizontalRotatedBlocks(blockDefUri, sideDef));
+            blockMap.put(Side.FRONT, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.NONE)));
+            blockMap.put(Side.LEFT, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.CLOCKWISE_90)));
+            blockMap.put(Side.BACK, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.CLOCKWISE_180)));
+            blockMap.put(Side.RIGHT, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.CLOCKWISE_270)));
         }
         BlockDefinition bottomDef = blockBuilder.getBlockDefinitionForSection(blockDefJson, BOTTOM);
         if (bottomDef != null) {

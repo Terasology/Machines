@@ -28,7 +28,6 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
-import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Pitch;
 import org.terasology.math.Roll;
@@ -67,18 +66,14 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         blockItem.blockFamily = rotatingAxle.renderedBlockFamily;
         renderedEntityBuilder.saveComponent(blockItem);
 
-        // rotate the rendered entity to match the block
-        RenderItemComponent itemTransform = renderedEntityBuilder.getComponent(RenderItemComponent.class);
+        // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
         Side direction = block.getBlock().getDirection();
         Rotation rotation = getRotation(direction);
-        itemTransform.pitch = rotation.getPitch();
-        itemTransform.roll = rotation.getRoll();
-        itemTransform.yaw = rotation.getYaw();
-        renderedEntityBuilder.saveComponent(itemTransform);
+        location.setWorldRotation(rotation.getQuat4f());
+        entity.saveComponent(location);
 
         rotatingAxle.renderedEntity = renderedEntityBuilder.build();
         entity.saveComponent(rotatingAxle);
-
 
         Network network = mechanicalPowerBlockNetwork.getNetwork(block.getPosition());
         updateAxlesInNetwork(network);
