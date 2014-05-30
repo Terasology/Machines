@@ -31,4 +31,5 @@ public class MachineDefinitionComponent implements Component {
     public String outputSlotsTitle = "Output";
     public List<String> requirementsProvided = Lists.newArrayList();
     public String actionTitle = "Execute";
+    public String extraWidget;
 }

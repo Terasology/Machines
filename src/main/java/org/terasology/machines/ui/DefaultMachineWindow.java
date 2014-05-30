@@ -15,6 +15,8 @@
  */
 package org.terasology.machines.ui;
 
+import com.google.common.base.Strings;
+import org.terasology.asset.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.players.LocalPlayer;
@@ -23,6 +25,7 @@ import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.CoreScreenLayer;
 import org.terasology.rendering.nui.NUIManager;
 import org.terasology.rendering.nui.UIWidget;
+import org.terasology.rendering.nui.asset.UIElement;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
 import org.terasology.rendering.nui.widgets.ActivateEventListener;
 import org.terasology.rendering.nui.widgets.UIBox;
@@ -54,7 +57,9 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
     private HorizontalProgressBar progressBar;
     private UIButton executeButton;
     private UIBox processResult;
+    private UIContainer customUI;
     private ProcessListWidget processList;
+
 
     private String validProcessId;
 
@@ -80,6 +85,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         }
         processResult = find("processResult", UIBox.class);
         processList = find("processList", ProcessListWidget.class);
+        customUI = find("customUI", UIContainer.class);
     }
 
     private void requestProcessExecution() {
@@ -97,6 +103,16 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         int requirementInputSlots = machineDefinition.requirementSlots;
         int blockInputSlots = machineDefinition.inputSlots;
         int blockOutputSlots = machineDefinition.outputSlots;
+
+        if (customUI != null && !Strings.isNullOrEmpty(machineDefinition.extraWidget)) {
+            UIElement extraUIElement = Assets.getUIElement(machineDefinition.extraWidget);
+            UIWidget extraWidget = extraUIElement.getRootWidget();
+
+            if (extraWidget instanceof WorkstationUI) {
+                ((WorkstationUI) extraWidget).initializeWorkstation(entity);
+            }
+            customUI.setContent(extraWidget);
+        }
 
         if (ingredients != null) {
             ingredients.setTargetEntity(station);
@@ -145,6 +161,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         if (!station.exists()) {
             CoreRegistry.get(NUIManager.class).closeScreen(this);
             return;
@@ -197,8 +214,10 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                         processIdLabel.setText(validProcessId);
                         processResult.setContent(processIdLabel);
                     }
+                    processResult.setVisible(true);
                 } else {
-                    processResult.setContent(new UILabel());
+                    processResult.setContent(null);
+                    processResult.setVisible(false);
                 }
             }
 

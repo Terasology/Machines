@@ -34,7 +34,7 @@ public class VerticalProgressBar extends CoreWidget {
 
     @Override
     public void onDraw(Canvas canvas) {
-        if (fillTexture != null) {
+        if (fillTexture != null && getValue() != null) {
             float result = (float) TeraMath.clamp(getValue());
 
             Vector2i size = canvas.size();
@@ -61,11 +61,11 @@ public class VerticalProgressBar extends CoreWidget {
         this.fillTexture = fillTexture;
     }
 
-    public float getValue() {
+    public Float getValue() {
         return value.get();
     }
 
-    public void setValue(float value) {
+    public void setValue(Float value) {
         this.value.set(value);
     }
 
