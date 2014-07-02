@@ -6,10 +6,10 @@
   "description": "A library for machines",
   "dependencies": [
     {
-      "id": "Workstation"
+      "id": "Workstation", "minVersion": "0.1.0"
     },
     {
-      "id": "BlockNetwork"
+      "id": "BlockNetwork", "minVersion": "0.1.0"
     }
   ],
   "isServerSideOnly": false
