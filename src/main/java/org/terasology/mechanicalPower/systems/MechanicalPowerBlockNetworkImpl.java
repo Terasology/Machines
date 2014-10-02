@@ -24,6 +24,7 @@ import org.terasology.blockNetwork.BlockNetwork;
 import org.terasology.blockNetwork.Network;
 import org.terasology.blockNetwork.NetworkNode;
 import org.terasology.blockNetwork.NetworkTopologyListener;
+import org.terasology.blockNetwork.SimpleNetwork;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
@@ -70,7 +71,12 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
 
     @Override
     public Network getNetwork(Vector3i position) {
-        return blockNetwork.getNetworkWithNetworkingBlock(networkNodes.get(position));
+        try {
+            return blockNetwork.getNetworkWithNetworkingBlock(networkNodes.get(position));
+        } catch (IllegalStateException ex) {
+            logger.error(ex.getMessage());
+            return new SimpleNetwork();
+        }
     }
 
     @Override
@@ -117,7 +123,11 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
         }
 
         networkNodes.put(position, networkNode);
-        blockNetwork.addNetworkingBlock(networkNode);
+        try {
+            blockNetwork.addNetworkingBlock(networkNode);
+        } catch (IllegalStateException ex) {
+            logger.error(ex.getMessage());
+        }
     }
 
     private byte calculateConnectionSides(MechanicalPowerBlockNetworkComponent networkItem, BlockComponent block) {
@@ -140,14 +150,23 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
 
     private void removeNetworkNode(Vector3i position) {
         NetworkNode networkNode = networkNodes.get(position);
-        blockNetwork.removeNetworkingBlock(networkNode);
+
+        try {
+            blockNetwork.removeNetworkingBlock(networkNode);
+        } catch (IllegalStateException ex) {
+            logger.error(ex.getMessage());
+        }
         networkNodes.remove(position);
     }
 
     private void updateNetworkNode(Vector3i position, byte connectionSides) {
         NetworkNode oldNetworkNode = networkNodes.get(position);
         NetworkNode networkNode = new NetworkNode(position, connectionSides);
-        blockNetwork.updateNetworkingBlock(oldNetworkNode, networkNode);
+        try {
+            blockNetwork.updateNetworkingBlock(oldNetworkNode, networkNode);
+        } catch (IllegalStateException ex) {
+            logger.error(ex.getMessage());
+        }
         networkNodes.put(position, networkNode);
     }
 
@@ -218,7 +237,9 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
             producerNode.power = producer.active ? producer.power : 0;
 
             MechanicalPowerNetworkDetails network = getMechanicalPowerNetwork(getNetwork(location));
-            network.totalPower += producer.active ? producer.power : -producer.power;
+            if (network != null) {
+                network.totalPower += producer.active ? producer.power : -producer.power;
+            }
         }
     }
 
