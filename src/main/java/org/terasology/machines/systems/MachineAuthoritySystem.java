@@ -26,7 +26,6 @@ import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.NestedMachineComponent;
-import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.math.Side;
 import org.terasology.workstation.component.WorkstationInventoryComponent;
 import org.terasology.world.block.BlockComponent;
@@ -90,9 +89,6 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
 
             entity.addComponent(categorizedInventory);
         }
-
-        // add the requirements provider to the input entity
-        entity.addComponent(new ProcessRequirementsProviderComponent(machineDefinition.requirementsProvided.toArray(new String[0])));
     }
 
     List<Integer> createSlotRange(int startIndex, int length) {

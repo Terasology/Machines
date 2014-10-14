@@ -15,11 +15,8 @@
  */
 package org.terasology.machines.components;
 
-import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.world.block.ForceBlockActive;
-
-import java.util.List;
 
 @ForceBlockActive
 public class MachineDefinitionComponent implements Component {
@@ -29,7 +26,6 @@ public class MachineDefinitionComponent implements Component {
     public String requirementSlotsTitle = "Requirements";
     public int outputSlots;
     public String outputSlotsTitle = "Output";
-    public List<String> requirementsProvided = Lists.newArrayList();
     public String actionTitle = "Execute";
     public String extraWidget;
 }
