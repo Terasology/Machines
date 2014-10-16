@@ -22,8 +22,6 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.players.LocalPlayer;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.registry.CoreRegistry;
-import org.terasology.rendering.nui.CoreScreenLayer;
-import org.terasology.rendering.nui.NUIManager;
 import org.terasology.rendering.nui.UIWidget;
 import org.terasology.rendering.nui.asset.UIElement;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
@@ -39,12 +37,11 @@ import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ValidateProcess;
 import org.terasology.workstation.process.WorkstationProcess;
 import org.terasology.workstation.system.WorkstationRegistry;
+import org.terasology.workstation.ui.BaseWorkstationScreen;
 import org.terasology.workstation.ui.ProcessListWidget;
 import org.terasology.workstation.ui.WorkstationUI;
 
-public class DefaultMachineWindow extends CoreScreenLayer implements WorkstationUI {
-
-    protected EntityRef station;
+public class DefaultMachineWindow extends BaseWorkstationScreen {
 
     private InventoryGrid ingredients;
     private InventoryGrid tools;
@@ -90,32 +87,35 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
 
     private void requestProcessExecution() {
         if (validProcessId != null) {
-            station.send(new WorkstationProcessRequest(CoreRegistry.get(LocalPlayer.class).getCharacterEntity(), validProcessId));
+            getWorkstation().send(new WorkstationProcessRequest(CoreRegistry.get(LocalPlayer.class).getCharacterEntity(), validProcessId));
         }
     }
 
     @Override
-    public void initializeWorkstation(final EntityRef entity) {
-        this.station = entity;
-
-        WorkstationComponent workstation = station.getComponent(WorkstationComponent.class);
-        MachineDefinitionComponent machineDefinition = station.getComponent(MachineDefinitionComponent.class);
+    public void initializeWorkstation(EntityRef entity) {
+        WorkstationComponent workstation = getWorkstation().getComponent(WorkstationComponent.class);
+        MachineDefinitionComponent machineDefinition = getWorkstation().getComponent(MachineDefinitionComponent.class);
         int requirementInputSlots = machineDefinition.requirementSlots;
         int blockInputSlots = machineDefinition.inputSlots;
         int blockOutputSlots = machineDefinition.outputSlots;
 
-        if (customUI != null && !Strings.isNullOrEmpty(machineDefinition.extraWidget)) {
-            UIElement extraUIElement = Assets.getUIElement(machineDefinition.extraWidget);
-            UIWidget extraWidget = extraUIElement.getRootWidget();
+        if (customUI != null) {
+            if (Strings.isNullOrEmpty(machineDefinition.extraWidget)) {
+                customUI.setVisible(false);
+            } else {
+                customUI.setVisible(true);
+                UIElement extraUIElement = Assets.getUIElement(machineDefinition.extraWidget);
+                UIWidget extraWidget = extraUIElement.getRootWidget();
 
-            if (extraWidget instanceof WorkstationUI) {
-                ((WorkstationUI) extraWidget).initializeWorkstation(entity);
+                if (extraWidget instanceof WorkstationUI) {
+                    ((WorkstationUI) extraWidget).initializeWorkstation(entity);
+                }
+                customUI.setContent(extraWidget);
             }
-            customUI.setContent(extraWidget);
         }
 
         if (ingredients != null) {
-            ingredients.setTargetEntity(station);
+            ingredients.setTargetEntity(entity);
             ingredients.setCellOffset(0);
             ingredients.setMaxCellCount(blockInputSlots);
             ingredientsLabel.setVisible(blockInputSlots > 0);
@@ -123,7 +123,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         }
 
         if (tools != null) {
-            tools.setTargetEntity(station);
+            tools.setTargetEntity(entity);
             tools.setCellOffset(blockInputSlots);
             tools.setMaxCellCount(requirementInputSlots);
             toolsLabel.setVisible(requirementInputSlots > 0);
@@ -131,7 +131,7 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         }
 
         if (result != null) {
-            result.setTargetEntity(station);
+            result.setTargetEntity(entity);
             result.setCellOffset(requirementInputSlots + blockInputSlots);
             result.setMaxCellCount(blockOutputSlots);
             resultLabel.setVisible(blockOutputSlots > 0);
@@ -155,20 +155,19 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
         }
 
         if (processList != null) {
-            processList.initializeWorkstation(station);
+            processList.initializeWorkstation(entity);
         }
     }
 
     @Override
     public void update(float delta) {
         super.update(delta);
-        if (!station.exists()) {
-            CoreRegistry.get(NUIManager.class).closeScreen(this);
+        if (getWorkstation() == null) {
             return;
         } else {
             if (progressBar != null) {
                 // update the progress bar
-                WorkstationProcessingComponent processing = station.getComponent(WorkstationProcessingComponent.class);
+                WorkstationProcessingComponent processing = getWorkstation().getComponent(WorkstationProcessingComponent.class);
                 if (processing != null && processing.processes.size() > 0) {
                     for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
                         Time time = CoreRegistry.get(Time.class);
@@ -188,15 +187,14 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                 // check for valid processes
                 EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
                 WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
-                WorkstationComponent workstation = station.getComponent(WorkstationComponent.class);
-                validProcessId = null;
+                WorkstationComponent workstation = getWorkstation().getComponent(WorkstationComponent.class);
 
                 // isolate the valid processes to one single process
                 WorkstationProcess mostComplexProcess = null;
                 for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
                     if (process instanceof ValidateProcess) {
                         ValidateProcess validateProcess = (ValidateProcess) process;
-                        if (validateProcess.isValid(character, station)) {
+                        if (validateProcess.isValid(character, getWorkstation())) {
                             if (process instanceof DescribeProcess) {
                                 if (mostComplexProcess == null || ((DescribeProcess) process).getComplexity() > ((DescribeProcess) mostComplexProcess).getComplexity()) {
                                     mostComplexProcess = process;
@@ -216,12 +214,11 @@ public class DefaultMachineWindow extends CoreScreenLayer implements Workstation
                     }
                     processResult.setVisible(true);
                 } else {
+                    validProcessId = null;
                     processResult.setContent(null);
                     processResult.setVisible(false);
                 }
             }
-
-            super.update(delta);
         }
     }
 
