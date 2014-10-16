@@ -20,8 +20,9 @@ import org.terasology.network.Replicate;
 import org.terasology.world.block.ForceBlockActive;
 
 @ForceBlockActive
-@Replicate
 public class MechanicalPowerConsumerComponent implements Component {
+    @Replicate
     public float currentStoredPower;
+    @Replicate
     public float maximumStoredPower;
 }

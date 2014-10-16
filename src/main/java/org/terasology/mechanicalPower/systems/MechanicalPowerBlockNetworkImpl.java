@@ -44,6 +44,7 @@ import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponen
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.world.BlockEntityRegistry;
+import org.terasology.world.WorldProvider;
 import org.terasology.world.block.BeforeDeactivateBlocks;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.OnActivatedBlocks;
@@ -58,6 +59,8 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
 
     @In
     BlockEntityRegistry blockEntityRegistry;
+    @In
+    WorldProvider worldProvider;
 
     private BlockNetwork blockNetwork;
     private Map<Vector3i, NetworkNode> networkNodes = Maps.newHashMap();
@@ -109,24 +112,27 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
 
         BlockComponent block = entity.getComponent(BlockComponent.class);
         Vector3i position = block.getPosition();
-        byte connectionSides = calculateConnectionSides(networkItem, block);
+        // do not add an overlapping node,  this has to do with multiplayer entity creation
+        if (!networkNodes.containsKey(position)) {
+            byte connectionSides = calculateConnectionSides(networkItem, block);
 
-        if (entity.hasComponent(MechanicalPowerProducerComponent.class)) {
-            MechanicalPowerProducerComponent producer = entity.getComponent(MechanicalPowerProducerComponent.class);
-            ProducerNode producerNode = new ProducerNode(position, connectionSides);
-            producerNode.power = producer.active ? producer.power : 0;
-            networkNode = producerNode;
-        } else if (entity.hasComponent(MechanicalPowerConsumerComponent.class)) {
-            networkNode = new ConsumerNode(position, connectionSides);
-        } else {
-            networkNode = new NetworkNode(position, connectionSides);
-        }
+            if (entity.hasComponent(MechanicalPowerProducerComponent.class)) {
+                MechanicalPowerProducerComponent producer = entity.getComponent(MechanicalPowerProducerComponent.class);
+                ProducerNode producerNode = new ProducerNode(position, connectionSides);
+                producerNode.power = producer.active ? producer.power : 0;
+                networkNode = producerNode;
+            } else if (entity.hasComponent(MechanicalPowerConsumerComponent.class)) {
+                networkNode = new ConsumerNode(position, connectionSides);
+            } else {
+                networkNode = new NetworkNode(position, connectionSides);
+            }
 
-        networkNodes.put(position, networkNode);
-        try {
-            blockNetwork.addNetworkingBlock(networkNode);
-        } catch (IllegalStateException ex) {
-            logger.error(ex.getMessage());
+            networkNodes.put(position, networkNode);
+            try {
+                blockNetwork.addNetworkingBlock(networkNode);
+            } catch (IllegalStateException ex) {
+                logger.error(ex.getMessage());
+            }
         }
     }
 
@@ -198,7 +204,12 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
     // this event can happen generically because it is position based
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
     public void removeNetworkNode(BeforeDeactivateComponent event, EntityRef entity, MechanicalPowerBlockNetworkComponent mechanicalPowerBlockNetwork, BlockComponent block) {
-        removeNetworkNode(block.getPosition());
+        // only remove a node if the block actually doesnt exist anymore.
+        // This is particularly a problem in multiplayer where an entity is created both when the block
+        // is placed (causing a default entity to be created) and when the entity from the server is sent.
+        if (worldProvider.getBlock(block.getPosition()).getId() != block.getBlock().getId()) {
+            removeNetworkNode(block.getPosition());
+        }
     }
 
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
@@ -236,23 +247,20 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
             // save the current power output so we can remove it if the node is removed
             producerNode.power = producer.active ? producer.power : 0;
 
-            MechanicalPowerNetworkDetails network = getMechanicalPowerNetwork(getNetwork(location));
+            Network network = getNetwork(location);
+
             if (network != null) {
-                network.totalPower += producer.active ? producer.power : -producer.power;
+                updateNetworkDetails(network);
             }
         }
     }
 
-    @Override
-    public void networkAdded(Network network) {
-        networks.put(network, new MechanicalPowerNetworkDetails());
-    }
-
-    @Override
-    public void networkingNodesAdded(Network network, Set<NetworkNode> networkingNodes) {
+    private void updateNetworkDetails(Network network) {
         MechanicalPowerNetworkDetails powerNetwork = getMechanicalPowerNetwork(network);
-
-        for (NetworkNode networkingNode : networkingNodes) {
+        powerNetwork.totalPower = 0f;
+        powerNetwork.totalConsumers = 0;
+        powerNetwork.totalProducers = 0;
+        for (NetworkNode networkingNode : getNetworkNodes(network)) {
             if (networkingNode instanceof ProducerNode) {
                 ProducerNode producerNode = (ProducerNode) networkingNode;
                 powerNetwork.totalPower += producerNode.power;
@@ -264,18 +272,18 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
     }
 
     @Override
-    public void networkingNodesRemoved(Network network, Set<NetworkNode> networkingNodes) {
-        MechanicalPowerNetworkDetails powerNetwork = getMechanicalPowerNetwork(network);
+    public void networkAdded(Network network) {
+        networks.put(network, new MechanicalPowerNetworkDetails());
+    }
 
-        for (NetworkNode networkingNode : networkingNodes) {
-            if (networkingNode instanceof ProducerNode) {
-                ProducerNode producerNode = (ProducerNode) networkingNode;
-                powerNetwork.totalPower -= producerNode.power;
-                powerNetwork.totalProducers--;
-            } else if (networkingNode instanceof ConsumerNode) {
-                powerNetwork.totalConsumers--;
-            }
-        }
+    @Override
+    public void networkingNodesAdded(Network network, Set<NetworkNode> networkingNodes) {
+        updateNetworkDetails(network);
+    }
+
+    @Override
+    public void networkingNodesRemoved(Network network, Set<NetworkNode> networkingNodes) {
+        updateNetworkDetails(network);
     }
 
     @Override

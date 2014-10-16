@@ -21,6 +21,7 @@ import org.terasology.blockNetwork.NetworkTopologyListener;
 import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
@@ -79,6 +80,13 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         updateAxlesInNetwork(network);
     }
 
+    @ReceiveEvent
+    public void removeRenderedAxle(BeforeDeactivateComponent event, EntityRef entityRef, RotatingAxleComponent rotatingAxle) {
+        if (rotatingAxle.renderedEntity != null) {
+            rotatingAxle.renderedEntity.destroy();
+        }
+    }
+
 
     public static Rotation getRotation(Side side) {
         Pitch pitch = Pitch.NONE;
@@ -115,7 +123,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
                     EntityRef nodeEntity = blockEntityRegistry.getBlockEntityAt(node.location.toVector3i());
 
                     RotatingAxleComponent rotatingAxle = nodeEntity.getComponent(RotatingAxleComponent.class);
-                    if (rotatingAxle != null) {
+                    if (rotatingAxle != null && rotatingAxle.renderedEntity != null) {
                         if (details.totalPower > 0) {
                             // ensure all axle rotation is turned on
                             turnAxleOn(rotatingAxle.renderedEntity, speed);

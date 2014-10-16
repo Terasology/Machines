@@ -17,12 +17,8 @@ package org.terasology.mechanicalPower.components;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.network.Replicate;
-import org.terasology.world.block.ForceBlockActive;
 
-@ForceBlockActive
-public class MechanicalPowerProducerComponent implements Component {
+public class MechanicalPowerRegenComponent implements Component {
     @Replicate
     public float power;
-    @Replicate
-    public boolean active;
 }
