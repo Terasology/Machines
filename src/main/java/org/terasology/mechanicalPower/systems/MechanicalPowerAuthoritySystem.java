@@ -66,7 +66,8 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
             nextUpdateTime = currentTime + UPDATE_INTERVAL;
 
             // add all natural regen/decay
-            for (EntityRef entity : entityManager.getEntitiesWith(MechanicalPowerRegenComponent.class, MechanicalPowerConsumerComponent.class)) {
+            for (EntityRef entity : entityManager.getEntitiesWith(MechanicalPowerRegenComponent.class,
+                    MechanicalPowerConsumerComponent.class)) {
                 MechanicalPowerRegenComponent regenComponent = entity.getComponent(MechanicalPowerRegenComponent.class);
                 MechanicalPowerConsumerComponent consumerComponent = entity.getComponent(MechanicalPowerConsumerComponent.class);
                 if (consumerComponent.currentStoredPower < consumerComponent.maximumStoredPower) {

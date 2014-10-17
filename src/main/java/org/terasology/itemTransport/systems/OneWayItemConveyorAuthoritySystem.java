@@ -43,8 +43,8 @@ import org.terasology.world.block.BlockManager;
 import java.util.List;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
-public class OneWayItemConveyorSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
-    static final long UPDATE_INTERVAL = 2000;
+public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem implements UpdateSubscriberSystem {
+    static final long UPDATE_INTERVAL = 1000;
 
     @In
     InventoryManager inventoryManager;
@@ -85,12 +85,17 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
 
                 Side side = getRelativeSide(entity, pushInventoryInDirectionComponent.direction);
 
-
                 // get target inventory
                 Vector3i adjacentPos = side.getAdjacentPos(new Vector3i(locationComponent.getWorldPosition()));
                 EntityRef targetEntity = blockEntityRegistry.getBlockEntityAt(adjacentPos);
 
                 if (targetEntity.hasComponent(InventoryComponent.class)) {
+                    PushInventoryInDirectionComponent targetPushInventoryInDirectionComponent = targetEntity.getComponent(PushInventoryInDirectionComponent.class);
+                    if (targetPushInventoryInDirectionComponent != null && !targetInventoryHasEmptySlot(targetEntity)) {
+                        // dont push to an adjacent conveyor that doesnt have room.  This will prevent stacking
+                        continue;
+                    }
+
                     // iterate all the items in the inventory and send them to an adjacent inventory
                     for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
                         if (!item.exists() || alreadyMovedItems.contains(item)) {
@@ -103,30 +108,30 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
                             continue;
                         }
 
-                        // add/update the animation
-                        PushInventoryInDirectionComponent targetPushInventoryInDirectionComponent = targetEntity.getComponent(PushInventoryInDirectionComponent.class);
-                        if (targetPushInventoryInDirectionComponent != null && targetPushInventoryInDirectionComponent.animateMovingItem) {
-
-                            // create the animation component
-                            animatedMovingItemComponent = new AnimatedMovingItemComponent();
-                            animatedMovingItemComponent.entranceSide = side.reverse();
-                            animatedMovingItemComponent.exitSide = getRelativeSide(targetEntity, targetPushInventoryInDirectionComponent.direction);
-                            animatedMovingItemComponent.startTime = time.getGameTimeInMs();
-                            animatedMovingItemComponent.arrivalTime = animatedMovingItemComponent.startTime + UPDATE_INTERVAL;
-                            if (item.hasComponent(AnimatedMovingItemComponent.class)) {
-                                item.saveComponent(animatedMovingItemComponent);
-                            } else {
-                                item.addComponent(animatedMovingItemComponent);
-                            }
-                        } else {
-                            // remove the animation
-                            item.removeComponent(AnimatedMovingItemComponent.class);
-                        }
-
                         alreadyMovedItems.add(item);
                         // send the item to the target inventory
                         if (inventoryManager.giveItem(targetEntity, entity, item)) {
                             inventoryManager.removeItem(entity, entity, item, false);
+
+                            // add/update the animation
+                            if (targetPushInventoryInDirectionComponent != null && targetPushInventoryInDirectionComponent.animateMovingItem) {
+
+                                // create the animation component
+                                animatedMovingItemComponent = new AnimatedMovingItemComponent();
+                                animatedMovingItemComponent.entranceSide = side.reverse();
+                                animatedMovingItemComponent.exitSide = getRelativeSide(targetEntity, targetPushInventoryInDirectionComponent.direction);
+                                animatedMovingItemComponent.startTime = time.getGameTimeInMs();
+                                animatedMovingItemComponent.arrivalTime = animatedMovingItemComponent.startTime + targetPushInventoryInDirectionComponent.timeToDestination;
+                                if (item.hasComponent(AnimatedMovingItemComponent.class)) {
+                                    item.saveComponent(animatedMovingItemComponent);
+                                } else {
+                                    item.addComponent(animatedMovingItemComponent);
+                                }
+                            } else {
+                                // remove the animation
+                                item.removeComponent(AnimatedMovingItemComponent.class);
+                            }
+
                         }
                     }
                 } else {
@@ -154,6 +159,11 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
                 LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
                 BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
 
+                // only pull if there is a free slot in this inventory
+                if (!targetInventoryHasEmptySlot(entity)) {
+                    continue;
+                }
+
                 // find out what way this block is pointed
                 Block block = blockComponent.getBlock();
                 Side side = block.getDirection().getRelativeSide(pullInventoryInDirectionComponent.direction);
@@ -167,11 +177,10 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
                     for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity, side.reverse())) {
                         if (item.exists()) {
                             // grab the item to the target inventory
+                            EntityRef entityToGive = inventoryManager.removeItem(targetEntity, entity, item, false, 1);
+                            inventoryManager.giveItem(entity, entity, entityToGive);
 
-                            if (inventoryManager.giveItem(entity, entity, item)) {
-                                inventoryManager.removeItem(targetEntity, entity, item, false);
-                            }
-                            // only do one stack at a time
+                            // only do one slots worth at a time
                             break;
                         }
                     }
@@ -190,6 +199,15 @@ public class OneWayItemConveyorSystem extends BaseComponentSystem implements Upd
             }
         }
 */
+    }
+
+    private boolean targetInventoryHasEmptySlot(EntityRef entity) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
+            if (!item.exists()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Side getRelativeSide(EntityRef entity, Direction direction) {

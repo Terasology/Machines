@@ -21,6 +21,7 @@ import org.terasology.math.Direction;
 public class PushInventoryInDirectionComponent implements Component {
     public Direction direction = Direction.BACKWARD;
     public boolean animateMovingItem;
+    public long timeToDestination = 2000;
 
     public PushInventoryInDirectionComponent() {
 
