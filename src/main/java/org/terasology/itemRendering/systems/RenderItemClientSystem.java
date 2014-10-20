@@ -24,16 +24,19 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.itemRendering.components.CustomRenderedItemMeshComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.location.Location;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Rotation;
+import org.terasology.registry.In;
 import org.terasology.rendering.iconmesh.IconMeshFactory;
 import org.terasology.rendering.logic.LightComponent;
 import org.terasology.rendering.logic.MeshComponent;
 import org.terasology.utilities.random.FastRandom;
 import org.terasology.utilities.random.Random;
+import org.terasology.world.WorldProvider;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.block.items.BlockItemComponent;
 
@@ -44,6 +47,9 @@ public class RenderItemClientSystem extends BaseComponentSystem {
 
     Random rand;
 
+    @In
+    WorldProvider worldProvider;
+
     @Override
     public void initialise() {
         rand = new FastRandom();
@@ -53,35 +59,42 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     public void onChangedItemDisplay(OnChangedComponent event, EntityRef entity, RenderItemComponent itemDisplay) {
         LocationComponent location = entity.getComponent(LocationComponent.class);
         if (location != null) {
-            location.setLocalScale(itemDisplay.size);
-            Rotation rotation = Rotation.rotate(itemDisplay.yaw, itemDisplay.pitch, itemDisplay.roll);
-            entity.saveComponent(location);
-
-            Location.attachChild(entity.getOwner(), entity, itemDisplay.translate, rotation.getQuat4f());
+            updateLocation(entity, itemDisplay, location);
         }
+    }
+
+    private void updateLocation(EntityRef entity, RenderItemComponent itemDisplay, LocationComponent location) {
+        location.setLocalScale(itemDisplay.size);
+        Rotation rotation = Rotation.rotate(itemDisplay.yaw, itemDisplay.pitch, itemDisplay.roll);
+        entity.saveComponent(location);
+        Location.attachChild(entity.getOwner(), entity, itemDisplay.translate, rotation.getQuat4f());
     }
 
     @ReceiveEvent
     public void onAddedItemDisplay(OnAddedComponent event, EntityRef entity, RenderItemComponent itemDisplay) {
-        LocationComponent blockLocation = entity.getOwner().getComponent(LocationComponent.class);
-        if (blockLocation != null) {
+        LocationComponent locationComponent = entity.getOwner().getComponent(LocationComponent.class);
+
+        if (locationComponent != null) {
             if (!entity.hasComponent(MeshComponent.class)) {
-                if (entity.hasComponent(BlockItemComponent.class)) {
+                if (entity.hasComponent(CustomRenderedItemMeshComponent.class)) {
+                    addCustomItemRendering(entity);
+                } else if (entity.hasComponent(BlockItemComponent.class)) {
                     addBlockRendering(entity);
                 } else {
                     addItemRendering(entity);
                 }
             }
 
-            // update the location
-            LocationComponent location = new LocationComponent();
-            location.setLocalScale(itemDisplay.size);
-
-            Rotation rotation = Rotation.rotate(itemDisplay.yaw, itemDisplay.pitch, itemDisplay.roll);
-            entity.addComponent(location);
-
-            Location.attachChild(entity.getOwner(), entity, itemDisplay.translate, rotation.getQuat4f());
+            updateLocation(entity, itemDisplay, new LocationComponent());
         }
+    }
+
+    private void addCustomItemRendering(EntityRef entity) {
+        CustomRenderedItemMeshComponent customRenderedItemMeshComponent = entity.getComponent(CustomRenderedItemMeshComponent.class);
+        MeshComponent meshComponent = new MeshComponent();
+        meshComponent.mesh = customRenderedItemMeshComponent.mesh;
+        meshComponent.material = customRenderedItemMeshComponent.material;
+        entity.addComponent(meshComponent);
     }
 
 
@@ -98,7 +111,6 @@ public class RenderItemClientSystem extends BaseComponentSystem {
     }
 
     private void addBlockRendering(EntityRef entityRef) {
-
         MeshComponent mesh = new MeshComponent();
         BlockItemComponent blockItemComponent = entityRef.getComponent(BlockItemComponent.class);
         BlockFamily blockFamily = blockItemComponent.blockFamily;

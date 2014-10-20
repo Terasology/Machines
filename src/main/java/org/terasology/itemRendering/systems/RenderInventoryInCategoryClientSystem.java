@@ -15,19 +15,26 @@
  */
 package org.terasology.itemRendering.systems;
 
+import com.google.common.collect.Lists;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.RenderInventoryInCategoryComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
+import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
+import org.terasology.math.Rotation;
+import org.terasology.math.Side;
+import org.terasology.mechanicalPower.systems.MechanicalPowerClientSystem;
 import org.terasology.registry.In;
-import org.terasology.world.block.BlockComponent;
+import org.terasology.world.WorldProvider;
+import org.terasology.world.block.Block;
 
 import java.util.List;
 
@@ -36,35 +43,70 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
 
     @In
     InventoryManager inventoryManager;
+    @In
+    WorldProvider worldProvider;
 
-    @ReceiveEvent(components = {BlockComponent.class, LocationComponent.class})
-    public void addItemRendering(InventorySlotChangedEvent event,
-                                 EntityRef inventoryEntity,
-                                 RenderInventoryInCategoryComponent renderInventoryInCategory,
-                                 CategorizedInventoryComponent categorizedInventory) {
-        EntityRef oldItem = event.getOldItem();
-        if (oldItem.exists()) {
-            if (!oldItem.getOwner().hasComponent(RenderInventoryInCategoryComponent.class)) {
-                // ensure that rendered items get reset
-                oldItem.removeComponent(RenderItemComponent.class);
-            }
+    @ReceiveEvent
+    public void addRemoveItemRendering(OnChangedComponent event,
+                                       EntityRef inventoryEntity,
+                                       InventoryComponent inventoryComponent) {
+        refreshInventoryItems(inventoryEntity);
+    }
+
+    @ReceiveEvent
+    public void initExistingItemRendering(OnAddedComponent event,
+                                          EntityRef inventoryEntity,
+                                          InventoryComponent inventoryComponent) {
+        refreshInventoryItems(inventoryEntity);
+    }
+
+    private void refreshInventoryItems(EntityRef inventoryEntity) {
+        RenderInventoryInCategoryComponent renderInventoryInCategory = inventoryEntity.getComponent(RenderInventoryInCategoryComponent.class);
+        CategorizedInventoryComponent categorizedInventory = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
+
+        List<Integer> slots = Lists.newArrayList();
+        if (categorizedInventory != null && renderInventoryInCategory != null) {
+            slots = categorizedInventory.slotMapping.get(renderInventoryInCategory.category);
         }
 
-        EntityRef newItem = event.getNewItem();
-        if (newItem.exists()) {
-            List<Integer> slots = categorizedInventory.slotMapping.get(renderInventoryInCategory.category);
-            int newItemSlot = inventoryManager.findSlotWithItem(inventoryEntity, newItem);
-            if (slots.contains(newItemSlot)) {
-                // this item exists, and is in the specified inventory category
-                RenderItemComponent renderItemTransform = renderInventoryInCategory.createRenderItemComponent(inventoryEntity, newItem);
-                if (newItem.hasComponent(RenderItemComponent.class)) {
-                    newItem.saveComponent(renderItemTransform);
-                } else {
-                    newItem.addComponent(renderItemTransform);
-                }
+        for (int slot = 0; slot < inventoryManager.getNumSlots(inventoryEntity); slot++) {
+            EntityRef item = inventoryManager.getItemInSlot(inventoryEntity, slot);
+            if (slots.contains(slot)) {
+                addRenderingComponents(inventoryEntity, renderInventoryInCategory, item);
+            } else {
+                removeRenderingComponents(item);
             }
+
         }
     }
 
+    private void removeRenderingComponents(EntityRef item) {
+        item.removeComponent(RenderItemComponent.class);
+    }
 
+    private void addRenderingComponents(EntityRef inventoryEntity, RenderInventoryInCategoryComponent renderInventoryInCategory, EntityRef item) {
+        if (item.exists()) {
+            // this is inherently evil,  but multiplayer acts strangely
+            item.setOwner(inventoryEntity);
+
+            LocationComponent parentLocationComponent = inventoryEntity.getComponent(LocationComponent.class);
+            RenderItemComponent renderItemTransform = renderInventoryInCategory.createRenderItemComponent(inventoryEntity, item);
+            if (renderInventoryInCategory.rotateWithBlock && worldProvider.isBlockRelevant(parentLocationComponent.getWorldPosition())) {
+                Block block = worldProvider.getBlock(parentLocationComponent.getWorldPosition());
+                Side direction = block.getDirection();
+                Rotation blockRotation = MechanicalPowerClientSystem.getRotation(direction);
+                renderItemTransform.yaw = blockRotation.getYaw();
+                renderItemTransform.pitch = blockRotation.getPitch();
+                renderItemTransform.roll = blockRotation.getRoll();
+
+                renderItemTransform.translate = MechanicalPowerClientSystem.rotateVector3f(renderItemTransform.translate, direction.toDirection());
+            }
+
+            if (item.hasComponent(RenderItemComponent.class)) {
+                item.saveComponent(renderItemTransform);
+            } else {
+                item.addComponent(renderItemTransform);
+            }
+        }
+    }
 }

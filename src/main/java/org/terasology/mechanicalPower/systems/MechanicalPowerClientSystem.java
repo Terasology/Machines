@@ -30,6 +30,7 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.math.Direction;
 import org.terasology.math.Pitch;
 import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
@@ -42,6 +43,7 @@ import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.items.BlockItemComponent;
 
+import javax.vecmath.Vector3f;
 import java.util.Set;
 
 @RegisterSystem(RegisterMode.CLIENT)
@@ -87,6 +89,22 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         }
     }
 
+    public static Vector3f rotateVector3f(Vector3f input, Direction direction) {
+        switch (direction) {
+            case BACKWARD:
+                return new Vector3f(input.x, input.y, input.z * -1);
+            case DOWN:
+                return new Vector3f(input.x, input.z * -1, input.y);
+            case LEFT:
+                return new Vector3f(input.z, input.y, input.x);
+            case RIGHT:
+                return new Vector3f(input.z * -1, input.y, input.x);
+            case UP:
+                return new Vector3f(input.x, input.z, input.z * -1);
+            default:
+                return new Vector3f(input.x, input.y, input.z);
+        }
+    }
 
     public static Rotation getRotation(Side side) {
         Pitch pitch = Pitch.NONE;

@@ -33,6 +33,7 @@ public class RenderInventoryInCategoryComponent implements Component {
     public float itemSize = 0.3f;
     public boolean itemsAreFlat;
     public boolean verticalAlignmentBottom;
+    public boolean rotateWithBlock;
 
     public RenderItemComponent createRenderItemComponent(EntityRef referenceBlock, EntityRef item) {
         RenderItemComponent renderItem = new RenderItemComponent();
