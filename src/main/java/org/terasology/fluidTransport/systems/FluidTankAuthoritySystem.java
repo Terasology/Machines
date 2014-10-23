@@ -52,7 +52,7 @@ public class FluidTankAuthoritySystem extends BaseComponentSystem {
                 targetBlockEntity.saveComponent(fluidComponent);
             } else if (fluidContainer.volume <= fluidTank.maximumVolume - fluidComponent.volume
                     // if the fluid types are the same,  or if the block does not have a fluid type
-                    && (fluidComponent.fluidType == fluidContainer.fluidType || fluidComponent.fluidType == null)) {
+                    && (fluidComponent.fluidType == null) || fluidComponent.fluidType.equals(fluidContainer.fluidType)) {
                 // empty the container to the block
                 fluidComponent.volume += fluidContainer.volume;
                 fluidComponent.fluidType = fluidContainer.fluidType;

@@ -119,10 +119,40 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                     }
                 }
 
+
+                // let tanks drop their fluid to a tank below
+                for (EntityRef tank : tanksFromBottomUp.values()) {
+                    Vector3i aboveLocation = Side.TOP.getAdjacentPos(getLocation(tank));
+                    EntityRef aboveTank = blockEntityRegistry.getBlockEntityAt(aboveLocation);
+                    if (aboveTank.hasComponent(FluidTankComponent.class)) {
+                        float volumeGiven = giveFluid(tank, getTankVolume(aboveTank), getFluidType(aboveTank));
+                        takeFluid(aboveTank, volumeGiven);
+                    }
+                }
+
+                // distribute gravity flow
+                for (EntityRef tank : tanksFromTopDown.values()) {
+                    float tankElevation = getTankElevation(tank);
+                    float remainingFlow = getTankFlowAvailable(tank);
+                    float totalVolumeTransfered = 0;
+                    String fluidType = getFluidType(tank);
+
+                    for (EntityRef downstreamTank : tanksFromTopDown.values()) {
+                        if (!downstreamTank.equals(tank) && getTankElevation(downstreamTank) < tankElevation && remainingFlow > 0) {
+                            float volumeTransfered = giveFluid(downstreamTank, remainingFlow, fluidType);
+                            totalVolumeTransfered += volumeTransfered;
+                            remainingFlow -= volumeTransfered;
+                        }
+                    }
+
+                    takeFluid(tank, totalVolumeTransfered);
+                }
+
                 // distribute pump flow starting from the bottom
                 for (EntityRef pump : pumpsFromBottomUp.values()) {
                     float pumpWorldPressure = getPumpWorldPressure(pump);
                     float remainingFlow = getPumpFlowAvailable(pump);
+                    float totalVolumeTransfered = 0;
 
                     EntityRef sourceTank = null;
                     String fluidType = null;
@@ -149,28 +179,27 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                     // distribute this fluid
                     for (EntityRef tank : tanksFromBottomUp.values()) {
-                        if (getTankElevation(tank) < pumpWorldPressure && remainingFlow > 0) {
-                            remainingFlow -= giveFluid(tank, remainingFlow, fluidType);
-                        }
-                    }
-                }
-
-                // distribute gravity flow
-                for (EntityRef tank : tanksFromTopDown.values()) {
-                    float tankElevation = getTankElevation(tank);
-                    float remainingFlow = getTankFlowAvailable(tank);
-                    float volumeTransfered = 0;
-                    String fluidType = getFluidType(tank);
-
-                    for (EntityRef downstreamTank : tanksFromTopDown.values()) {
-                        if (getTankElevation(downstreamTank) < tankElevation && remainingFlow > 0) {
-                            volumeTransfered += giveFluid(downstreamTank, remainingFlow, fluidType);
+                        if (!tank.equals(sourceTank) && getTankElevation(tank) < pumpWorldPressure && remainingFlow > 0) {
+                            float volumeTransfered = giveFluid(tank, remainingFlow, fluidType);
+                            remainingFlow -= volumeTransfered;
+                            totalVolumeTransfered += volumeTransfered;
                         }
                     }
 
-                    takeFluid(tank, volumeTransfered);
+                    if (sourceTank != null) {
+                        takeFluid(sourceTank, totalVolumeTransfered);
+                    }
                 }
             }
+        }
+    }
+
+    private float getTankVolume(EntityRef entity) {
+        FluidComponent fluidComponent = entity.getComponent(FluidComponent.class);
+        if (fluidComponent != null) {
+            return fluidComponent.volume;
+        } else {
+            return 0;
         }
     }
 

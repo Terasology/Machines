@@ -20,7 +20,7 @@ import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -29,9 +29,7 @@ import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankComponent;
-import org.terasology.itemRendering.components.CustomRenderedItemMeshComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
-import org.terasology.mechanicalPower.components.RotatingAxleComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.mesh.Mesh;
 import org.terasology.rendering.assets.mesh.MeshBuilder;
@@ -46,21 +44,30 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     EntityManager entityManager;
 
     @ReceiveEvent
-    public void onFluidChanged(OnChangedComponent event, EntityRef entityRef, FluidComponent fluidComponent, FluidTankComponent fluidTankComponent, FluidDisplayComponent fluidDisplayComponent) {
-        MeshComponent meshComponent = fluidDisplayComponent.renderedEntity.getComponent(MeshComponent.class);
-        meshComponent.mesh = getMesh(fluidComponent.volume / fluidTankComponent.maximumVolume);
+    public void onFluidChanged(OnChangedComponent event, EntityRef entityRef, FluidComponent fluidComponent, FluidTankComponent fluidTankComponent) {
+        if (fluidComponent.volume == 0) {
+            entityRef.removeComponent(FluidDisplayComponent.class);
+        } else {
+            setDisplayMesh(entityRef, fluidComponent.volume / fluidTankComponent.maximumVolume);
+        }
     }
 
     @ReceiveEvent
-    public void onFluidAdded(OnAddedComponent event, EntityRef entityRef, FluidComponent fluidComponent, FluidTankComponent fluidTankComponent) {
-        setDisplayMesh(entityRef, fluidComponent.volume / fluidTankComponent.maximumVolume);
+    public void onFluidAdded(OnActivatedComponent event, EntityRef entityRef, FluidComponent fluidComponent, FluidTankComponent fluidTankComponent) {
+        if (fluidComponent.volume > 0) {
+            setDisplayMesh(entityRef, fluidComponent.volume / fluidTankComponent.maximumVolume);
+        }
     }
 
+    @ReceiveEvent
+    public void removeRenderedTank(BeforeDeactivateComponent event, EntityRef entityRef, FluidTankComponent fluidTankComponent) {
+        entityRef.removeComponent(FluidDisplayComponent.class);
+    }
 
     @ReceiveEvent
-    public void removeRenderedAxle(BeforeDeactivateComponent event, EntityRef entityRef, RotatingAxleComponent rotatingAxle) {
-        if (rotatingAxle.renderedEntity != null) {
-            rotatingAxle.renderedEntity.destroy();
+    public void removeRenderedFluid(BeforeDeactivateComponent event, EntityRef entityRef, FluidDisplayComponent fluidDisplayComponent) {
+        if (fluidDisplayComponent.renderedEntity != null) {
+            fluidDisplayComponent.renderedEntity.destroy();
         }
     }
 
@@ -76,13 +83,13 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
         EntityRef renderedEntity = fluidDisplayComponent.renderedEntity;
 
-        CustomRenderedItemMeshComponent customRenderedItemMeshComponent = new CustomRenderedItemMeshComponent();
-        customRenderedItemMeshComponent.mesh = getMesh(fullness);
-        customRenderedItemMeshComponent.material = Assets.getMaterial("engine:default");
-        if (renderedEntity.hasComponent(CustomRenderedItemMeshComponent.class)) {
-            renderedEntity.saveComponent(customRenderedItemMeshComponent);
+        MeshComponent meshComponent = new MeshComponent();
+        meshComponent.mesh = getMesh(fullness);
+        meshComponent.material = Assets.getMaterial("engine:default");
+        if (renderedEntity.hasComponent(MeshComponent.class)) {
+            renderedEntity.saveComponent(meshComponent);
         } else {
-            renderedEntity.addComponent(customRenderedItemMeshComponent);
+            renderedEntity.addComponent(meshComponent);
         }
 
         RenderItemComponent renderItemComponent = new RenderItemComponent();
