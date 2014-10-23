@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.fluidTransport.components;
+package org.terasology.fluidTransport.systems;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
+import org.terasology.blockNetwork.NetworkNode;
+import org.terasology.math.Vector3i;
 
-public class FluidPipeComponent implements Component {
-    @Replicate
-    public float maximumFlowRate;
+public class PumpNode extends NetworkNode {
+    public PumpNode(Vector3i location, byte connectionSides) {
+        super(location, connectionSides);
+    }
 }

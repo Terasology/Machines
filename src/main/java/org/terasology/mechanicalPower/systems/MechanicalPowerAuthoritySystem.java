@@ -23,6 +23,8 @@ import org.terasology.blockNetwork.NetworkNode;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
@@ -32,6 +34,8 @@ import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponen
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.MechanicalPowerRegenComponent;
 import org.terasology.registry.In;
+import org.terasology.workstation.component.WorkstationComponent;
+import org.terasology.workstation.event.WorkstationStateChanged;
 import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 
@@ -113,4 +117,10 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
             }
         }
     }
+
+    @ReceiveEvent
+    public void powerChangedInMachine(OnChangedComponent event, EntityRef workstation, WorkstationComponent workstationComponent, MechanicalPowerConsumerComponent consumerComponent) {
+        workstation.send(new WorkstationStateChanged());
+    }
+
 }

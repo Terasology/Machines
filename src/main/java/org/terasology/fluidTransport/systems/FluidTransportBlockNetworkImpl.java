@@ -34,6 +34,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
+import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.components.FluidTankComponent;
 import org.terasology.fluidTransport.components.FluidTransportBlockNetworkComponent;
 import org.terasology.math.Direction;
@@ -116,9 +117,11 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
             byte connectionSides = calculateConnectionSides(networkItem, block);
 
             if (entity.hasComponent(FluidTankComponent.class)) {
-                FluidTankComponent fluidTankComponent = entity.getComponent(FluidTankComponent.class);
                 TankNode tankNode = new TankNode(position, connectionSides);
                 networkNode = tankNode;
+            } else if (entity.hasComponent(FluidPumpComponent.class)) {
+                PumpNode pumpNode = new PumpNode(position, connectionSides);
+                networkNode = pumpNode;
             } else {
                 networkNode = new NetworkNode(position, connectionSides);
             }
@@ -221,6 +224,15 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
     public void createPipeNetworkNode(OnActivatedComponent event,
                                       EntityRef entity,
                                       FluidPipeComponent type,
+                                      FluidTransportBlockNetworkComponent mechanicalPowerBlockNetwork,
+                                      BlockComponent block) {
+        addNetworkNode(entity);
+    }
+
+    @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
+    public void createPumpNetworkNode(OnActivatedComponent event,
+                                      EntityRef entity,
+                                      FluidPumpComponent type,
                                       FluidTransportBlockNetworkComponent mechanicalPowerBlockNetwork,
                                       BlockComponent block) {
         addNetworkNode(entity);

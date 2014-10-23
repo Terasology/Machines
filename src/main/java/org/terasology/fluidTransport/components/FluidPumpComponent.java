@@ -17,8 +17,12 @@ package org.terasology.fluidTransport.components;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.network.Replicate;
+import org.terasology.world.block.ForceBlockActive;
 
-public class FluidPipeComponent implements Component {
+@ForceBlockActive
+public class FluidPumpComponent implements Component {
+    @Replicate
+    public float pressure;
     @Replicate
     public float maximumFlowRate;
 }

@@ -44,7 +44,7 @@ public class TankScreen extends BaseInteractionScreen {
             fluidContainerWidget.bindText(new ReadOnlyBinding<String>() {
                 @Override
                 public String get() {
-                    return fluidComponent.volume + "/" + fluidTankComponent.maximumVolume + "mL @ " + fluidTankComponent.pressure + "psi";
+                    return fluidComponent.volume + "/" + fluidTankComponent.maximumVolume + "mL";
                 }
             });
         }

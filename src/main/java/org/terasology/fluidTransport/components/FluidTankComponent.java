@@ -22,11 +22,5 @@ import org.terasology.world.block.ForceBlockActive;
 @ForceBlockActive
 public class FluidTankComponent implements Component {
     @Replicate
-    public float pressure;
-    @Replicate
-    public float maximumFlowRate;
-    @Replicate
     public float maximumVolume;
-    @Replicate
-    public boolean isInfinite;
 }
