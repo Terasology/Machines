@@ -26,9 +26,9 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.fluid.component.FluidComponent;
+import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
-import org.terasology.fluidTransport.components.FluidTankComponent;
+import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.mesh.Mesh;
@@ -44,23 +44,27 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     EntityManager entityManager;
 
     @ReceiveEvent
-    public void onFluidChanged(OnChangedComponent event, EntityRef entityRef, FluidComponent fluidComponent, FluidTankComponent fluidTankComponent) {
-        if (fluidComponent.volume == 0) {
+    public void onTankChanged(OnChangedComponent event, EntityRef entityRef, FluidTankDisplayComponent fluidTankDisplayComponent, FluidInventoryComponent fluidInventoryComponent) {
+        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
+        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
+        if (tankFluidVolume == 0) {
             entityRef.removeComponent(FluidDisplayComponent.class);
         } else {
-            setDisplayMesh(entityRef, fluidComponent.volume / fluidTankComponent.maximumVolume);
+            setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume);
         }
     }
 
     @ReceiveEvent
-    public void onFluidAdded(OnActivatedComponent event, EntityRef entityRef, FluidComponent fluidComponent, FluidTankComponent fluidTankComponent) {
-        if (fluidComponent.volume > 0) {
-            setDisplayMesh(entityRef, fluidComponent.volume / fluidTankComponent.maximumVolume);
+    public void onTankActivated(OnActivatedComponent event, EntityRef entityRef, FluidTankDisplayComponent fluidTankDisplayComponent, FluidInventoryComponent fluidInventoryComponent) {
+        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
+        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
+        if (tankFluidVolume > 0) {
+            setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume);
         }
     }
 
     @ReceiveEvent
-    public void removeRenderedTank(BeforeDeactivateComponent event, EntityRef entityRef, FluidTankComponent fluidTankComponent) {
+    public void removeRenderedTank(BeforeDeactivateComponent event, EntityRef entityRef, FluidTankDisplayComponent fluidTankDisplayComponent) {
         entityRef.removeComponent(FluidDisplayComponent.class);
     }
 

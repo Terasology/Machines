@@ -29,11 +29,11 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.fluid.component.FluidComponent;
+import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.fluid.system.FluidManager;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
-import org.terasology.fluidTransport.components.FluidTankComponent;
 import org.terasology.math.Side;
 import org.terasology.math.Vector3i;
 import org.terasology.registry.In;
@@ -64,6 +64,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
     EntityManager entityManager;
     @In
     FluidRegistry fluidRegistry;
+    @In
+    FluidManager fluidManager;
 
     long nextUpdateTime;
 
@@ -71,14 +73,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
     public void initialise() {
     }
 
-
     @ReceiveEvent
-    public void fluidChangedInMachine(OnChangedComponent event, EntityRef workstation, WorkstationComponent workstationComponent, FluidComponent consumerComponent) {
-        workstation.send(new WorkstationStateChanged());
-    }
-
-    @ReceiveEvent
-    public void pressureChangedInMachine(OnChangedComponent event, EntityRef workstation, WorkstationComponent workstationComponent, FluidTankComponent consumerComponent) {
+    public void pressureChangedInMachine(OnChangedComponent event, EntityRef workstation, WorkstationComponent workstationComponent, FluidInventoryComponent fluidInventoryComponent) {
         workstation.send(new WorkstationStateChanged());
     }
 
@@ -110,8 +106,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                 // gather the tanks for this network
                 for (NetworkNode leafNode : fluidTransportBlockNetwork.getNetworkNodes(network)) {
-                    EntityRef entity = blockEntityRegistry.getBlockEntityAt(leafNode.location.toVector3i());
-                    if (entity.hasComponent(FluidTankComponent.class)) {
+                    EntityRef entity = blockEntityRegistry.getExistingEntityAt(leafNode.location.toVector3i());
+                    if (ExtendedFluidManager.isTank(entity)) {
                         tanksFromBottomUp.put(leafNode.location.y, entity);
                         tanksFromTopDown.put(leafNode.location.y, entity);
                     } else if (entity.hasComponent(FluidPumpComponent.class)) {
@@ -122,11 +118,12 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                 // let tanks drop their fluid to a tank below
                 for (EntityRef tank : tanksFromBottomUp.values()) {
-                    Vector3i aboveLocation = Side.TOP.getAdjacentPos(getLocation(tank));
-                    EntityRef aboveTank = blockEntityRegistry.getBlockEntityAt(aboveLocation);
-                    if (aboveTank.hasComponent(FluidTankComponent.class)) {
-                        float volumeGiven = giveFluid(tank, getTankVolume(aboveTank), getFluidType(aboveTank));
-                        takeFluid(aboveTank, volumeGiven);
+                    Vector3i tankBelowLocation = Side.BOTTOM.getAdjacentPos(getLocation(tank));
+                    EntityRef tankBelow = blockEntityRegistry.getEntityAt(tankBelowLocation);
+                    String fluidType = ExtendedFluidManager.getTankFluidType(tank);
+                    if (tankBelow.hasComponent(FluidInventoryComponent.class)) {
+                        float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow, ExtendedFluidManager.getTankFluidVolume(tank), fluidType);
+                        ExtendedFluidManager.removeFluid(tank, volumeGiven, fluidType);
                     }
                 }
 
@@ -135,17 +132,17 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                     float tankElevation = getTankElevation(tank);
                     float remainingFlow = getTankFlowAvailable(tank);
                     float totalVolumeTransfered = 0;
-                    String fluidType = getFluidType(tank);
+                    String fluidType = ExtendedFluidManager.getTankFluidType(tank);
 
                     for (EntityRef downstreamTank : tanksFromTopDown.values()) {
                         if (!downstreamTank.equals(tank) && getTankElevation(downstreamTank) < tankElevation && remainingFlow > 0) {
-                            float volumeTransfered = giveFluid(downstreamTank, remainingFlow, fluidType);
+                            float volumeTransfered = ExtendedFluidManager.giveFluid(downstreamTank, remainingFlow, fluidType);
                             totalVolumeTransfered += volumeTransfered;
                             remainingFlow -= volumeTransfered;
                         }
                     }
 
-                    takeFluid(tank, totalVolumeTransfered);
+                    ExtendedFluidManager.removeFluid(tank, totalVolumeTransfered, fluidType);
                 }
 
                 // distribute pump flow starting from the bottom
@@ -168,38 +165,30 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                         }
 
                         // check for a tank block
-                        EntityRef sideEntity = blockEntityRegistry.getBlockEntityAt(sidePosition);
-                        FluidComponent fluidComponent = sideEntity.getComponent(FluidComponent.class);
-                        if (fluidComponent != null) {
+                        EntityRef sideEntity = blockEntityRegistry.getEntityAt(sidePosition);
+                        if (ExtendedFluidManager.isTank(sideEntity)) {
                             sourceTank = sideEntity;
-                            fluidType = fluidComponent.fluidType;
+                            fluidType = ExtendedFluidManager.getTankFluidType(sideEntity);
                             break;
                         }
                     }
 
-                    // distribute this fluid
-                    for (EntityRef tank : tanksFromBottomUp.values()) {
-                        if (!tank.equals(sourceTank) && getTankElevation(tank) < pumpWorldPressure && remainingFlow > 0) {
-                            float volumeTransfered = giveFluid(tank, remainingFlow, fluidType);
-                            remainingFlow -= volumeTransfered;
-                            totalVolumeTransfered += volumeTransfered;
+                    if (fluidType != null) {
+                        // distribute this fluid
+                        for (EntityRef tank : tanksFromBottomUp.values()) {
+                            if (!tank.equals(sourceTank) && getTankElevation(tank) < pumpWorldPressure && remainingFlow > 0) {
+                                float volumeTransfered = ExtendedFluidManager.giveFluid(tank, remainingFlow, fluidType);
+                                remainingFlow -= volumeTransfered;
+                                totalVolumeTransfered += volumeTransfered;
+                            }
                         }
-                    }
 
-                    if (sourceTank != null) {
-                        takeFluid(sourceTank, totalVolumeTransfered);
+                        if (sourceTank != null) {
+                            ExtendedFluidManager.removeFluid(sourceTank, totalVolumeTransfered, fluidType);
+                        }
                     }
                 }
             }
-        }
-    }
-
-    private float getTankVolume(EntityRef entity) {
-        FluidComponent fluidComponent = entity.getComponent(FluidComponent.class);
-        if (fluidComponent != null) {
-            return fluidComponent.volume;
-        } else {
-            return 0;
         }
     }
 
@@ -209,52 +198,20 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
             Vector3i sidePosition = side.getAdjacentPos(getLocation(tank));
 
             // check for a pipe block
-            EntityRef sideEntity = blockEntityRegistry.getBlockEntityAt(sidePosition);
+            EntityRef sideEntity = blockEntityRegistry.getEntityAt(sidePosition);
             FluidPipeComponent fluidPipeComponent = sideEntity.getComponent(FluidPipeComponent.class);
             if (fluidPipeComponent != null) {
                 totalFlow += fluidPipeComponent.maximumFlowRate;
             }
         }
 
-        FluidComponent fluidComponent = tank.getComponent(FluidComponent.class);
-        return Math.min(totalFlow, fluidComponent.volume);
+        return Math.min(totalFlow, ExtendedFluidManager.getTankFluidVolume(tank));
     }
 
     private Vector3i getLocation(EntityRef entity) {
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
         return blockComponent.getPosition();
     }
-
-    private void takeFluid(EntityRef entity, float volume) {
-        FluidTankComponent fluidTankComponent = entity.getComponent(FluidTankComponent.class);
-        FluidComponent fluidComponent = entity.getComponent(FluidComponent.class);
-        if (volume > 0) {
-            fluidComponent.volume -= volume;
-            entity.saveComponent(fluidComponent);
-        }
-    }
-
-
-    private float giveFluid(EntityRef entity, float volume, String fluidType) {
-        FluidTankComponent fluidTankComponent = entity.getComponent(FluidTankComponent.class);
-        FluidComponent fluidComponent = entity.getComponent(FluidComponent.class);
-
-        if (fluidComponent.fluidType == null || fluidComponent.fluidType.equals(fluidType)) {
-            float amountToGive = Math.min(volume, fluidTankComponent.maximumVolume - fluidComponent.volume);
-            fluidComponent.fluidType = fluidType;
-            fluidComponent.volume += amountToGive;
-            entity.saveComponent(fluidComponent);
-            return amountToGive;
-        } else {
-            return 0;
-        }
-    }
-
-    private String getFluidType(EntityRef entity) {
-        FluidComponent fluidComponent = entity.getComponent(FluidComponent.class);
-        return fluidComponent.fluidType;
-    }
-
 
     private float getTankElevation(EntityRef entity) {
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);

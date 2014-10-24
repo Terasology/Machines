@@ -87,7 +87,7 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
                 Set<EntityRef> producers = Sets.newHashSet();
                 // gather the consumers and producers for this network
                 for (NetworkNode leafNode : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
-                    EntityRef entity = blockEntityRegistry.getBlockEntityAt(leafNode.location.toVector3i());
+                    EntityRef entity = blockEntityRegistry.getEntityAt(leafNode.location.toVector3i());
                     if (entity.hasComponent(MechanicalPowerConsumerComponent.class)) {
                         consumers.add(entity);
                     }

@@ -138,7 +138,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
             float speed = details.totalPower / (details.totalConsumers + 1);
             for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
                 if (blockEntityRegistry.hasPermanentBlockEntity(node.location.toVector3i())) {
-                    EntityRef nodeEntity = blockEntityRegistry.getBlockEntityAt(node.location.toVector3i());
+                    EntityRef nodeEntity = blockEntityRegistry.getEntityAt(node.location.toVector3i());
 
                     RotatingAxleComponent rotatingAxle = nodeEntity.getComponent(RotatingAxleComponent.class);
                     if (rotatingAxle != null && rotatingAxle.renderedEntity != null) {

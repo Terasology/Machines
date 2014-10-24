@@ -23,6 +23,5 @@ import org.terasology.world.block.ForceBlockActive;
 public class FluidPumpComponent implements Component {
     @Replicate
     public float pressure;
-    @Replicate
     public float maximumFlowRate;
 }

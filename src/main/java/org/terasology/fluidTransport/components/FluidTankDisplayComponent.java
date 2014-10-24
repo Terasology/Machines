@@ -16,11 +16,6 @@
 package org.terasology.fluidTransport.components;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
-import org.terasology.world.block.ForceBlockActive;
 
-@ForceBlockActive
-public class FluidTankComponent implements Component {
-    @Replicate
-    public float maximumVolume;
+public class FluidTankDisplayComponent implements Component {
 }

@@ -33,9 +33,9 @@ import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
-import org.terasology.fluidTransport.components.FluidTankComponent;
 import org.terasology.fluidTransport.components.FluidTransportBlockNetworkComponent;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
@@ -116,7 +116,7 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
         if (!networkNodes.containsKey(position)) {
             byte connectionSides = calculateConnectionSides(networkItem, block);
 
-            if (entity.hasComponent(FluidTankComponent.class)) {
+            if (entity.hasComponent(FluidInventoryComponent.class)) {
                 TankNode tankNode = new TankNode(position, connectionSides);
                 networkNode = tankNode;
             } else if (entity.hasComponent(FluidPumpComponent.class)) {
@@ -214,7 +214,7 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
     public void createTankNetworkNode(OnActivatedComponent event,
                                       EntityRef entity,
-                                      FluidTankComponent type,
+                                      FluidInventoryComponent type,
                                       FluidTransportBlockNetworkComponent mechanicalPowerBlockNetwork,
                                       BlockComponent block) {
         addNetworkNode(entity);

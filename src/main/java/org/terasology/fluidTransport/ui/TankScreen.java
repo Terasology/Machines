@@ -16,8 +16,7 @@
 package org.terasology.fluidTransport.ui;
 
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.fluid.component.FluidComponent;
-import org.terasology.fluidTransport.components.FluidTankComponent;
+import org.terasology.fluidTransport.systems.ExtendedFluidManager;
 import org.terasology.machines.ui.BaseInteractionScreen;
 import org.terasology.rendering.nui.databinding.ReadOnlyBinding;
 import org.terasology.rendering.nui.widgets.UILabel;
@@ -38,13 +37,13 @@ public class TankScreen extends BaseInteractionScreen {
 
     @Override
     protected void initializeWithInteractionTarget(EntityRef interactionTarget) {
-        final FluidComponent fluidComponent = interactionTarget.getComponent(FluidComponent.class);
-        final FluidTankComponent fluidTankComponent = interactionTarget.getComponent(FluidTankComponent.class);
-        if (fluidComponent != null && fluidTankComponent != null && fluidContainerWidget != null) {
+        if (ExtendedFluidManager.isTank(interactionTarget)) {
             fluidContainerWidget.bindText(new ReadOnlyBinding<String>() {
                 @Override
                 public String get() {
-                    return fluidComponent.volume + "/" + fluidTankComponent.maximumVolume + "mL";
+                    float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(getInteractionTarget());
+                    float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(getInteractionTarget());
+                    return tankFluidVolume + "/" + tankTotalVolume + "mL";
                 }
             });
         }

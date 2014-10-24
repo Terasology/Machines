@@ -16,9 +16,7 @@
 package org.terasology.fluidTransport.components;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
 
 public class FluidPipeComponent implements Component {
-    @Replicate
     public float maximumFlowRate;
 }

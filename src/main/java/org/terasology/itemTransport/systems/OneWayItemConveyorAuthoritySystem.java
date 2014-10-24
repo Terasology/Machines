@@ -87,7 +87,7 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
 
                 // get target inventory
                 Vector3i adjacentPos = side.getAdjacentPos(new Vector3i(locationComponent.getWorldPosition()));
-                EntityRef targetEntity = blockEntityRegistry.getBlockEntityAt(adjacentPos);
+                EntityRef targetEntity = blockEntityRegistry.getEntityAt(adjacentPos);
 
                 if (targetEntity.hasComponent(InventoryComponent.class)) {
                     PushInventoryInDirectionComponent targetPushInventoryInDirectionComponent = targetEntity.getComponent(PushInventoryInDirectionComponent.class);
@@ -170,7 +170,7 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
 
                 // get target inventory
                 Vector3i adjacentPos = side.getAdjacentPos(new Vector3i(locationComponent.getWorldPosition()));
-                EntityRef targetEntity = blockEntityRegistry.getBlockEntityAt(adjacentPos);
+                EntityRef targetEntity = blockEntityRegistry.getEntityAt(adjacentPos);
 
                 if (targetEntity.hasComponent(InventoryComponent.class)) {
                     // iterate all the items in the inventory and pull one stack to this inventory
