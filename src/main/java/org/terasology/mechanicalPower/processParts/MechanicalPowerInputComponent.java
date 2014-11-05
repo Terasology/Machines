@@ -33,6 +33,14 @@ public class MechanicalPowerInputComponent implements Component, ProcessPart, De
                 return true;
             }
         }
+
+        consumer = instigator.getComponent(MechanicalPowerConsumerComponent.class);
+        if (consumer != null) {
+            if (consumer.currentStoredPower >= power) {
+                return true;
+            }
+        }
+
         return false;
     }
 
@@ -47,6 +55,14 @@ public class MechanicalPowerInputComponent implements Component, ProcessPart, De
         if (consumer != null) {
             consumer.currentStoredPower -= power;
             workstation.saveComponent(consumer);
+            return;
+        }
+
+        consumer = workstation.getComponent(MechanicalPowerConsumerComponent.class);
+        if (consumer != null) {
+            consumer.currentStoredPower -= power;
+            workstation.saveComponent(consumer);
+            return;
         }
     }
 
