@@ -13,7 +13,9 @@
     },
     {
         "id" : "Fluid", "minVersion" : "0.1.0"
+    },
+    {
+        "id" : "ItemRendering", "minVersion" : "0.1.0"
     }
-  ],
-  "isServerSideOnly": false
+  ]
 }

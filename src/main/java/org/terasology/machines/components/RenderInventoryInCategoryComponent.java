@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.itemRendering.components;
+package org.terasology.machines.components;
 
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.math.Pitch;
 import org.terasology.world.block.items.BlockItemComponent;
 

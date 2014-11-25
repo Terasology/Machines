@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.itemRendering.systems;
+package org.terasology.machines.systems;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -23,12 +23,12 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.itemRendering.components.RenderInventoryInCategoryComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
+import org.terasology.machines.components.RenderInventoryInCategoryComponent;
 import org.terasology.math.Rotation;
 import org.terasology.math.Side;
 import org.terasology.mechanicalPower.systems.MechanicalPowerClientSystem;
