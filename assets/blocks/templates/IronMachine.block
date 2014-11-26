@@ -1,0 +1,6 @@
+{
+    "template" : true,
+    "categories" : ["metal", "machine"],
+    "hardness" : 18,
+    "mass" : 100
+}
