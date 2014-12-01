@@ -26,6 +26,7 @@ import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.NestedMachineComponent;
+import org.terasology.machines.processParts.RequirementInputComponent;
 import org.terasology.math.Side;
 import org.terasology.workstation.component.WorkstationInventoryComponent;
 import org.terasology.world.block.BlockComponent;
@@ -74,7 +75,7 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
             int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
             categorizedInventory.slotMapping.put("INPUT",
                     createSlotRange(0, machineDefinition.inputSlots));
-            categorizedInventory.slotMapping.put("REQUIREMENTS",
+            categorizedInventory.slotMapping.put(RequirementInputComponent.REQUIREMENTSINVENTORYCATEGORY,
                     createSlotRange(machineDefinition.inputSlots, machineDefinition.requirementSlots));
             categorizedInventory.slotMapping.put("OUTPUT",
                     createSlotRange(totalInputSlots, machineDefinition.outputSlots));

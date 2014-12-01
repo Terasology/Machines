@@ -21,16 +21,21 @@ import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.machines.ExtendedInventoryManager;
+import org.terasology.machines.components.CategorizedInventoryComponent;
+import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.machines.components.ProvidesProcessRequirements;
 import org.terasology.machines.events.RequirementUsedEvent;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 import org.terasology.workstation.process.ProcessPartDescription;
+import org.terasology.workstation.process.inventory.ValidateInventoryItem;
 
 import java.util.List;
 
-public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess {
+public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess, ValidateInventoryItem {
+    public static String REQUIREMENTSINVENTORYCATEGORY = "REQUIREMENTS";
+
     public List<String> requirements = Lists.newArrayList();
 
     @Override
@@ -47,7 +52,7 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
         }
 
         // get the requirements provided by items (tools)
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, "REQUIREMENTS")) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, REQUIREMENTSINVENTORYCATEGORY)) {
             for (Component component : item.iterateComponents()) {
                 if (component instanceof ProvidesProcessRequirements) {
                     requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));
@@ -79,7 +84,7 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
         }
 
         // get the requirements provided by items (tools)
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, "REQUIREMENTS")) {
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, REQUIREMENTSINVENTORYCATEGORY)) {
             for (Component component : item.iterateComponents()) {
                 if (component instanceof ProvidesProcessRequirements) {
                     if (requirementsRequired.removeAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()))) {
@@ -108,6 +113,26 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
 
     @Override
     public int getComplexity() {
-        return 0;
+        return requirements.size();
+    }
+
+    @Override
+    public boolean isResponsibleForSlot(EntityRef workstation, int slotNo) {
+        CategorizedInventoryComponent categorizedInventoryComponent = workstation.getComponent(CategorizedInventoryComponent.class);
+        if (categorizedInventoryComponent != null && categorizedInventoryComponent.slotMapping.containsKey(REQUIREMENTSINVENTORYCATEGORY)) {
+            return categorizedInventoryComponent.slotMapping.get(REQUIREMENTSINVENTORYCATEGORY).contains(slotNo);
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean isValid(EntityRef workstation, int slotNo, EntityRef instigator, EntityRef item) {
+        ProcessRequirementsProviderComponent requirementsProvider = item.getComponent(ProcessRequirementsProviderComponent.class);
+        if (requirementsProvider != null) {
+            return requirementsProvider.requirements.containsAll(requirements);
+        }
+
+        return false;
     }
 }
