@@ -17,7 +17,7 @@ package org.terasology.fluidTransport.ui;
 
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluidTransport.systems.ExtendedFluidManager;
-import org.terasology.machines.ui.BaseInteractionScreen;
+import org.terasology.rendering.nui.BaseInteractionScreen;
 import org.terasology.rendering.nui.databinding.ReadOnlyBinding;
 import org.terasology.rendering.nui.widgets.UILabel;
 

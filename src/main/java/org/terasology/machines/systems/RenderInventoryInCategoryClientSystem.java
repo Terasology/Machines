@@ -17,7 +17,7 @@ package org.terasology.machines.systems;
 
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -54,7 +54,7 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void initExistingItemRendering(OnAddedComponent event,
+    public void initExistingItemRendering(OnActivatedComponent event,
                                           EntityRef inventoryEntity,
                                           InventoryComponent inventoryComponent) {
         refreshInventoryItems(inventoryEntity);
