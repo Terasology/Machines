@@ -34,7 +34,7 @@ import org.terasology.workstation.process.inventory.ValidateInventoryItem;
 import java.util.List;
 
 public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess, ValidateInventoryItem {
-    public static String REQUIREMENTSINVENTORYCATEGORY = "REQUIREMENTS";
+    public static final String REQUIREMENTSINVENTORYCATEGORY = "REQUIREMENTS";
 
     public List<String> requirements = Lists.newArrayList();
 

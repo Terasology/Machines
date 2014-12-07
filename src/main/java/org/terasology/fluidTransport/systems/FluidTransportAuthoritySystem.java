@@ -74,7 +74,9 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
     }
 
     @ReceiveEvent
-    public void pressureChangedInMachine(OnChangedComponent event, EntityRef workstation, WorkstationComponent workstationComponent, FluidInventoryComponent fluidInventoryComponent) {
+    public void pressureChangedInMachine(OnChangedComponent event, EntityRef workstation,
+                                         WorkstationComponent workstationComponent,
+                                         FluidInventoryComponent fluidInventoryComponent) {
         workstation.send(new WorkstationStateChanged());
     }
 

@@ -179,14 +179,16 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
 
     // this event can happen generically because the full entity will be retrieved
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
-    public void createNetworkNodesOnWorldLoad(OnActivatedBlocks event, EntityRef blockType, FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent) {
+    public void createNetworkNodesOnWorldLoad(OnActivatedBlocks event, EntityRef blockType,
+                                              FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent) {
         for (Vector3i location : event.getBlockPositions()) {
             addNetworkNode(blockEntityRegistry.getBlockEntityAt(location));
         }
     }
 
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
-    public void removeNetworkNodesOnWorldUnload(BeforeDeactivateBlocks event, EntityRef blockType, FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent) {
+    public void removeNetworkNodesOnWorldUnload(BeforeDeactivateBlocks event, EntityRef blockType,
+                                                FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent) {
         for (Vector3i location : event.getBlockPositions()) {
             removeNetworkNode(location);
         }
@@ -194,7 +196,9 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
 
     // this event can happen generically because we are only updating the connection sides
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
-    public void updateNetworkNode(OnChangedComponent event, EntityRef entity, FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent, BlockComponent block) {
+    public void updateNetworkNode(OnChangedComponent event, EntityRef entity,
+                                  FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent,
+                                  BlockComponent block) {
         byte connectingOnSides = calculateConnectionSides(fluidTransportBlockNetworkComponent, block);
         final Vector3i location = block.getPosition();
         updateNetworkNode(location, connectingOnSides);
@@ -202,7 +206,9 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
 
     // this event can happen generically because it is position based
     @ReceiveEvent(priority = EventPriority.PRIORITY_CRITICAL)
-    public void removeNetworkNode(BeforeDeactivateComponent event, EntityRef entity, FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent, BlockComponent block) {
+    public void removeNetworkNode(BeforeDeactivateComponent event, EntityRef entity,
+                                  FluidTransportBlockNetworkComponent fluidTransportBlockNetworkComponent,
+                                  BlockComponent block) {
         // only remove a node if the block actually doesnt exist anymore.
         // This is particularly a problem in multiplayer where an entity is created both when the block
         // is placed (causing a default entity to be created) and when the entity from the server is sent.

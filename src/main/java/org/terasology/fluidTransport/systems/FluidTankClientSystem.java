@@ -44,7 +44,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     EntityManager entityManager;
 
     @ReceiveEvent
-    public void onTankChanged(OnChangedComponent event, EntityRef entityRef, FluidTankDisplayComponent fluidTankDisplayComponent, FluidInventoryComponent fluidInventoryComponent) {
+    public void onTankChanged(OnChangedComponent event, EntityRef entityRef,
+                              FluidTankDisplayComponent fluidTankDisplayComponent,
+                              FluidInventoryComponent fluidInventoryComponent) {
         float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
         float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
         if (tankFluidVolume == 0) {
@@ -55,7 +57,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void onTankActivated(OnActivatedComponent event, EntityRef entityRef, FluidTankDisplayComponent fluidTankDisplayComponent, FluidInventoryComponent fluidInventoryComponent) {
+    public void onTankActivated(OnActivatedComponent event, EntityRef entityRef,
+                                FluidTankDisplayComponent fluidTankDisplayComponent,
+                                FluidInventoryComponent fluidInventoryComponent) {
         float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
         float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
         if (tankFluidVolume > 0) {

@@ -75,7 +75,8 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
                 MechanicalPowerRegenComponent regenComponent = entity.getComponent(MechanicalPowerRegenComponent.class);
                 MechanicalPowerConsumerComponent consumerComponent = entity.getComponent(MechanicalPowerConsumerComponent.class);
                 if (consumerComponent.currentStoredPower < consumerComponent.maximumStoredPower) {
-                    consumerComponent.currentStoredPower = TeraMath.clamp(consumerComponent.currentStoredPower + regenComponent.power, 0, consumerComponent.maximumStoredPower);
+                    consumerComponent.currentStoredPower =
+                            TeraMath.clamp(consumerComponent.currentStoredPower + regenComponent.power, 0, consumerComponent.maximumStoredPower);
                     entity.saveComponent(consumerComponent);
                 }
             }
@@ -119,7 +120,9 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
     }
 
     @ReceiveEvent
-    public void powerChangedInMachine(OnChangedComponent event, EntityRef workstation, WorkstationComponent workstationComponent, MechanicalPowerConsumerComponent consumerComponent) {
+    public void powerChangedInMachine(OnChangedComponent event, EntityRef workstation,
+                                      WorkstationComponent workstationComponent,
+                                      MechanicalPowerConsumerComponent consumerComponent) {
         workstation.send(new WorkstationStateChanged());
     }
 
