@@ -1,6 +1,9 @@
 {
-    "template" : true,
-    "categories" : ["wood", "machine"],
-    "hardness" : 18,
-    "mass" : 100
+  "template": true,
+  "categories": [
+    "wood",
+    "machine"
+  ],
+  "hardness": 18,
+  "mass": 100
 }

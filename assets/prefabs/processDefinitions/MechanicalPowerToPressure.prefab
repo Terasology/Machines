@@ -1,7 +1,7 @@
 {
-    "ProcessDefinition": {
-        "processType": "Machines:Pump"
-    },
-    "MechanicalPowerToPressure": {
-    }
+  "ProcessDefinition": {
+    "processType": "Machines:Pump"
+  },
+  "MechanicalPowerToPressure": {
+  }
 }
