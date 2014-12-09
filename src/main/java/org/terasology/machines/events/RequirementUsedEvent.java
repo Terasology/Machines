@@ -15,7 +15,17 @@
  */
 package org.terasology.machines.events;
 
+import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.Event;
 
 public class RequirementUsedEvent implements Event {
+    EntityRef processEntity;
+
+    public RequirementUsedEvent(EntityRef processEntity) {
+        this.processEntity = processEntity;
+    }
+
+    public EntityRef getProcessEntity() {
+        return processEntity;
+    }
 }

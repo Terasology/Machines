@@ -29,11 +29,13 @@ import org.terasology.registry.CoreRegistry;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 import org.terasology.workstation.process.ProcessPartDescription;
+import org.terasology.workstation.process.ProcessPartOrdering;
+import org.terasology.workstation.process.inventory.InventoryInputComponent;
 import org.terasology.workstation.process.inventory.ValidateInventoryItem;
 
 import java.util.List;
 
-public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess, ValidateInventoryItem {
+public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess, ValidateInventoryItem, ProcessPartOrdering {
     public static final String REQUIREMENTSINVENTORYCATEGORY = "REQUIREMENTS";
 
     public List<String> requirements = Lists.newArrayList();
@@ -78,7 +80,7 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
         for (Component component : workstation.iterateComponents()) {
             if (component instanceof ProvidesProcessRequirements) {
                 if (requirementsRequired.removeAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()))) {
-                    workstation.send(new RequirementUsedEvent());
+                    workstation.send(new RequirementUsedEvent(processEntity));
                 }
             }
         }
@@ -88,7 +90,7 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
             for (Component component : item.iterateComponents()) {
                 if (component instanceof ProvidesProcessRequirements) {
                     if (requirementsRequired.removeAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()))) {
-                        item.send(new RequirementUsedEvent());
+                        item.send(new RequirementUsedEvent(processEntity));
                     }
                 }
             }
@@ -134,5 +136,10 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
         }
 
         return false;
+    }
+
+    @Override
+    public int getSortOrder() {
+        return InventoryInputComponent.SORTORDER - 1;
     }
 }
