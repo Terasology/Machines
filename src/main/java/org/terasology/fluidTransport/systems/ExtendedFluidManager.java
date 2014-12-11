@@ -21,7 +21,10 @@ import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
 import org.terasology.registry.CoreRegistry;
 
-public class ExtendedFluidManager {
+public final class ExtendedFluidManager {
+
+    private ExtendedFluidManager() {
+    }
 
     public static void removeFluid(EntityRef entity, float volume, String fluidType) {
         FluidManager fluidManager = CoreRegistry.get(FluidManager.class);
