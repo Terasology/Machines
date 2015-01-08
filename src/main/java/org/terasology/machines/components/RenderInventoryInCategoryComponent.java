@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.math.Pitch;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.world.block.items.BlockItemComponent;
-
-import javax.vecmath.Vector3f;
 
 /**
  * Add this to a block that you want items displayed from an inventory category.
