@@ -4,24 +4,59 @@
   "contents": {
     "type": "RowLayout",
     "contents": [
-    {
-      "type": "RelativeLayout",
-      "contents": [
       {
-        "type": "ColumnLayout",
-        "layoutInfo": {
-            "use-content-width": true,
-            "use-content-height": true,
-            "verticalSpacing": 20,
-            "position-vertical-center": {
-            },
-            "position-horizontal-center": {
+        "type": "RelativeLayout",
+        "contents": [
+          {
+            "type": "UIBox",
+            "layoutInfo": {
+              "position-top": {
+                "target": "TOP",
+                "widget": "mainContent",
+                "offset": -10
+              },
+              "position-left": {
+                "target": "LEFT",
+                "widget": "mainContent",
+                "offset": -10
+              },
+              "position-right": {
+                "target": "RIGHT",
+                "widget": "mainContent",
+                "offset": -10
+              },
+              "position-bottom": {
+                "target": "BOTTOM",
+                "widget": "mainContent",
+                "offset": -10
+              }
             }
           },
-          "contents": [
+          {
+            "type": "ColumnLayout",
+            "verticalSpacing": 10,
+            "id": "mainContent",
+            "layoutInfo": {
+              "use-content-width": true,
+              "use-content-height": true,
+              "position-vertical-center": {
+              },
+              "position-horizontal-center": {
+              }
+            },
+            "contents": [
               {
                 "type": "FlowLayout",
                 "contents": [
+                  {
+                    "type": "UIContainer",
+                    "id": "inputWidgets"
+                  },
+                  {
+                    "type": "UISpacer",
+                    "width": 5,
+                    "height": 75
+                  },
                   {
                     "type": "ColumnLayout",
                     "fillVerticalSpace": false,
@@ -38,6 +73,10 @@
                         "id": "ingredientsInventory"
                       }
                     ]
+                  },
+                  {
+                    "type": "UISpacer",
+                    "width": 5
                   },
                   {
                     "type": "ColumnLayout",
@@ -57,9 +96,32 @@
                     ]
                   },
                   {
-                      "type": "HorizontalProgressBar",
-                      "width": 100,
-                      "id": "progressBar"
+                    "type": "UISpacer",
+                    "width": 5
+                  },
+                  {
+                    "type": "ColumnLayout",
+                    "fillVerticalSpace": false,
+                    "autoSizeColumns": true,
+                    "contents": [
+                      {
+                        "type": "HorizontalProgressBar",
+                        "id": "progressBar"
+                      },
+                      {
+                        "type": "UIContainer",
+                        "id": "processResult"
+                      },
+                      {
+                        "type": "UIButton",
+                        "text": "Execute",
+                        "id": "executeButton"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "UISpacer",
+                    "width": 5
                   },
                   {
                     "type": "ColumnLayout",
@@ -79,46 +141,34 @@
                     ]
                   },
                   {
+                    "type": "UISpacer",
+                    "width": 5
+                  },
+                  {
                     "type": "UIContainer",
-                    "id": "customUI"
+                    "id": "outputWidgets"
                   }
                 ]
-              },
-              {
-                  "type": "ColumnLayout",
-                  "fillVerticalSpace": false,
-                  "autoSizeColumns": true,
-                  "contents": [
-                    {
-                      "type": "UIBox",
-                      "id": "processResult"
-                    },
-                    {
-                      "type": "UIButton",
-                      "text": "Execute",
-                      "id": "executeButton"
-                    }
-                  ]
               },
               {
                 "type": "InventoryGrid",
                 "id": "playerInventory"
               }
-          ]
-      }
-      ]
-    },
-    {
+            ]
+          }
+        ]
+      },
+      {
         "type": "ScrollableArea",
         "layoutInfo": {
           "useContentWidth": true
         },
         "content": {
-              "type": "ProcessListWidget",
-              "id": "processList",
-              "family": "processlist"
+          "type": "ProcessListWidget",
+          "id": "processList",
+          "family": "processlist"
         }
-    }
+      }
     ]
   }
 }

@@ -15,7 +15,6 @@
  */
 package org.terasology.machines.ui;
 
-import com.google.common.base.Strings;
 import org.terasology.asset.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -26,8 +25,8 @@ import org.terasology.rendering.nui.BaseInteractionScreen;
 import org.terasology.rendering.nui.UIWidget;
 import org.terasology.rendering.nui.asset.UIElement;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
+import org.terasology.rendering.nui.layouts.FlowLayout;
 import org.terasology.rendering.nui.widgets.ActivateEventListener;
-import org.terasology.rendering.nui.widgets.UIBox;
 import org.terasology.rendering.nui.widgets.UIButton;
 import org.terasology.rendering.nui.widgets.UIImage;
 import org.terasology.rendering.nui.widgets.UILabel;
@@ -53,8 +52,9 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
     private UIImage stationBackground;
     private HorizontalProgressBar progressBar;
     private UIButton executeButton;
-    private UIBox processResult;
-    private UIContainer customUI;
+    private UIContainer processResult;
+    private UIContainer outputWidgets;
+    private UIContainer inputWidgets;
     private ProcessListWidget processList;
 
 
@@ -80,9 +80,10 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 }
             });
         }
-        processResult = find("processResult", UIBox.class);
+        processResult = find("processResult", UIContainer.class);
         processList = find("processList", ProcessListWidget.class);
-        customUI = find("customUI", UIContainer.class);
+        outputWidgets = find("outputWidgets", UIContainer.class);
+        inputWidgets = find("inputWidgets", UIContainer.class);
     }
 
     private void requestProcessExecution() {
@@ -99,18 +100,43 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         int blockInputSlots = machineDefinition.inputSlots;
         int blockOutputSlots = machineDefinition.outputSlots;
 
-        if (customUI != null) {
-            if (Strings.isNullOrEmpty(machineDefinition.extraWidget)) {
-                customUI.setVisible(false);
+        if (inputWidgets != null) {
+            if (machineDefinition.inputWidgets.isEmpty()) {
+                inputWidgets.setContent(null);
+                inputWidgets.setVisible(false);
             } else {
-                customUI.setVisible(true);
-                UIElement extraUIElement = Assets.getUIElement(machineDefinition.extraWidget);
-                UIWidget extraWidget = extraUIElement.getRootWidget();
+                inputWidgets.setVisible(true);
+                FlowLayout widgetLayout = new FlowLayout();
+                for (String widgetUri : machineDefinition.inputWidgets) {
+                    UIElement widgetUIElement = Assets.getUIElement(widgetUri);
+                    UIWidget widget = widgetUIElement.getRootWidget();
 
-                if (extraWidget instanceof WorkstationUI) {
-                    ((WorkstationUI) extraWidget).initializeWorkstation(interactionTarget);
+                    if (widget instanceof WorkstationUI) {
+                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
+                    }
+                    widgetLayout.addWidget(widget, null);
                 }
-                customUI.setContent(extraWidget);
+                inputWidgets.setContent(widgetLayout);
+            }
+        }
+
+        if (outputWidgets != null) {
+            if (machineDefinition.outputWidgets.isEmpty()) {
+                outputWidgets.setContent(null);
+                outputWidgets.setVisible(false);
+            } else {
+                outputWidgets.setVisible(true);
+                FlowLayout widgetLayout = new FlowLayout();
+                for (String widgetUri : machineDefinition.outputWidgets) {
+                    UIElement widgetUIElement = Assets.getUIElement(widgetUri);
+                    UIWidget widget = widgetUIElement.getRootWidget();
+
+                    if (widget instanceof WorkstationUI) {
+                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
+                    }
+                    widgetLayout.addWidget(widget, null);
+                }
+                outputWidgets.setContent(widgetLayout);
             }
         }
 
@@ -213,10 +239,12 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                         processResult.setContent(processIdLabel);
                     }
                     processResult.setVisible(true);
+                    executeButton.setVisible(true && workstation.supportedProcessTypes.values().contains(false));
                 } else {
                     validProcessId = null;
                     processResult.setContent(null);
                     processResult.setVisible(false);
+                    executeButton.setVisible(false);
                 }
             }
         }

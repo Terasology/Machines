@@ -15,8 +15,11 @@
  */
 package org.terasology.machines.components;
 
+import com.google.common.collect.Sets;
 import org.terasology.entitySystem.Component;
 import org.terasology.world.block.ForceBlockActive;
+
+import java.util.Set;
 
 @ForceBlockActive
 public class MachineDefinitionComponent implements Component {
@@ -27,5 +30,6 @@ public class MachineDefinitionComponent implements Component {
     public int outputSlots;
     public String outputSlotsTitle = "Output";
     public String actionTitle = "Execute";
-    public String extraWidget;
+    public Set<String> outputWidgets = Sets.newHashSet();
+    public Set<String> inputWidgets = Sets.newHashSet();
 }
