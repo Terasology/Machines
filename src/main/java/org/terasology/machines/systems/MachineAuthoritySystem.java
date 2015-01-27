@@ -29,6 +29,8 @@ import org.terasology.machines.components.NestedMachineComponent;
 import org.terasology.machines.processParts.RequirementInputComponent;
 import org.terasology.math.Side;
 import org.terasology.workstation.component.WorkstationInventoryComponent;
+import org.terasology.workstation.process.fluid.FluidInputComponent;
+import org.terasology.workstation.process.fluid.FluidOutputComponent;
 import org.terasology.world.block.BlockComponent;
 
 import java.util.List;
@@ -66,6 +68,8 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
             int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
             workstationInventory.slotAssignments.put("INPUT", new WorkstationInventoryComponent.SlotAssignment(0, machineDefinition.inputSlots));
             workstationInventory.slotAssignments.put("OUTPUT", new WorkstationInventoryComponent.SlotAssignment(totalInputSlots, machineDefinition.outputSlots));
+            workstationInventory.slotAssignments.put(FluidInputComponent.FLUIDINPUTCATEGORY, new WorkstationInventoryComponent.SlotAssignment(0, 1));
+            workstationInventory.slotAssignments.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY, new WorkstationInventoryComponent.SlotAssignment(1, 1));
             entity.addComponent(workstationInventory);
         }
 
