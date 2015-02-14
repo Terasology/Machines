@@ -20,26 +20,20 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.itemRendering.components.RenderItemComponent;
+import org.terasology.itemRendering.systems.RenderOwnedEntityClientSystemBase;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.RenderInventoryInCategoryComponent;
-import org.terasology.math.Rotation;
-import org.terasology.math.Side;
-import org.terasology.mechanicalPower.systems.MechanicalPowerClientSystem;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
 
 import java.util.List;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
+public class RenderInventoryInCategoryClientSystem extends RenderOwnedEntityClientSystemBase {
 
     @In
     InventoryManager inventoryManager;
@@ -50,17 +44,17 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
     public void addRemoveItemRendering(OnChangedComponent event,
                                        EntityRef inventoryEntity,
                                        InventoryComponent inventoryComponent) {
-        refreshInventoryItems(inventoryEntity);
+        refreshRenderedItems(inventoryEntity);
     }
 
     @ReceiveEvent
     public void initExistingItemRendering(OnActivatedComponent event,
                                           EntityRef inventoryEntity,
                                           InventoryComponent inventoryComponent) {
-        refreshInventoryItems(inventoryEntity);
+        refreshRenderedItems(inventoryEntity);
     }
 
-    private void refreshInventoryItems(EntityRef inventoryEntity) {
+    private void refreshRenderedItems(EntityRef inventoryEntity) {
         RenderInventoryInCategoryComponent renderInventoryInCategory = inventoryEntity.getComponent(RenderInventoryInCategoryComponent.class);
         CategorizedInventoryComponent categorizedInventory = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
 
@@ -69,44 +63,17 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
             slots = categorizedInventory.slotMapping.get(renderInventoryInCategory.category);
         }
 
+        // ensure all non rendered inventory slots have been reset
         for (int slot = 0; slot < inventoryManager.getNumSlots(inventoryEntity); slot++) {
             EntityRef item = inventoryManager.getItemInSlot(inventoryEntity, slot);
-            if (slots.contains(slot)) {
-                addRenderingComponents(inventoryEntity, renderInventoryInCategory, item);
-            } else {
+            if (!slots.contains(slot)) {
                 removeRenderingComponents(item);
             }
-
         }
-    }
 
-    private void removeRenderingComponents(EntityRef item) {
-        item.removeComponent(RenderItemComponent.class);
-    }
-
-    private void addRenderingComponents(EntityRef inventoryEntity, RenderInventoryInCategoryComponent renderInventoryInCategory, EntityRef item) {
-        if (item.exists()) {
-            // this is inherently evil,  but multiplayer acts strangely
-            item.setOwner(inventoryEntity);
-
-            LocationComponent parentLocationComponent = inventoryEntity.getComponent(LocationComponent.class);
-            RenderItemComponent renderItemTransform = renderInventoryInCategory.createRenderItemComponent(inventoryEntity, item);
-            if (renderInventoryInCategory.rotateWithBlock && worldProvider.isBlockRelevant(parentLocationComponent.getWorldPosition())) {
-                Block block = worldProvider.getBlock(parentLocationComponent.getWorldPosition());
-                Side direction = block.getDirection();
-                Rotation blockRotation = MechanicalPowerClientSystem.getRotation(direction);
-                renderItemTransform.yaw = blockRotation.getYaw();
-                renderItemTransform.pitch = blockRotation.getPitch();
-                renderItemTransform.roll = blockRotation.getRoll();
-
-                renderItemTransform.translate = MechanicalPowerClientSystem.rotateVector3f(renderItemTransform.translate, direction.toDirection());
-            }
-
-            if (item.hasComponent(RenderItemComponent.class)) {
-                item.saveComponent(renderItemTransform);
-            } else {
-                item.addComponent(renderItemTransform);
-            }
+        for (int slot : slots) {
+            EntityRef item = inventoryManager.getItemInSlot(inventoryEntity, slot);
+            addRenderingComponents(inventoryEntity, item, renderInventoryInCategory);
         }
     }
 }

@@ -15,6 +15,7 @@
  */
 package org.terasology.mechanicalPower.systems;
 
+import org.terasology.RotationUtils;
 import org.terasology.blockNetwork.Network;
 import org.terasology.blockNetwork.NetworkNode;
 import org.terasology.blockNetwork.NetworkTopologyListener;
@@ -30,13 +31,9 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.Direction;
-import org.terasology.math.Pitch;
 import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
 import org.terasology.math.Side;
-import org.terasology.math.Yaw;
-import org.terasology.math.geom.Vector3f;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
 import org.terasology.registry.In;
@@ -71,7 +68,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
         Side direction = block.getBlock().getDirection();
-        Rotation rotation = getRotation(direction);
+        Rotation rotation = RotationUtils.getRotation(direction);
         location.setWorldRotation(rotation.getQuat4f());
         entity.saveComponent(location);
 
@@ -88,43 +85,6 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
             rotatingAxle.renderedEntity.destroy();
         }
     }
-
-    public static Vector3f rotateVector3f(Vector3f input, Direction direction) {
-        switch (direction) {
-            case BACKWARD:
-                return new Vector3f(input.x, input.y, input.z * -1);
-            case DOWN:
-                return new Vector3f(input.x, input.z * -1, input.y);
-            case LEFT:
-                return new Vector3f(input.z, input.y, input.x);
-            case RIGHT:
-                return new Vector3f(input.z * -1, input.y, input.x);
-            case UP:
-                return new Vector3f(input.x, input.z, input.z * -1);
-            default:
-                return new Vector3f(input.x, input.y, input.z);
-        }
-    }
-
-    public static Rotation getRotation(Side side) {
-        Pitch pitch = Pitch.NONE;
-        Yaw yaw = Yaw.NONE;
-
-        if (side == Side.BACK) {
-            pitch = Pitch.CLOCKWISE_180;
-        } else if (side == Side.TOP) {
-            pitch = Pitch.CLOCKWISE_90;
-        } else if (side == Side.BOTTOM) {
-            pitch = pitch.CLOCKWISE_270;
-        } else if (side == Side.LEFT) {
-            yaw = Yaw.CLOCKWISE_90;
-        } else if (side == Side.RIGHT) {
-            yaw = Yaw.CLOCKWISE_270;
-        }
-
-        return Rotation.rotate(yaw, pitch);
-    }
-
 
     @ReceiveEvent
     public void updateAxlesInNetwork(OnChangedComponent event, EntityRef entity, MechanicalPowerProducerComponent powerProducer, BlockComponent block) {

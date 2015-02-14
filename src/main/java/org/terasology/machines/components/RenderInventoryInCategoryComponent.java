@@ -16,51 +16,12 @@
 package org.terasology.machines.components;
 
 import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.itemRendering.components.RenderItemComponent;
-import org.terasology.math.Pitch;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.world.block.items.BlockItemComponent;
+import org.terasology.itemRendering.systems.RenderOwnedEntityDetails;
 
 /**
  * Add this to a block that you want items displayed from an inventory category.
  * Also add the RenderItemComponent to adjust the location of the item,  otherwise it will be in the center of the containing block.
  */
-public class RenderInventoryInCategoryComponent implements Component {
+public class RenderInventoryInCategoryComponent extends RenderOwnedEntityDetails implements Component {
     public String category;
-    public Vector3f translate = new Vector3f();
-    public float blockSize = 0.3f;
-    public float itemSize = 0.3f;
-    public boolean itemsAreFlat;
-    public boolean verticalAlignmentBottom;
-    public boolean rotateWithBlock;
-
-    public RenderItemComponent createRenderItemComponent(EntityRef referenceBlock, EntityRef item) {
-        RenderItemComponent renderItem = new RenderItemComponent();
-
-        boolean isBlockItem = item.hasComponent(BlockItemComponent.class);
-
-        if (itemsAreFlat && !isBlockItem) {
-            // make it flat
-            renderItem.pitch = Pitch.CLOCKWISE_90;
-        }
-
-        renderItem.translate = new Vector3f(translate);
-        if (verticalAlignmentBottom) {
-            if (!isBlockItem && itemsAreFlat) {
-                // shift items up half their thickness
-                renderItem.translate.y += 0.125f * 0.25f;
-            } else {
-                renderItem.translate.y += blockSize * 0.5f;
-            }
-        }
-
-        if (isBlockItem) {
-            renderItem.size = blockSize;
-        } else {
-            renderItem.size = itemSize;
-        }
-
-        return renderItem;
-    }
 }
