@@ -119,8 +119,8 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         AnimateRotationComponent animateRotation = renderedEntity.getComponent(AnimateRotationComponent.class);
         if (animateRotation != null) {
             // update the speed if we have already added this component
-            if (animateRotation.speed != speed) {
-                animateRotation.speed = speed;
+            if (animateRotation.rollSpeed != speed) {
+                animateRotation.rollSpeed = speed;
                 renderedEntity.saveComponent(animateRotation);
             }
         } else {
@@ -129,10 +129,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
             animateRotation = new AnimateRotationComponent();
             animateRotation.isSynchronized = true;
-            animateRotation.pitch = targetRotation.getPitch();
-            animateRotation.roll = targetRotation.getRoll();
-            animateRotation.yaw = targetRotation.getYaw();
-            animateRotation.speed = speed;
+            animateRotation.rollSpeed = speed;
             renderedEntity.addComponent(animateRotation);
         }
     }
