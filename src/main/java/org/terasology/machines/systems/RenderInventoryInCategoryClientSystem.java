@@ -15,65 +15,56 @@
  */
 package org.terasology.machines.systems;
 
-import com.google.common.collect.Lists;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
+import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.itemRendering.systems.RenderOwnedEntityClientSystemBase;
-import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.inventory.InventoryManager;
+import org.terasology.itemRendering.components.RenderInventorySlotsComponent;
 import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.RenderInventoryInCategoryComponent;
-import org.terasology.registry.In;
-import org.terasology.world.WorldProvider;
 
 import java.util.List;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class RenderInventoryInCategoryClientSystem extends RenderOwnedEntityClientSystemBase {
-
-    @In
-    InventoryManager inventoryManager;
-    @In
-    WorldProvider worldProvider;
+public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
 
     @ReceiveEvent
     public void addRemoveItemRendering(OnChangedComponent event,
                                        EntityRef inventoryEntity,
-                                       InventoryComponent inventoryComponent) {
-        refreshRenderedItems(inventoryEntity);
+                                       RenderInventoryInCategoryComponent renderInventoryInCategoryComponent,
+                                       CategorizedInventoryComponent categorizedInventory) {
+        addSlotRenderer(inventoryEntity, renderInventoryInCategoryComponent, categorizedInventory);
     }
 
     @ReceiveEvent
     public void initExistingItemRendering(OnActivatedComponent event,
                                           EntityRef inventoryEntity,
-                                          InventoryComponent inventoryComponent) {
-        refreshRenderedItems(inventoryEntity);
+                                          RenderInventoryInCategoryComponent renderInventoryInCategoryComponent,
+                                          CategorizedInventoryComponent categorizedInventory) {
+        addSlotRenderer(inventoryEntity, renderInventoryInCategoryComponent, categorizedInventory);
     }
 
-    private void refreshRenderedItems(EntityRef inventoryEntity) {
-        RenderInventoryInCategoryComponent renderInventoryInCategory = inventoryEntity.getComponent(RenderInventoryInCategoryComponent.class);
-        CategorizedInventoryComponent categorizedInventory = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
+    @ReceiveEvent
+    public void removeItemRendering(BeforeDeactivateComponent event, EntityRef inventoryEntity, RenderInventoryInCategoryComponent renderInventoryInCategoryComponent) {
+        inventoryEntity.removeComponent(RenderInventorySlotsComponent.class);
+    }
 
-        List<Integer> slots = Lists.newArrayList();
-        if (categorizedInventory != null && renderInventoryInCategory != null) {
-            slots = categorizedInventory.slotMapping.get(renderInventoryInCategory.category);
-        }
+    private void addSlotRenderer(EntityRef inventoryEntity,
+                                 RenderInventoryInCategoryComponent renderInventoryInCategoryComponent,
+                                 CategorizedInventoryComponent categorizedInventory) {
+        List<Integer> slots = categorizedInventory.slotMapping.get(renderInventoryInCategoryComponent.category);
+        RenderInventorySlotsComponent renderInventorySlotsComponent = new RenderInventorySlotsComponent();
+        renderInventorySlotsComponent.slots = slots;
+        renderInventorySlotsComponent.setRenderDetails(renderInventoryInCategoryComponent);
 
-        // ensure all non rendered inventory slots have been reset
-        for (int slot = 0; slot < inventoryManager.getNumSlots(inventoryEntity); slot++) {
-            EntityRef item = inventoryManager.getItemInSlot(inventoryEntity, slot);
-            if (!slots.contains(slot)) {
-                removeRenderingComponents(item);
-            }
-        }
-
-        for (int slot : slots) {
-            EntityRef item = inventoryManager.getItemInSlot(inventoryEntity, slot);
-            addRenderingComponents(inventoryEntity, item, renderInventoryInCategory);
+        if (inventoryEntity.hasComponent(RenderInventorySlotsComponent.class)) {
+            inventoryEntity.saveComponent(renderInventorySlotsComponent);
+        } else {
+            inventoryEntity.addComponent(renderInventorySlotsComponent);
         }
     }
 }
