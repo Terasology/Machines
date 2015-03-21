@@ -40,7 +40,7 @@ import org.terasology.fluidTransport.components.FluidTransportBlockNetworkCompon
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.world.BlockEntityRegistry;

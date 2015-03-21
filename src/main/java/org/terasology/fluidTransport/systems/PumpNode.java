@@ -16,7 +16,7 @@
 package org.terasology.fluidTransport.systems;
 
 import org.terasology.blockNetwork.NetworkNode;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 public class PumpNode extends NetworkNode {
     public PumpNode(Vector3i location, byte connectionSides) {

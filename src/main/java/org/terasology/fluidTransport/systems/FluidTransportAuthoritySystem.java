@@ -35,7 +35,7 @@ import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.math.Side;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.event.WorkstationStateChanged;

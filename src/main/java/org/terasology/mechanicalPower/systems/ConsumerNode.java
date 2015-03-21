@@ -16,7 +16,7 @@
 package org.terasology.mechanicalPower.systems;
 
 import org.terasology.blockNetwork.NetworkNode;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 public class ConsumerNode extends NetworkNode {
     public ConsumerNode(Vector3i location, byte connectionSides) {

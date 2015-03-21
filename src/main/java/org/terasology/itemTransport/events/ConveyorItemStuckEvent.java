@@ -16,7 +16,7 @@
 package org.terasology.itemTransport.events;
 
 import org.terasology.entitySystem.event.Event;
-import org.terasology.math.Vector3i;
+import org.terasology.math.geom.Vector3i;
 
 public class ConveyorItemStuckEvent implements Event {
     Vector3i targetPosition;
