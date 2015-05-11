@@ -19,17 +19,22 @@ import com.google.common.collect.Lists;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.itemRendering.components.AnimatedMovingItemComponent;
 import org.terasology.itemTransport.components.PullInventoryInDirectionComponent;
 import org.terasology.itemTransport.components.PushInventoryInDirectionComponent;
-import org.terasology.itemTransport.events.ConveyorItemStuckEvent;
+import org.terasology.logic.delay.DelayManager;
+import org.terasology.logic.delay.DelayedActionTriggeredEvent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.location.LocationComponent;
+import org.terasology.logic.inventory.InventoryUtils;
+import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
+import org.terasology.logic.inventory.events.InventorySlotStackSizeChangedEvent;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
@@ -40,168 +45,250 @@ import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.BlockManager;
 
+import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
-public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem implements UpdateSubscriberSystem {
-    static final long UPDATE_INTERVAL = 1000;
-
+public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem {
     @In
-    InventoryManager inventoryManager;
+    private InventoryManager inventoryManager;
     @In
-    BlockEntityRegistry blockEntityRegistry;
+    private BlockEntityRegistry blockEntityRegistry;
     @In
-    BlockManager blockManager;
+    private BlockManager blockManager;
     @In
-    Time time;
+    private Time time;
     @In
-    EntityManager entityManager;
+    private EntityManager entityManager;
+    @In
+    private DelayManager delayManager;
 
-    long nextUpdateTime;
+    private boolean processingMovement;
+    private Deque<EntityRef> pendingPushChecks = Lists.newLinkedList();
 
-    @Override
-    public void initialise() {
-    }
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pushInventoryGotItem(InventorySlotChangedEvent event, EntityRef entity, PushInventoryInDirectionComponent pushInventory,
+                                     BlockComponent block, InventoryComponent inventory) {
+        Side side = getRelativeSide(entity, pushInventory.direction);
 
-    @Override
-    public void shutdown() {
-    }
-
-    @Override
-    public void update(float delta) {
-        long currentTime = time.getGameTimeInMs();
-        if (nextUpdateTime <= currentTime) {
-            nextUpdateTime = currentTime + UPDATE_INTERVAL;
-
-            List<EntityRef> alreadyMovedItems = Lists.newArrayList();
-
-            for (EntityRef entity : entityManager.getEntitiesWith(
-                    PushInventoryInDirectionComponent.class,
-                    LocationComponent.class,
-                    BlockComponent.class,
-                    InventoryComponent.class)) {
-                PushInventoryInDirectionComponent pushInventoryInDirectionComponent = entity.getComponent(PushInventoryInDirectionComponent.class);
-                LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
-
-                Side side = getRelativeSide(entity, pushInventoryInDirectionComponent.direction);
-
-                // get target inventory
-                Vector3i adjacentPos = side.getAdjacentPos(new Vector3i(locationComponent.getWorldPosition()));
-                EntityRef targetEntity = blockEntityRegistry.getEntityAt(adjacentPos);
-
-                if (targetEntity.hasComponent(InventoryComponent.class)) {
-                    PushInventoryInDirectionComponent targetPushInventoryInDirectionComponent = targetEntity.getComponent(PushInventoryInDirectionComponent.class);
-                    if (targetPushInventoryInDirectionComponent != null && !targetInventoryHasEmptySlot(targetEntity)) {
-                        // dont push to an adjacent conveyor that doesnt have room.  This will prevent stacking
-                        continue;
-                    }
-
-                    // iterate all the items in the inventory and send them to an adjacent inventory
-                    for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
-                        if (!item.exists() || alreadyMovedItems.contains(item)) {
-                            continue;
-                        }
-
-                        AnimatedMovingItemComponent animatedMovingItemComponent = item.getComponent(AnimatedMovingItemComponent.class);
-                        if (animatedMovingItemComponent != null && animatedMovingItemComponent.arrivalTime > currentTime) {
-                            // this item is not at the endpoint yet
-                            continue;
-                        }
-
-                        alreadyMovedItems.add(item);
-                        // send the item to the target inventory
-                        if (inventoryManager.giveItem(targetEntity, entity, item)) {
-                            inventoryManager.removeItem(entity, entity, item, false);
-
-                            // add/update the animation
-                            if (targetPushInventoryInDirectionComponent != null && targetPushInventoryInDirectionComponent.animateMovingItem) {
-
-                                // create the animation component
-                                animatedMovingItemComponent = new AnimatedMovingItemComponent();
-                                animatedMovingItemComponent.entranceSide = side.reverse();
-                                animatedMovingItemComponent.exitSide = getRelativeSide(targetEntity, targetPushInventoryInDirectionComponent.direction);
-                                animatedMovingItemComponent.startTime = time.getGameTimeInMs();
-                                animatedMovingItemComponent.arrivalTime = animatedMovingItemComponent.startTime + targetPushInventoryInDirectionComponent.timeToDestination;
-                                if (item.hasComponent(AnimatedMovingItemComponent.class)) {
-                                    item.saveComponent(animatedMovingItemComponent);
-                                } else {
-                                    item.addComponent(animatedMovingItemComponent);
-                                }
-                            } else {
-                                // remove the animation
-                                item.removeComponent(AnimatedMovingItemComponent.class);
-                            }
-
-                        }
-                    }
-                } else {
-                    boolean hasItems = false;
-                    for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
-                        if (item.exists()) {
-                            hasItems = true;
-                            break;
-                        }
-                    }
-                    if (hasItems) {
-                        entity.send(new ConveyorItemStuckEvent(adjacentPos));
-                    }
-                }
+        boolean atLeastOnePushing = false;
+        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
+            if (!item.exists()) {
+                continue;
             }
 
+            long pushStart = time.getGameTimeInMs();
+            long pushEnd = pushStart + pushInventory.timeToDestination;
 
-            // pull items
-            for (EntityRef entity : entityManager.getEntitiesWith(
-                    PullInventoryInDirectionComponent.class,
-                    LocationComponent.class,
-                    BlockComponent.class,
-                    InventoryComponent.class)) {
-                PullInventoryInDirectionComponent pullInventoryInDirectionComponent = entity.getComponent(PullInventoryInDirectionComponent.class);
-                LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
-                BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
+            if (!item.hasComponent(AnimatedMovingItemComponent.class)) {
+                if (pushInventory.animateMovingItem) {
+                    AnimatedMovingItemComponent animatedMovingItemComponent = new AnimatedMovingItemComponent();
+                    animatedMovingItemComponent.entranceSide = side.reverse();
+                    animatedMovingItemComponent.exitSide = side;
+                    animatedMovingItemComponent.startTime = pushStart;
+                    animatedMovingItemComponent.arrivalTime = pushEnd;
 
-                // only pull if there is a free slot in this inventory
-                if (!targetInventoryHasEmptySlot(entity)) {
-                    continue;
+                    item.addComponent(animatedMovingItemComponent);
                 }
+            } else {
+                AnimatedMovingItemComponent animatedMovingItemComponent = item.getComponent(AnimatedMovingItemComponent.class);
+                animatedMovingItemComponent.entranceSide = animatedMovingItemComponent.exitSide.reverse();
+                animatedMovingItemComponent.exitSide = side;
+                animatedMovingItemComponent.startTime = pushStart;
+                animatedMovingItemComponent.arrivalTime = pushEnd;
 
-                // find out what way this block is pointed
-                Block block = blockComponent.getBlock();
-                Side side = block.getDirection().getRelativeSide(pullInventoryInDirectionComponent.direction);
-
-                // get target inventory
-                Vector3i adjacentPos = side.getAdjacentPos(new Vector3i(locationComponent.getWorldPosition()));
-                EntityRef targetEntity = blockEntityRegistry.getEntityAt(adjacentPos);
-
-                if (targetEntity.hasComponent(InventoryComponent.class)) {
-                    // iterate all the items in the inventory and pull one stack to this inventory
-                    for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity, side.reverse())) {
-                        if (item.exists()) {
-                            // grab the item to the target inventory
-                            EntityRef entityToGive = inventoryManager.removeItem(targetEntity, entity, item, false, 1);
-                            inventoryManager.giveItem(entity, entity, entityToGive);
-
-                            // only do one slots worth at a time
-                            break;
-                        }
-                    }
-                }
+                item.saveComponent(animatedMovingItemComponent);
             }
 
+            pushInventory.pushFinishTime = pushEnd;
+            entity.saveComponent(pushInventory);
 
+            atLeastOnePushing = true;
         }
-/*
-        // drop all stale items
-        for (EntityRef entity : entityManager.getEntitiesWith(AnimatedMovingItemComponent.class)) {
-            AnimatedMovingItemComponent animatedMovingItemComponent = entity.getComponent(AnimatedMovingItemComponent.class);
-            if( currentTime - animatedMovingItemComponent.arrivalTime > UPDATE_INTERVAL) {
-                // this is a stale old item. create a pickup item for it
-                ExtendedInventoryManager.dropItem(entity, animatedMovingItemComponent.location);
+
+        if (atLeastOnePushing) {
+            delayManager.addDelayedAction(entity, "FINISHED_PUSHING", pushInventory.timeToDestination);
+        }
+    }
+
+    // This part is responsible for finishing pushing an item, finish pushing should be attempted when:
+    // 1. Delay has been finished
+    // 2. Inventory of an adjacent block has changed (maybe there is space there now?)
+    // 3. New inventory was placed or loaded in an adjacent block
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pushCondition1(DelayedActionTriggeredEvent event, EntityRef entity, PushInventoryInDirectionComponent pushInventory,
+                               BlockComponent blockComponent, InventoryComponent inventory) {
+        if (event.getActionId().equals("FINISHED_PUSHING")) {
+            pendingPushChecks.add(entity);
+            processPendingPushes();
+        }
+    }
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pushCondition2(InventorySlotChangedEvent event, EntityRef entity, InventoryComponent inventory,
+                               BlockComponent block) {
+        checkAdjacentBlocksForPushFinish(block);
+    }
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pushCondition2(InventorySlotStackSizeChangedEvent event, EntityRef entity, InventoryComponent inventory,
+                               BlockComponent block) {
+        checkAdjacentBlocksForPushFinish(block);
+    }
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pushCondition3(OnActivatedComponent event, EntityRef entity, InventoryComponent inventory,
+                               BlockComponent block) {
+        checkAdjacentBlocksForPushFinish(block);
+    }
+
+    private void checkAdjacentBlocksForPushFinish(BlockComponent block) {
+        Vector3i position = block.getPosition();
+        for (Side side : Side.values()) {
+            Vector3i adjacentPos = side.getAdjacentPos(position);
+            EntityRef blockEntityAt = blockEntityRegistry.getExistingBlockEntityAt(adjacentPos);
+            if (blockEntityAt.hasComponent(PushInventoryInDirectionComponent.class)) {
+                PushInventoryInDirectionComponent pushInventory = blockEntityAt.getComponent(PushInventoryInDirectionComponent.class);
+                if (side.reverse() == getRelativeSide(blockEntityAt, pushInventory.direction)) {
+                    pendingPushChecks.add(blockEntityAt);
+                    if (!processingMovement) {
+                        processPendingPushes();
+                    }
+                }
             }
         }
-*/
     }
 
-    private boolean targetInventoryHasEmptySlot(EntityRef entity) {
+    private void processPendingPushes() {
+        while (!pendingPushChecks.isEmpty()) {
+            checkForPushFinish(pendingPushChecks.removeFirst());
+        }
+    }
+
+    private void checkForPushFinish(EntityRef entity) {
+        PushInventoryInDirectionComponent pushInventory = entity.getComponent(PushInventoryInDirectionComponent.class);
+        if (pushInventory != null && pushInventory.pushFinishTime <= time.getGameTimeInMs()) {
+            finishPushing(entity, pushInventory, entity.getComponent(BlockComponent.class));
+        }
+    }
+
+    private void finishPushing(EntityRef entity, PushInventoryInDirectionComponent pushInventory, BlockComponent blockComponent) {
+        Side side = getRelativeSide(entity, pushInventory.direction);
+
+        // get target inventory
+        Vector3i adjacentPos = side.getAdjacentPos(blockComponent.getPosition());
+        EntityRef targetEntity = blockEntityRegistry.getExistingBlockEntityAt(adjacentPos);
+
+        if (targetEntity.hasComponent(InventoryComponent.class)) {
+            int targetSlotCount = InventoryUtils.getSlotCount(targetEntity);
+            List<Integer> targetSlots = new ArrayList<>(targetSlotCount);
+            for (int i = 0; i < targetSlotCount; i++) {
+                targetSlots.add(i);
+            }
+
+            processingMovement = true;
+            try {
+                EntityRef item = InventoryUtils.getItemAt(entity, 0);
+                if (item.exists()) {
+
+                    // If entity can accept item - it's not conveyor belt, or empty conveyor
+                    if (entityCanAcceptItem(targetEntity)) {
+                        if (!targetEntity.hasComponent(PushInventoryInDirectionComponent.class)
+                                || !targetEntity.getComponent(PushInventoryInDirectionComponent.class).animateMovingItem) {
+                            item.removeComponent(AnimatedMovingItemComponent.class);
+                        }
+                        inventoryManager.moveItemToSlots(entity, entity, 0, targetEntity, targetSlots);
+                    }
+                }
+            } finally {
+                processingMovement = false;
+            }
+        }
+    }
+
+    private boolean entityCanAcceptItem(EntityRef targetEntity) {
+        return !targetEntity.hasComponent(PushInventoryInDirectionComponent.class) || inventoryHasEmptySlot(targetEntity);
+    }
+
+    // This part is responsible for pulling an item, pulling should be attempted when:
+    // 1. Inventory of the PullInventory block has changed (maybe it has space now?)
+    // 2. PullInventory block was placed
+    // 3. Inventory of an adjacent block has changed (maybe there is something new to pull?)
+    // 4. New inventory was placed or loaded in an adjacent block
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pullCondition1(InventorySlotChangedEvent event, EntityRef entity, PullInventoryInDirectionComponent pullInventory,
+                               BlockComponent blockComponent, InventoryComponent inventory) {
+        tryPullingAnItem(entity, pullInventory, blockComponent);
+    }
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pullCondition2(OnAddedComponent event, EntityRef entity, PullInventoryInDirectionComponent pullInventory,
+                               BlockComponent blockComponent, InventoryComponent inventory) {
+        tryPullingAnItem(entity, pullInventory, blockComponent);
+    }
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pullCondition3(InventorySlotChangedEvent event, EntityRef entity, InventoryComponent inventory,
+                               BlockComponent block) {
+        checkAdjacentBlocksForPulling(block);
+    }
+
+    @ReceiveEvent(activity = "pushAndPullInventory")
+    public void pullCondition4(OnActivatedComponent event, EntityRef entity, InventoryComponent inventory,
+                               BlockComponent block) {
+        checkAdjacentBlocksForPulling(block);
+    }
+
+    private void checkAdjacentBlocksForPulling(BlockComponent block) {
+        Vector3i position = block.getPosition();
+        for (Side side : Side.values()) {
+            EntityRef adjacentEntity = blockEntityRegistry.getExistingBlockEntityAt(side.getAdjacentPos(position));
+            if (adjacentEntity.hasComponent(PullInventoryInDirectionComponent.class)) {
+                PullInventoryInDirectionComponent pullInventory = adjacentEntity.getComponent(PullInventoryInDirectionComponent.class);
+                if (side.reverse() == getRelativeSide(adjacentEntity, pullInventory.direction)) {
+                    tryPullingAnItem(adjacentEntity);
+                }
+            }
+        }
+    }
+
+    private void tryPullingAnItem(EntityRef entity) {
+        PullInventoryInDirectionComponent pullInventory = entity.getComponent(PullInventoryInDirectionComponent.class);
+        BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
+        if (pullInventory != null && blockComponent != null) {
+            tryPullingAnItem(entity, pullInventory, blockComponent);
+        }
+    }
+
+    private void tryPullingAnItem(EntityRef entity, PullInventoryInDirectionComponent pullInventory, BlockComponent blockComponent) {
+        if (inventoryHasEmptySlot(entity)) {
+            // find out what way this block is pointed
+            Side side = getRelativeSide(entity, pullInventory.direction);
+
+            // get target inventory
+            Vector3i adjacentPos = side.getAdjacentPos(blockComponent.getPosition());
+            EntityRef targetEntity = blockEntityRegistry.getExistingBlockEntityAt(adjacentPos);
+
+            if (targetEntity.hasComponent(InventoryComponent.class)) {
+                // iterate all the items in the inventory and pull one stack to this inventory
+                for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity, side.reverse())) {
+                    if (item.exists()) {
+                        // grab the item to the target inventory
+                        EntityRef entityToGive = inventoryManager.removeItem(targetEntity, entity, item, false, 1);
+                        inventoryManager.giveItem(entity, entity, entityToGive);
+
+                        // only do one slots worth at a time
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean inventoryHasEmptySlot(EntityRef entity) {
         for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity)) {
             if (!item.exists()) {
                 return true;
@@ -216,5 +303,4 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
         Block block = blockComponent.getBlock();
         return block.getDirection().getRelativeSide(direction);
     }
-
 }

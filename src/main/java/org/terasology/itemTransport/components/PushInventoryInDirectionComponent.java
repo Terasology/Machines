@@ -22,6 +22,7 @@ public class PushInventoryInDirectionComponent implements Component {
     public Direction direction = Direction.BACKWARD;
     public boolean animateMovingItem;
     public long timeToDestination = 2000;
+    public long pushFinishTime;
 
     public PushInventoryInDirectionComponent() {
 
