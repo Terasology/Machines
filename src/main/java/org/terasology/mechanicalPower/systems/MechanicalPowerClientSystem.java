@@ -44,7 +44,7 @@ import org.terasology.world.block.items.BlockItemComponent;
 import java.util.Set;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class MechanicalPowerClientSystem extends BaseComponentSystem implements NetworkTopologyListener {
+public class MechanicalPowerClientSystem extends BaseComponentSystem implements NetworkTopologyListener<NetworkNode> {
     @In
     BlockEntityRegistry blockEntityRegistry;
     @In
@@ -139,32 +139,32 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
     }
 
     @Override
-    public void networkAdded(Network network) {
+    public void networkAdded(Network<NetworkNode> network) {
 
     }
 
     @Override
-    public void networkingNodesAdded(Network network, Set<NetworkNode> networkingNode) {
+    public void networkingNodesAdded(Network<NetworkNode> network, Set<NetworkNode> networkingNode) {
         updateAxlesInNetwork(network);
     }
 
     @Override
-    public void networkingNodesRemoved(Network network, Set<NetworkNode> networkingNode) {
+    public void networkingNodesRemoved(Network<NetworkNode> network, Set<NetworkNode> networkingNode) {
         updateAxlesInNetwork(network);
     }
 
     @Override
-    public void leafNodesAdded(Network network, Set<NetworkNode> leafNodes) {
+    public void leafNodesAdded(Network<NetworkNode> network, Set<NetworkNode> leafNodes) {
 
     }
 
     @Override
-    public void leafNodesRemoved(Network network, Set<NetworkNode> leafNodes) {
+    public void leafNodesRemoved(Network<NetworkNode> network, Set<NetworkNode> leafNodes) {
 
     }
 
     @Override
-    public void networkRemoved(Network network) {
+    public void networkRemoved(Network<NetworkNode> network) {
 
     }
 }

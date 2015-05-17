@@ -54,20 +54,20 @@ import java.util.Set;
 
 @RegisterSystem
 @Share(FluidTransportBlockNetwork.class)
-public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implements NetworkTopologyListener, FluidTransportBlockNetwork {
+public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implements NetworkTopologyListener<NetworkNode>, FluidTransportBlockNetwork {
     private static final Logger logger = LoggerFactory.getLogger(FluidTransportBlockNetworkImpl.class);
 
     @In
-    BlockEntityRegistry blockEntityRegistry;
+    private BlockEntityRegistry blockEntityRegistry;
     @In
-    WorldProvider worldProvider;
+    private WorldProvider worldProvider;
 
-    private BlockNetwork blockNetwork;
+    private BlockNetwork<NetworkNode> blockNetwork;
     private Map<Vector3i, NetworkNode> networkNodes = Maps.newHashMap();
     private Map<Network, FluidTransportNetworkDetails> networks = Maps.newHashMap();
 
     public FluidTransportBlockNetworkImpl() {
-        blockNetwork = new BlockNetwork();
+        blockNetwork = new BlockNetwork<>();
         blockNetwork.addTopologyListener(this);
         logger.info("Initialized Mechanical Power System");
     }
@@ -245,36 +245,36 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
     }
 
 
-    private void updateNetworkDetails(Network network) {
+    private void updateNetworkDetails(Network<NetworkNode> network) {
     }
 
     @Override
-    public void networkAdded(Network network) {
+    public void networkAdded(Network<NetworkNode> network) {
         networks.put(network, new FluidTransportNetworkDetails());
     }
 
     @Override
-    public void networkingNodesAdded(Network network, Set<NetworkNode> networkingNodes) {
+    public void networkingNodesAdded(Network<NetworkNode> network, Set<NetworkNode> networkingNodes) {
         updateNetworkDetails(network);
     }
 
     @Override
-    public void networkingNodesRemoved(Network network, Set<NetworkNode> networkingNodes) {
+    public void networkingNodesRemoved(Network<NetworkNode> network, Set<NetworkNode> networkingNodes) {
         updateNetworkDetails(network);
     }
 
     @Override
-    public void leafNodesAdded(Network network, Set<NetworkNode> leafNodes) {
+    public void leafNodesAdded(Network<NetworkNode> network, Set<NetworkNode> leafNodes) {
 
     }
 
     @Override
-    public void leafNodesRemoved(Network network, Set<NetworkNode> leafNodes) {
+    public void leafNodesRemoved(Network<NetworkNode> network, Set<NetworkNode> leafNodes) {
 
     }
 
     @Override
-    public void networkRemoved(Network network) {
+    public void networkRemoved(Network<NetworkNode> network) {
         networks.remove(network);
     }
 
