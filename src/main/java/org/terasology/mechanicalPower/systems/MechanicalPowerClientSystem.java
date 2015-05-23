@@ -45,6 +45,8 @@ import java.util.Set;
 
 @RegisterSystem(RegisterMode.CLIENT)
 public class MechanicalPowerClientSystem extends BaseComponentSystem implements NetworkTopologyListener<NetworkNode> {
+    static final float POWERFOR1RPS = 6.0f;
+
     @In
     BlockEntityRegistry blockEntityRegistry;
     @In
@@ -95,7 +97,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
     private void updateAxlesInNetwork(Network network) {
         if (network != null) {
             MechanicalPowerNetworkDetails details = mechanicalPowerBlockNetwork.getMechanicalPowerNetwork(network);
-            float speed = details.totalPower / (details.totalConsumers + 1);
+            float speed = 1 / (details.totalPower / (details.totalConsumers + 1) / POWERFOR1RPS);
             for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
                 if (blockEntityRegistry.hasPermanentBlockEntity(node.location.toVector3i())) {
                     EntityRef nodeEntity = blockEntityRegistry.getEntityAt(node.location.toVector3i());
