@@ -29,7 +29,7 @@ import org.terasology.rendering.nui.databinding.DefaultBinding;
 
 public class VerticalProgressBar extends CoreWidget {
     @LayoutConfig
-    private TextureRegion fillTexture = Assets.getTexture("engine:loadBar");
+    private TextureRegion fillTexture = Assets.getTexture("engine:loadBar").get();
     private Binding<Float> value = new DefaultBinding<>();
 
     @Override

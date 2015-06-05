@@ -56,7 +56,7 @@ public abstract class ExtendedInventoryManager {
         if (inventoryComponent != null) {
             for (EntityRef existingItem : iterateItems(inventoryManager, inventoryEntity, inventoryCategory)) {
                 Prefab existingItemPrefab = existingItem.getParentPrefab();
-                Prefab itemPrefab = Assets.getPrefab(itemName);
+                Prefab itemPrefab = Assets.getPrefab(itemName).get();
                 if (itemPrefab != null && itemPrefab.equals(existingItemPrefab)) {
                     return existingItem;
                 }

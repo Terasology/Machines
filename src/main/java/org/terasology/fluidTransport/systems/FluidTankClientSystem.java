@@ -92,7 +92,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
         MeshComponent meshComponent = new MeshComponent();
         meshComponent.mesh = getMesh(fullness);
-        meshComponent.material = Assets.getMaterial("engine:default");
+        meshComponent.material = Assets.getMaterial("engine:default").get();
         if (renderedEntity.hasComponent(MeshComponent.class)) {
             renderedEntity.saveComponent(meshComponent);
         } else {

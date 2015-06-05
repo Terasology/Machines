@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2013 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,52 +15,59 @@
  */
 package org.terasology.machines.world;
 
-import com.google.common.collect.Maps;
-import com.google.gson.JsonObject;
-import org.terasology.asset.AssetUri;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import org.terasology.math.Pitch;
 import org.terasology.math.Rotation;
 import org.terasology.math.Side;
 import org.terasology.math.Yaw;
 import org.terasology.world.block.Block;
+import org.terasology.world.block.BlockBuilderHelper;
 import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.BlockBuilderHelper;
 import org.terasology.world.block.family.BlockFamily;
 import org.terasology.world.block.family.BlockFamilyFactory;
+import org.terasology.world.block.family.MultiSection;
 import org.terasology.world.block.family.RegisterBlockFamilyFactory;
-import org.terasology.world.block.loader.BlockDefinition;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
 
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RegisterBlockFamilyFactory("surfacePlacement")
 public class SurfacePlacementFamilyFactory implements BlockFamilyFactory {
-
-    private static final String TOP = "top";
-    private static final String SIDES = "sides";
-    private static final String BOTTOM = "bottom";
+    private static final ImmutableSet<String> BLOCK_NAMES = ImmutableSet.of("front", "left", "right", "back", "top", "bottom");
+    private static final ImmutableList<MultiSection> MULTI_SECTIONS = ImmutableList.of(
+            new MultiSection("all", "front", "left", "right", "back", "top", "bottom"),
+            new MultiSection("topBottom", "top", "bottom"),
+            new MultiSection("sides", "front", "left", "right", "back"));
 
     @Override
-    public BlockFamily createBlockFamily(BlockBuilderHelper blockBuilder, AssetUri blockDefUri, BlockDefinition blockDefinition, JsonObject blockDefJson) {
-        Map<Side, Block> blockMap = Maps.newEnumMap(Side.class);
-        BlockDefinition topDef = blockBuilder.getBlockDefinitionForSection(blockDefJson, TOP);
-        if (topDef != null) {
-            Block block = blockBuilder.constructSimpleBlock(blockDefUri, topDef);
-            block.setDirection(Side.TOP);
-            blockMap.put(Side.TOP, block);
+    public BlockFamily createBlockFamily(BlockFamilyDefinition definition, BlockBuilderHelper blockBuilder) {
+        Map<Side, Block> blocksBySide = new EnumMap<>(Side.class);
+        blocksBySide.put(Side.FRONT, blockBuilder.constructSimpleBlock(definition, "front"));
+        blocksBySide.put(Side.LEFT, blockBuilder.constructTransformedBlock(definition, "left", Rotation.rotate(Yaw.CLOCKWISE_90)));
+        blocksBySide.put(Side.BACK, blockBuilder.constructTransformedBlock(definition, "back", Rotation.rotate(Yaw.CLOCKWISE_180)));
+        blocksBySide.put(Side.RIGHT, blockBuilder.constructTransformedBlock(definition, "right", Rotation.rotate(Yaw.CLOCKWISE_270)));
+        blocksBySide.put(Side.TOP, blockBuilder.constructTransformedBlock(definition, "top", Rotation.rotate(Pitch.CLOCKWISE_90)));
+        blocksBySide.put(Side.BOTTOM, blockBuilder.constructTransformedBlock(definition, "bottom", Rotation.rotate(Pitch.CLOCKWISE_270)));
+        BlockUri familyUri = new BlockUri(definition.getUrn());
+
+        for (Map.Entry<Side, Block> item : blocksBySide.entrySet()) {
+            item.getValue().setDirection(item.getKey());
         }
-        BlockDefinition sideDef = blockBuilder.getBlockDefinitionForSection(blockDefJson, SIDES);
-        if (sideDef != null) {
-            blockMap.put(Side.FRONT, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.NONE)));
-            blockMap.put(Side.LEFT, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.CLOCKWISE_90)));
-            blockMap.put(Side.BACK, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.CLOCKWISE_180)));
-            blockMap.put(Side.RIGHT, blockBuilder.constructTransformedBlock(blockDefUri, sideDef, Rotation.rotate(Yaw.CLOCKWISE_270)));
-        }
-        BlockDefinition bottomDef = blockBuilder.getBlockDefinitionForSection(blockDefJson, BOTTOM);
-        if (bottomDef != null) {
-            Block block = blockBuilder.constructSimpleBlock(blockDefUri, bottomDef);
-            block.setDirection(Side.BOTTOM);
-            blockMap.put(Side.BOTTOM, block);
-        }
-        return new SurfacePlacementFamily(new BlockUri(blockDefUri.getModuleName(), blockDefUri.getAssetName()), blockMap, blockDefinition.categories);
+
+        return new SurfacePlacementFamily(familyUri, definition.getCategories(), blocksBySide.get(Side.LEFT), blocksBySide);
     }
 
+    @Override
+    public Set<String> getSectionNames() {
+        return BLOCK_NAMES;
+    }
+
+    @Override
+    public List<MultiSection> getMultiSections() {
+        return MULTI_SECTIONS;
+    }
 }

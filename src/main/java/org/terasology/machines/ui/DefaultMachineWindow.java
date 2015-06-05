@@ -108,7 +108,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 inputWidgets.setVisible(true);
                 FlowLayout widgetLayout = new FlowLayout();
                 for (String widgetUri : machineDefinition.inputWidgets) {
-                    UIElement widgetUIElement = Assets.getUIElement(widgetUri);
+                    UIElement widgetUIElement = Assets.getUIElement(widgetUri).get();
                     UIWidget widget = widgetUIElement.getRootWidget();
 
                     if (widget instanceof WorkstationUI) {
@@ -128,7 +128,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 outputWidgets.setVisible(true);
                 FlowLayout widgetLayout = new FlowLayout();
                 for (String widgetUri : machineDefinition.outputWidgets) {
-                    UIElement widgetUIElement = Assets.getUIElement(widgetUri);
+                    UIElement widgetUIElement = Assets.getUIElement(widgetUri).get();
                     UIWidget widget = widgetUIElement.getRootWidget();
 
                     if (widget instanceof WorkstationUI) {
