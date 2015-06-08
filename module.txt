@@ -1,15 +1,15 @@
 {
-  "id": "Machines",
-  "version": "0.1.0",
-  "author": "Josharias",
-  "displayName": "Machines",
-  "description": "A library for machines",
-  "dependencies": [
+    "id": "Machines",
+    "version": "0.1.1-SNAPSHOT",
+    "author": "Josharias",
+    "displayName": "Machines",
+    "description": "A library for machines",
+    "dependencies": [
     {
-      "id": "Workstation", "minVersion": "0.1.0"
+        "id": "Workstation", "minVersion": "0.1.0"
     },
     {
-      "id": "BlockNetwork", "minVersion": "0.1.0"
+        "id": "BlockNetwork", "minVersion": "0.1.0"
     },
     {
         "id" : "Fluid", "minVersion" : "0.1.0"
