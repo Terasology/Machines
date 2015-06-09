@@ -60,7 +60,7 @@ public class SurfacePlacementFamilyFactory implements BlockFamilyFactory {
             item.getValue().setDirection(item.getKey());
         }
 
-        return new SurfacePlacementFamily(familyUri, definition.getCategories(), archetypeBlock, blocksBySide);
+        return new SurfacePlacementFamily(familyUri, archetypeBlock, blocksBySide, definition.getCategories());
     }
 
     @Override
