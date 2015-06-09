@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 MovingBlocks
+ * Copyright 2014 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import java.util.Set;
 
 @RegisterBlockFamilyFactory("surfacePlacement")
 public class SurfacePlacementFamilyFactory implements BlockFamilyFactory {
-    private static final ImmutableSet<String> BLOCK_NAMES = ImmutableSet.of("front", "left", "right", "back", "top", "bottom");
+    private static final ImmutableSet<String> BLOCK_NAMES = ImmutableSet.of("front", "left", "right", "back", "top", "bottom", "archetype");
     private static final ImmutableList<MultiSection> MULTI_SECTIONS = ImmutableList.of(
             new MultiSection("all", "front", "left", "right", "back", "top", "bottom"),
             new MultiSection("topBottom", "top", "bottom"),
@@ -46,6 +46,8 @@ public class SurfacePlacementFamilyFactory implements BlockFamilyFactory {
     @Override
     public BlockFamily createBlockFamily(BlockFamilyDefinition definition, BlockBuilderHelper blockBuilder) {
         Map<Side, Block> blocksBySide = new EnumMap<>(Side.class);
+
+        Block archetypeBlock = blockBuilder.constructSimpleBlock(definition, "archetype");
         blocksBySide.put(Side.FRONT, blockBuilder.constructSimpleBlock(definition, "front"));
         blocksBySide.put(Side.LEFT, blockBuilder.constructTransformedBlock(definition, "left", Rotation.rotate(Yaw.CLOCKWISE_90)));
         blocksBySide.put(Side.BACK, blockBuilder.constructTransformedBlock(definition, "back", Rotation.rotate(Yaw.CLOCKWISE_180)));
@@ -58,7 +60,7 @@ public class SurfacePlacementFamilyFactory implements BlockFamilyFactory {
             item.getValue().setDirection(item.getKey());
         }
 
-        return new SurfacePlacementFamily(familyUri, definition.getCategories(), blocksBySide.get(Side.LEFT), blocksBySide);
+        return new SurfacePlacementFamily(familyUri, definition.getCategories(), archetypeBlock, blocksBySide);
     }
 
     @Override

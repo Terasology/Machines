@@ -17,6 +17,7 @@ package org.terasology.machines.world;
 
 import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
+import org.terasology.naming.Name;
 import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
@@ -28,6 +29,11 @@ import java.util.Map;
 public class SurfacePlacementFamily extends AllSidesFamily {
     public SurfacePlacementFamily(BlockUri uri, Iterable<String> categories, Block archetypeBlock, Map<Side, Block> sideBlocks) {
         super(uri, categories, archetypeBlock, sideBlocks);
+
+        if (!sideBlocks.values().contains(archetypeBlock)) {
+            archetypeBlock.setBlockFamily(this);
+            archetypeBlock.setUri(new BlockUri(uri, new Name("archetype")));
+        }
     }
 
     @Override
