@@ -31,6 +31,7 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
 import org.terasology.logic.location.LocationComponent;
+import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
 import org.terasology.math.Side;
@@ -69,7 +70,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         renderedEntityBuilder.saveComponent(blockItem);
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
-        Side direction = block.getBlock().getDirection();
+        Side direction = BlockFamilyUtil.getSideDefinedDirection(block.getBlock());
         Rotation rotation = RotationUtils.getRotation(direction);
         location.setWorldRotation(rotation.getQuat4f());
         entity.saveComponent(location);

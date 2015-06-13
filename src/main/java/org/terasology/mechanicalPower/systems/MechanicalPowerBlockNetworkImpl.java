@@ -33,6 +33,7 @@ import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
@@ -137,7 +138,7 @@ public class MechanicalPowerBlockNetworkImpl extends BaseComponentSystem impleme
     }
 
     private byte calculateConnectionSides(MechanicalPowerBlockNetworkComponent networkItem, BlockComponent block) {
-        Side blockDirection = block.getBlock().getDirection();
+        Side blockDirection = BlockFamilyUtil.getSideDefinedDirection(block.getBlock());
         byte connectionSides = 0;
         if (networkItem.directions.size() == 0) {
             connectionSides = (byte) 63;

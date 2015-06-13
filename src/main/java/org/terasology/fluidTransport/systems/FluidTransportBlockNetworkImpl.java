@@ -37,6 +37,7 @@ import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.components.FluidTransportBlockNetworkComponent;
+import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
@@ -136,7 +137,7 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
     }
 
     private byte calculateConnectionSides(FluidTransportBlockNetworkComponent networkItem, BlockComponent block) {
-        Side blockDirection = block.getBlock().getDirection();
+        Side blockDirection = BlockFamilyUtil.getSideDefinedDirection(block.getBlock());
         byte connectionSides = 0;
         if (networkItem.directions.size() == 0) {
             connectionSides = (byte) 63;
