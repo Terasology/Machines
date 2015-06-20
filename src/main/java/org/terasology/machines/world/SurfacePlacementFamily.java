@@ -43,14 +43,10 @@ public class SurfacePlacementFamily extends AbstractBlockFamily implements SideD
                 block.setUri(new BlockUri(uri, new Name(side.name())));
             }
         }
-        if (archetypeBlock != null) {
-            archetype = archetypeBlock;
-        } else {
-            if (this.blocks.containsKey(Side.TOP)) {
-                archetype = this.blocks.get(Side.TOP);
-            } else {
-                archetype = this.blocks.get(Side.FRONT);
-            }   
+
+        if (!blocks.values().contains(archetypeBlock)) {
+            archetypeBlock.setBlockFamily(this);
+            archetypeBlock.setUri(new BlockUri(uri, new Name("archetype")));
         }
     }
 
