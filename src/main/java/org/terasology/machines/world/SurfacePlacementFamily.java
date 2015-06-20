@@ -48,6 +48,7 @@ public class SurfacePlacementFamily extends AbstractBlockFamily implements SideD
             archetypeBlock.setBlockFamily(this);
             archetypeBlock.setUri(new BlockUri(uri, new Name("archetype")));
         }
+        archetype = archetypeBlock;
     }
 
     @Override
