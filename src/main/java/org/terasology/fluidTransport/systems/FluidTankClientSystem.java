@@ -16,6 +16,7 @@
 package org.terasology.fluidTransport.systems;
 
 import org.terasology.asset.Assets;
+import org.terasology.assets.ResourceUrn;
 import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -35,10 +36,16 @@ import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.math.geom.Vector2f;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.registry.In;
+import org.terasology.rendering.assets.material.Material;
+import org.terasology.rendering.assets.material.MaterialData;
 import org.terasology.rendering.assets.mesh.Mesh;
 import org.terasology.rendering.assets.mesh.MeshBuilder;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.logic.MeshComponent;
+import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.rendering.nui.widgets.TooltipLine;
+
+import java.util.Optional;
 
 @RegisterSystem(RegisterMode.CLIENT)
 public class FluidTankClientSystem extends BaseComponentSystem {
@@ -97,14 +104,22 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
         EntityRef renderedEntity = fluidDisplayComponent.renderedEntity;
 
-        FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(tankFluidType);
-        Texture texture = fluidRenderer.getTexture().getTexture();
-
+        // get an existing material for this fluid type,  or generate a new one.
+        ResourceUrn materialUrn = new ResourceUrn("Machines", "FluidTank", tankFluidType);
+        Optional<Material> material = Assets.getMaterial(materialUrn.toString());
+        if (!material.isPresent()) {
+            FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(tankFluidType);
+            Texture texture = fluidRenderer.getTexture().getTexture();
+            MaterialData terrainMatData = new MaterialData(Assets.getShader("engine:genericMeshMaterial").get());
+            terrainMatData.setParam("diffuse", texture);
+            terrainMatData.setParam("colorOffset", new float[]{1, 1, 1});
+            terrainMatData.setParam("textured", true);
+            material = Optional.of(Assets.generateAsset(materialUrn, terrainMatData, Material.class));
+        }
 
         MeshComponent meshComponent = new MeshComponent();
         meshComponent.mesh = getMesh(fullness);
-        meshComponent.material = Assets.getMaterial("Machines:FluidTank").get();
-        meshComponent.material.setTexture("diffuse", texture);
+        meshComponent.material = material.get();
         if (renderedEntity.hasComponent(MeshComponent.class)) {
             renderedEntity.saveComponent(meshComponent);
         } else {
@@ -136,6 +151,16 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         });
         meshBuilder.addBox(new Vector3f(-0.49f, -0.49f, -0.49f), new Vector3f(0.98f, fullness - 0.02f, 0.98f), 1f, 1f);
         return meshBuilder.build();
+    }
+
+
+    @ReceiveEvent
+    public void getDurabilityItemTooltip(GetItemTooltip event, EntityRef entityRef, FluidInventoryComponent fluidInventoryComponent) {
+        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
+        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
+        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef);
+        String fluidDisplay = tankFluidType == null ? "Fluid" : fluidRegistry.getFluidRenderer(tankFluidType).getFluidName();
+        event.getTooltipLines().add(new TooltipLine(fluidDisplay + ": " + tankFluidVolume + "/" + tankTotalVolume));
     }
 
 }
