@@ -27,6 +27,8 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.fluid.system.FluidRegistry;
+import org.terasology.fluid.system.FluidRenderer;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
@@ -35,12 +37,15 @@ import org.terasology.math.geom.Vector3f;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.mesh.Mesh;
 import org.terasology.rendering.assets.mesh.MeshBuilder;
+import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.logic.MeshComponent;
 
 @RegisterSystem(RegisterMode.CLIENT)
 public class FluidTankClientSystem extends BaseComponentSystem {
     @In
     EntityManager entityManager;
+    @In
+    FluidRegistry fluidRegistry;
 
     @ReceiveEvent
     public void onTankChanged(OnChangedComponent event, EntityRef entityRef,
@@ -48,10 +53,11 @@ public class FluidTankClientSystem extends BaseComponentSystem {
                               FluidInventoryComponent fluidInventoryComponent) {
         float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
         float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
+        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef);
         if (tankFluidVolume == 0) {
             entityRef.removeComponent(FluidDisplayComponent.class);
         } else {
-            setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume);
+            setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume, tankFluidType);
         }
     }
 
@@ -61,8 +67,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
                                 FluidInventoryComponent fluidInventoryComponent) {
         float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
         float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
+        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef);
         if (tankFluidVolume > 0) {
-            setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume);
+            setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume, tankFluidType);
         }
     }
 
@@ -78,7 +85,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         }
     }
 
-    private void setDisplayMesh(EntityRef entity, float fullness) {
+    private void setDisplayMesh(EntityRef entity, float fullness, String tankFluidType) {
         FluidDisplayComponent fluidDisplayComponent = entity.getComponent(FluidDisplayComponent.class);
         if (fluidDisplayComponent == null) {
             fluidDisplayComponent = new FluidDisplayComponent();
@@ -90,9 +97,14 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
         EntityRef renderedEntity = fluidDisplayComponent.renderedEntity;
 
+        FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(tankFluidType);
+        Texture texture = fluidRenderer.getTexture().getTexture();
+
+
         MeshComponent meshComponent = new MeshComponent();
         meshComponent.mesh = getMesh(fullness);
-        meshComponent.material = Assets.getMaterial("engine:default").get();
+        meshComponent.material = Assets.getMaterial("Machines:FluidTank").get();
+        meshComponent.material.setTexture("diffuse", texture);
         if (renderedEntity.hasComponent(MeshComponent.class)) {
             renderedEntity.saveComponent(meshComponent);
         } else {

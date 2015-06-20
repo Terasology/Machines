@@ -1,0 +1,7 @@
+{
+    "shader" : "engine:genericMeshMaterial",
+    "params" : {
+        "colorOffset" : [1.0, 1.0, 1.0],
+        "textured" : true
+    }
+}
