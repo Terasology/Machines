@@ -16,84 +16,26 @@
 package org.terasology.machines;
 
 import com.google.common.collect.Lists;
-import org.terasology.asset.Assets;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.logic.common.DisplayNameComponent;
-import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
-import org.terasology.machines.components.CategorizedInventoryComponent;
-import org.terasology.math.Side;
-import org.terasology.utilities.random.FastRandom;
-import org.terasology.utilities.random.Random;
-import org.terasology.world.block.BlockComponent;
-import org.terasology.world.block.family.BlockFamily;
-import org.terasology.world.block.items.BlockItemComponent;
+import org.terasology.workstation.process.WorkstationInventoryUtils;
 
 import java.util.List;
 
 public abstract class ExtendedInventoryManager {
-    static Random random = new FastRandom();
-
-    public static EntityRef getItemByBlockFamily(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory, BlockFamily blockFamily) {
-        InventoryComponent inventoryComponent = inventoryEntity.getComponent(InventoryComponent.class);
-        if (inventoryComponent != null) {
-            for (EntityRef item : iterateItems(inventoryManager, inventoryEntity, inventoryCategory)) {
-                BlockItemComponent blockItemComponent = item.getComponent(BlockItemComponent.class);
-                if (blockItemComponent != null && blockItemComponent.blockFamily.getURI().equals(blockFamily.getURI())) {
-                    return item;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public static EntityRef getItemByItemName(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory, String itemName) {
-        InventoryComponent inventoryComponent = inventoryEntity.getComponent(InventoryComponent.class);
-        if (inventoryComponent != null) {
-            for (EntityRef existingItem : iterateItems(inventoryManager, inventoryEntity, inventoryCategory)) {
-                Prefab existingItemPrefab = existingItem.getParentPrefab();
-                Prefab itemPrefab = Assets.getPrefab(itemName).get();
-                if (itemPrefab != null && itemPrefab.equals(existingItemPrefab)) {
-                    return existingItem;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, Side side) {
-        return iterateItems(inventoryManager, inventoryEntity, side.toString());
-    }
 
     /**
-     * returns the items in the inventory category. If there is no categorized inventory component, returns all the items.
-     *
-     * @param inventoryManager
-     * @param inventoryEntity
-     * @param inventoryCategory
-     * @return
+     * returns the items in the inventory category.
      */
-    public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, String inventoryCategory) {
-        CategorizedInventoryComponent categorizedInventory = inventoryEntity.getComponent(CategorizedInventoryComponent.class);
-
-        if (categorizedInventory != null) {
-            List<EntityRef> items = Lists.newArrayList();
-
-            if (categorizedInventory.slotMapping.containsKey(inventoryCategory)) {
-                List<Integer> slots = categorizedInventory.slotMapping.get(inventoryCategory);
-                for (int i : slots) {
-                    items.add(inventoryManager.getItemInSlot(inventoryEntity, i));
-                }
-            }
-            return items;
-        } else {
-            return iterateItems(inventoryManager, inventoryEntity);
+    public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity, boolean isOutputCategory, String inventoryCategory) {
+        List<EntityRef> items = Lists.newArrayList();
+        List<Integer> slots = WorkstationInventoryUtils.getAssignedSlots(inventoryEntity, isOutputCategory, inventoryCategory);
+        for (int i : slots) {
+            items.add(inventoryManager.getItemInSlot(inventoryEntity, i));
         }
+        return items;
     }
 
     public static Iterable<EntityRef> iterateItems(InventoryManager inventoryManager, EntityRef inventoryEntity) {
@@ -104,52 +46,6 @@ public abstract class ExtendedInventoryManager {
         }
 
         return items;
-    }
-
-
-    public static boolean hasInventorySpace(InventoryManager inventoryManager, EntityRef entity, String inventoryCategory, List<EntityRef> items) {
-        int emptySlots = 0;
-        // loop through all the items in the inventory
-        for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, entity, inventoryCategory)) {
-            if (inventoryManager.getStackSize(item) == 0) {
-                emptySlots++;
-                continue;
-            }
-
-            // loop through the items that we want to ensure room for
-            EntityRef foundStackableItem = null;
-            for (EntityRef createdItem : items) {
-                if (inventoryManager.canStackTogether(item, createdItem)) {
-                    foundStackableItem = createdItem;
-                    break;
-                }
-            }
-
-            // we found an item that we have room for
-            if (foundStackableItem != null) {
-                items.remove(foundStackableItem);
-            }
-        }
-
-        return (emptySlots >= items.size());
-    }
-
-
-    public static String getLabelFor(EntityRef item) {
-        BlockComponent block = item.getComponent(BlockComponent.class);
-        if (block != null) {
-            return block.getBlock().getBlockFamily().getDisplayName();
-        }
-
-        DisplayNameComponent info = item.getComponent(DisplayNameComponent.class);
-        if (info != null) {
-            return info.name;
-        }
-        BlockItemComponent blockItem = item.getComponent(BlockItemComponent.class);
-        if (blockItem != null) {
-            return blockItem.blockFamily.getDisplayName();
-        }
-        return "";
     }
 
     public static EntityRef createItem(EntityManager entityManager, String prefabName, int stackCount) {

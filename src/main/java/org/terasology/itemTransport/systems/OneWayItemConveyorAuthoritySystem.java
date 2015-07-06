@@ -43,6 +43,8 @@ import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.monitoring.PerformanceMonitor;
 import org.terasology.registry.In;
+import org.terasology.workstation.process.WorkstationInventoryUtils;
+import org.terasology.workstation.process.inventory.InventoryOutputComponent;
 import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockComponent;
@@ -105,7 +107,14 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
 
         if (targetEntity.hasComponent(InventoryComponent.class)) {
             // iterate all the items in the inventory and pull one stack to this inventory
-            for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity, side.reverse())) {
+            Iterable<EntityRef> items = null;
+            if (WorkstationInventoryUtils.hasAssignedSlots(targetEntity, true, InventoryOutputComponent.WORKSTATIONOUTPUTCATEGORY)) {
+                items = ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity, true, InventoryOutputComponent.WORKSTATIONOUTPUTCATEGORY);
+            } else {
+                items = ExtendedInventoryManager.iterateItems(inventoryManager, targetEntity);
+            }
+
+            for (EntityRef item : items) {
                 if (item.exists()) {
                     // grab the item to the target inventory
                     EntityRef entityToGive = inventoryManager.removeItem(targetEntity, entity, item, false, 1);

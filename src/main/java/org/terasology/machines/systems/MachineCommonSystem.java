@@ -15,32 +15,27 @@
  */
 package org.terasology.machines.systems;
 
-import com.google.common.collect.Lists;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.logic.inventory.InventoryAccessComponent;
 import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.machines.components.CategorizedInventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.NestedMachineComponent;
 import org.terasology.machines.processParts.RequirementInputComponent;
-import org.terasology.math.Side;
-import org.terasology.workstation.component.WorkstationInventoryComponent;
+import org.terasology.math.IntegerRange;
 import org.terasology.workstation.process.fluid.FluidInputComponent;
 import org.terasology.workstation.process.fluid.FluidOutputComponent;
+import org.terasology.workstation.process.inventory.InventoryInputComponent;
+import org.terasology.workstation.process.inventory.InventoryOutputComponent;
 import org.terasology.world.block.BlockComponent;
 
-import java.util.List;
+import java.util.HashMap;
 
-@RegisterSystem(RegisterMode.AUTHORITY)
-public class MachineAuthoritySystem extends BaseComponentSystem {
-
-    @Override
-    public void initialise() {
-    }
+@RegisterSystem
+public class MachineCommonSystem extends BaseComponentSystem {
 
     @ReceiveEvent(components = {BlockComponent.class})
     public void onMachineDefinitionAdded(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
@@ -62,46 +57,33 @@ public class MachineAuthoritySystem extends BaseComponentSystem {
             entity.addComponent(inventoryComponent);
         }
 
-        // configure the workstation inventory
-        if (!entity.hasComponent(WorkstationInventoryComponent.class)) {
-            WorkstationInventoryComponent workstationInventory = new WorkstationInventoryComponent();
-            int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
-            workstationInventory.slotAssignments.put("INPUT", new WorkstationInventoryComponent.SlotAssignment(0, machineDefinition.inputSlots));
-            workstationInventory.slotAssignments.put("OUTPUT", new WorkstationInventoryComponent.SlotAssignment(totalInputSlots, machineDefinition.outputSlots));
-            workstationInventory.slotAssignments.put(FluidInputComponent.FLUIDINPUTCATEGORY, new WorkstationInventoryComponent.SlotAssignment(0, 1));
-            workstationInventory.slotAssignments.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY, new WorkstationInventoryComponent.SlotAssignment(1, 1));
-            entity.addComponent(workstationInventory);
-        }
-
         // configure the categorized inventory
-        if (!entity.hasComponent(CategorizedInventoryComponent.class)) {
-            CategorizedInventoryComponent categorizedInventory = new CategorizedInventoryComponent();
+        if (!entity.hasComponent(InventoryAccessComponent.class)) {
+            InventoryAccessComponent categorizedInventory = new InventoryAccessComponent();
+            categorizedInventory.input = new HashMap();
+            categorizedInventory.output = new HashMap();
             int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
-            categorizedInventory.slotMapping.put("INPUT",
+            categorizedInventory.input.put(InventoryInputComponent.WORKSTATIONINPUTCATEGORY,
                     createSlotRange(0, machineDefinition.inputSlots));
-            categorizedInventory.slotMapping.put(RequirementInputComponent.REQUIREMENTSINVENTORYCATEGORY,
+            categorizedInventory.input.put(RequirementInputComponent.REQUIREMENTSINVENTORYCATEGORY,
                     createSlotRange(machineDefinition.inputSlots, machineDefinition.requirementSlots));
-            categorizedInventory.slotMapping.put("OUTPUT",
+            categorizedInventory.output.put(InventoryOutputComponent.WORKSTATIONOUTPUTCATEGORY,
                     createSlotRange(totalInputSlots, machineDefinition.outputSlots));
 
-            // add default input
-            categorizedInventory.slotMapping.put(Side.TOP.toString(), categorizedInventory.slotMapping.get("INPUT"));
-
-            // add default output
-            for (Side side : Side.horizontalSides()) {
-                categorizedInventory.slotMapping.put(side.toString(), categorizedInventory.slotMapping.get("OUTPUT"));
-            }
-
+            // add fluid slot assignments
+            categorizedInventory.input.put(FluidInputComponent.FLUIDINPUTCATEGORY,
+                    createSlotRange(0, 1));
+            categorizedInventory.output.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY,
+                    createSlotRange(1, 1));
             entity.addComponent(categorizedInventory);
         }
     }
 
-    List<Integer> createSlotRange(int startIndex, int length) {
-        List<Integer> slots = Lists.newArrayList();
-        for (int i = 0; i < length; i++) {
-            slots.add(startIndex + i);
+    IntegerRange createSlotRange(int startIndex, int length) {
+        IntegerRange slots = new IntegerRange();
+        if (length > 0) {
+            slots.addNumbers(startIndex, length + startIndex - 1);
         }
-
         return slots;
     }
 }

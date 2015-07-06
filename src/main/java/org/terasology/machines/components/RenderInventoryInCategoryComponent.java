@@ -24,4 +24,5 @@ import org.terasology.itemRendering.systems.RenderOwnedEntityDetails;
  */
 public class RenderInventoryInCategoryComponent extends RenderOwnedEntityDetails implements Component {
     public String category;
+    public boolean isOutputCategory;
 }

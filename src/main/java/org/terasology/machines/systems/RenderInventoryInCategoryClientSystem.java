@@ -24,8 +24,9 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.RenderInventorySlotsComponent;
-import org.terasology.machines.components.CategorizedInventoryComponent;
+import org.terasology.logic.inventory.InventoryAccessComponent;
 import org.terasology.machines.components.RenderInventoryInCategoryComponent;
+import org.terasology.workstation.process.WorkstationInventoryUtils;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
     public void addRemoveItemRendering(OnChangedComponent event,
                                        EntityRef inventoryEntity,
                                        RenderInventoryInCategoryComponent renderInventoryInCategoryComponent,
-                                       CategorizedInventoryComponent categorizedInventory) {
+                                       InventoryAccessComponent categorizedInventory) {
         addSlotRenderer(inventoryEntity, renderInventoryInCategoryComponent, categorizedInventory);
     }
 
@@ -44,7 +45,7 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
     public void initExistingItemRendering(OnActivatedComponent event,
                                           EntityRef inventoryEntity,
                                           RenderInventoryInCategoryComponent renderInventoryInCategoryComponent,
-                                          CategorizedInventoryComponent categorizedInventory) {
+                                          InventoryAccessComponent categorizedInventory) {
         addSlotRenderer(inventoryEntity, renderInventoryInCategoryComponent, categorizedInventory);
     }
 
@@ -55,8 +56,11 @@ public class RenderInventoryInCategoryClientSystem extends BaseComponentSystem {
 
     private void addSlotRenderer(EntityRef inventoryEntity,
                                  RenderInventoryInCategoryComponent renderInventoryInCategoryComponent,
-                                 CategorizedInventoryComponent categorizedInventory) {
-        List<Integer> slots = categorizedInventory.slotMapping.get(renderInventoryInCategoryComponent.category);
+                                 InventoryAccessComponent categorizedInventory) {
+        List<Integer> slots = WorkstationInventoryUtils.getAssignedSlots(
+                inventoryEntity,
+                renderInventoryInCategoryComponent.isOutputCategory,
+                renderInventoryInCategoryComponent.category);
         RenderInventorySlotsComponent renderInventorySlotsComponent = new RenderInventorySlotsComponent();
         renderInventorySlotsComponent.slots = slots;
         renderInventorySlotsComponent.setRenderDetails(renderInventoryInCategoryComponent);
