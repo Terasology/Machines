@@ -70,7 +70,7 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
     public FluidTransportBlockNetworkImpl() {
         blockNetwork = new BlockNetwork<>();
         blockNetwork.addTopologyListener(this);
-        logger.info("Initialized Mechanical Power System");
+        logger.info("Initialized Fluid Transport System");
     }
 
     @Override
