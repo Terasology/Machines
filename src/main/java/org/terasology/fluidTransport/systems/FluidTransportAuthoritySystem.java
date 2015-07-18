@@ -34,7 +34,10 @@ import org.terasology.fluid.system.FluidManager;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
+import org.terasology.fluidTransport.components.FluidTankDropsFluidComponent;
+import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Side;
+import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
@@ -120,12 +123,14 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                 // let tanks drop their fluid to a tank below
                 for (EntityRef tank : tanksFromBottomUp.values()) {
-                    Vector3i tankBelowLocation = Side.BOTTOM.getAdjacentPos(getLocation(tank));
-                    EntityRef tankBelow = blockEntityRegistry.getEntityAt(tankBelowLocation);
-                    String fluidType = ExtendedFluidManager.getTankFluidType(tank);
-                    if (tankBelow.hasComponent(FluidInventoryComponent.class)) {
-                        float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow, ExtendedFluidManager.getTankFluidVolume(tank), fluidType);
-                        ExtendedFluidManager.removeFluid(tank, volumeGiven, fluidType);
+                    if (tank.hasComponent(FluidTankDropsFluidComponent.class)) {
+                        Vector3i tankBelowLocation = Side.BOTTOM.getAdjacentPos(getLocation(tank));
+                        EntityRef tankBelow = blockEntityRegistry.getEntityAt(tankBelowLocation);
+                        String fluidType = ExtendedFluidManager.getTankFluidType(tank);
+                        if (tankBelow.hasComponent(FluidInventoryComponent.class)) {
+                            float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow, ExtendedFluidManager.getTankFluidVolume(tank), fluidType);
+                            ExtendedFluidManager.removeFluid(tank, volumeGiven, fluidType);
+                        }
                     }
                 }
 
@@ -212,18 +217,22 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
     private Vector3i getLocation(EntityRef entity) {
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
-        return blockComponent.getPosition();
+        if (blockComponent != null) {
+            return blockComponent.getPosition();
+        } else {
+            LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
+            return new Vector3i(new Vector3f(locationComponent.getWorldPosition()).sub(0.5f, 0.5f, 0.5f));
+        }
+
     }
 
     private float getTankElevation(EntityRef entity) {
-        BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
-        return blockComponent.getPosition().y;
+        return getLocation(entity).y;
     }
 
     private float getPumpWorldPressure(EntityRef entity) {
         FluidPumpComponent fluidPumpComponent = entity.getComponent(FluidPumpComponent.class);
-        BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
-        return (float) blockComponent.getPosition().y + fluidPumpComponent.pressure;
+        return (float) getLocation(entity).y + fluidPumpComponent.pressure;
     }
 
     private float getPumpFlowAvailable(EntityRef entity) {

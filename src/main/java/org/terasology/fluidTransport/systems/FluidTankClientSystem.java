@@ -33,6 +33,7 @@ import org.terasology.fluid.system.FluidRenderer;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
+import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector2f;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.registry.In;
@@ -44,6 +45,7 @@ import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.logic.MeshComponent;
 import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
 import org.terasology.rendering.nui.widgets.TooltipLine;
+import org.terasology.world.block.regions.BlockRegionComponent;
 
 import java.util.Optional;
 
@@ -93,6 +95,10 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     }
 
     private void setDisplayMesh(EntityRef entity, float fullness, String tankFluidType) {
+        if (tankFluidType == null) {
+            return;
+        }
+
         FluidDisplayComponent fluidDisplayComponent = entity.getComponent(FluidDisplayComponent.class);
         if (fluidDisplayComponent == null) {
             fluidDisplayComponent = new FluidDisplayComponent();
@@ -118,7 +124,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         }
 
         MeshComponent meshComponent = new MeshComponent();
-        meshComponent.mesh = getMesh(fullness);
+        meshComponent.mesh = getMesh(fullness, entity);
         meshComponent.material = material.get();
         if (renderedEntity.hasComponent(MeshComponent.class)) {
             renderedEntity.saveComponent(meshComponent);
@@ -136,7 +142,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
     }
 
-    private Mesh getMesh(float fullness) {
+    private Mesh getMesh(float fullness, EntityRef entityRef) {
         MeshBuilder meshBuilder = new MeshBuilder();
         meshBuilder.setTextureMapper(new MeshBuilder.TextureMapper() {
             @Override
@@ -149,7 +155,30 @@ public class FluidTankClientSystem extends BaseComponentSystem {
                 return new Vector2f(1f, 1f);
             }
         });
-        meshBuilder.addBox(new Vector3f(-0.49f, -0.49f, -0.49f), new Vector3f(0.98f, fullness - 0.02f, 0.98f), 1f, 1f);
+
+        Vector3f size;
+        Vector3f min;
+        if (entityRef.hasComponent(BlockRegionComponent.class)) {
+            BlockRegionComponent blockRegion = entityRef.getComponent(BlockRegionComponent.class);
+            LocationComponent location = entityRef.getComponent(LocationComponent.class);
+            size = blockRegion.region.size().toVector3f();
+            min = new Vector3f(blockRegion.region.min().toVector3f()).sub(location.getWorldPosition());
+
+        } else {
+            size = Vector3f.one();
+            min = Vector3f.zero();
+        }
+        // move from block grid coordinates into world space
+        min.sub(0.5f, 0.5f, 0.5f);
+
+        // bring it away from the block's edges
+        min.add(0.01f, 0.01f, 0.01f);
+        size.sub(0.02f, 0.02f, 0.02f);
+
+        // deal will fullness
+        size.mulY(fullness);
+
+        meshBuilder.addBox(min, size, 1f, 1f);
         return meshBuilder.build();
     }
 
