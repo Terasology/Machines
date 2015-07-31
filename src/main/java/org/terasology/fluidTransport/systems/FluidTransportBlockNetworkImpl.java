@@ -20,11 +20,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.blockNetwork.BlockNetwork;
-import org.terasology.blockNetwork.Network;
-import org.terasology.blockNetwork.NetworkNode;
-import org.terasology.blockNetwork.NetworkTopologyListener;
 import org.terasology.blockNetwork.SimpleNetwork;
+import org.terasology.entityNetwork.BlockNetwork;
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.NetworkNode;
+import org.terasology.entityNetwork.NetworkTopologyListener;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
@@ -129,7 +129,7 @@ public class FluidTransportBlockNetworkImpl extends BaseComponentSystem implemen
 
             networkNodes.put(position, networkNode);
             try {
-                blockNetwork.addNetworkingBlock(networkNode);
+                blockNetwork.addLeafBlock(networkNode);
             } catch (IllegalStateException ex) {
                 logger.error(ex.getMessage());
             }

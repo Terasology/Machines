@@ -9,9 +9,6 @@
         "id": "Workstation", "minVersion": "0.1.0"
     },
     {
-        "id": "BlockNetwork", "minVersion": "0.1.0"
-    },
-    {
         "id" : "Fluid", "minVersion" : "0.1.0"
     },
     {

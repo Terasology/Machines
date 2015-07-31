@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.fluidTransport.systems;
+package org.terasology.entityNetwork;
 
-import org.terasology.entityNetwork.NetworkNode;
-import org.terasology.math.geom.Vector3i;
-
-public class PumpNode extends NetworkNode {
-    public PumpNode(Vector3i location, byte connectionSides) {
-        super(location, connectionSides);
-    }
+public interface NetworkNode {
+    boolean isConnectedTo(NetworkNode networkNode);
 }
