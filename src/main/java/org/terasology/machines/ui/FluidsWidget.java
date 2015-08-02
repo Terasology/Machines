@@ -20,7 +20,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluid.ui.FluidContainerWidget;
-import org.terasology.math.Vector2i;
+import org.terasology.math.geom.Vector2i;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.Canvas;
 import org.terasology.rendering.nui.CoreWidget;
