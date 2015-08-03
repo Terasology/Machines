@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.fluidTransport.systems;
+package org.terasology.entityNetwork.systems;
 
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
-import org.terasology.entityNetwork.NetworkTopologyListener;
-import org.terasology.math.geom.Vector3i;
+import org.terasology.entitySystem.entity.EntityRef;
 
-public interface FluidTransportBlockNetwork {
-    Network getNetwork(Vector3i position);
+import java.util.Collection;
 
+public interface EntityNetworkManager {
     Iterable<NetworkNode> getNetworkNodes(Network network);
 
-    Iterable<Network> getNetworks();
+    Iterable<Network> getNetworks(String networkId);
 
-    void addTopologyListener(NetworkTopologyListener networkTopologyListener);
+    EntityRef getEntityForNode(NetworkNode node);
 
-    FluidTransportNetworkDetails getMechanicalPowerNetwork(Network network);
+    Collection<NetworkNode> getNodesForEntity(EntityRef entity);
+
+    Network getNetwork(NetworkNode node);
 }

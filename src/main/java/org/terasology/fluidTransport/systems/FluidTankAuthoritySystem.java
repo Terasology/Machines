@@ -41,11 +41,11 @@ public class FluidTankAuthoritySystem extends BaseComponentSystem {
             float tankEmptyVolume = ExtendedFluidManager.getTankEmptyVolume(targetBlockEntity);
             String tankFluidType = ExtendedFluidManager.getTankFluidType(targetBlockEntity);
 
-            if (fluidContainer.volume <= tankVolume && fluidContainer.fluidType == null) {
+            if (fluidContainer.volume <= tankVolume && fluidContainer.fluidType == null && tankFluidType != null) {
                 // fill the container from the block
                 fillFluidContainer(event, item, tankFluidType);
                 ExtendedFluidManager.removeFluid(targetBlockEntity, fluidContainer.volume, tankFluidType);
-            } else if (fluidContainer.volume <= tankEmptyVolume
+            } else if (fluidContainer.fluidType != null && fluidContainer.volume <= tankEmptyVolume
                     // if the fluid types are the same,  or if the block does not have a fluid type
                     && (tankFluidType == null || tankFluidType.equals(fluidContainer.fluidType))) {
                 // empty the container to the block

@@ -28,6 +28,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SidedLocationNetworkNodeTest {
+    static final String NETWORK_ID = "test";
     private byte allDirections;
 
     @Before
@@ -37,8 +38,8 @@ public class SidedLocationNetworkNodeTest {
 
     @Test
     public void isConnectedToAllSides() {
-        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(new Vector3i(0, 0, 0), allDirections);
-        SidedLocationNetworkNode top = new SidedLocationNetworkNode(new Vector3i(0, 1, 0), allDirections);
+        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), allDirections);
+        SidedLocationNetworkNode top = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0), allDirections);
 
         assertTrue(bottom.isConnectedTo(top));
         assertTrue(top.isConnectedTo(bottom));
@@ -46,8 +47,8 @@ public class SidedLocationNetworkNodeTest {
 
     @Test
     public void correctConnectionSides() {
-        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(new Vector3i(0, 0, 0), allDirections);
-        SidedLocationNetworkNode top = new SidedLocationNetworkNode(new Vector3i(0, 1, 0), allDirections);
+        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), allDirections);
+        SidedLocationNetworkNode top = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0), allDirections);
 
         assertEquals(Side.TOP, bottom.connectionSide(top));
         assertEquals(Side.BOTTOM, top.connectionSide(bottom));
@@ -55,9 +56,9 @@ public class SidedLocationNetworkNodeTest {
 
     @Test
     public void isConnectedToSpecificSides() {
-        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(new Vector3i(0, 0, 0), SideBitFlag.getSide(Side.TOP));
-        SidedLocationNetworkNode top = new SidedLocationNetworkNode(new Vector3i(0, 1, 0), SideBitFlag.getSide(Side.BOTTOM));
-        SidedLocationNetworkNode side = new SidedLocationNetworkNode(new Vector3i(0, 0, 1), allDirections);
+        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), SideBitFlag.getSide(Side.TOP));
+        SidedLocationNetworkNode top = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0), SideBitFlag.getSide(Side.BOTTOM));
+        SidedLocationNetworkNode side = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 1), allDirections);
 
         assertTrue(bottom.isConnectedTo(top));
         assertTrue(top.isConnectedTo(bottom));
@@ -67,9 +68,9 @@ public class SidedLocationNetworkNodeTest {
 
     @Test
     public void filterToSpecificSides() {
-        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(new Vector3i(0, 0, 0), SideBitFlag.getSide(Side.TOP));
-        SidedLocationNetworkNode side = new SidedLocationNetworkNode(new Vector3i(0, 0, 1), allDirections);
-        SidedLocationNetworkNode top = new SidedLocationNetworkNode(new Vector3i(0, 1, 0), SideBitFlag.getSide(Side.BOTTOM));
+        SidedLocationNetworkNode bottom = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), SideBitFlag.getSide(Side.TOP));
+        SidedLocationNetworkNode side = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 1), allDirections);
+        SidedLocationNetworkNode top = new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0), SideBitFlag.getSide(Side.BOTTOM));
 
         BiPredicate<NetworkNode, NetworkNode> filter = SidedLocationNetworkNode.createSideConnectivityFilter(Side.TOP, bottom.location);
         assertTrue(filter.test(top, bottom));

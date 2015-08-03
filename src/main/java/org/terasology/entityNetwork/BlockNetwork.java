@@ -52,7 +52,10 @@ public class BlockNetwork {
                 for (NetworkNode existingNode : allNetworkNodes.keySet()) {
                     if (networkNode != existingNode && networkNode.isConnectedTo(existingNode)) {
                         allNetworkNodes.get(existingNode).add(networkNode);
-                        allNetworkNodes.get(networkNode).add(existingNode);
+                        if (!networkNode.isLeaf()) {
+                            // leaf nodes do not link back to the other connections, creating a dead end
+                            allNetworkNodes.get(networkNode).add(existingNode);
+                        }
                     }
                 }
 
@@ -61,13 +64,6 @@ public class BlockNetwork {
 
         } finally {
             mutating = false;
-        }
-    }
-
-    public void addNetworkingBlocks(Collection<NetworkNode> networkNodes) {
-        // No major optimization possible here
-        for (NetworkNode networkNode : networkNodes) {
-            addNetworkingBlock(networkNode);
         }
     }
 

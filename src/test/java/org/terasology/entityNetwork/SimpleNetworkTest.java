@@ -11,6 +11,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class SimpleNetworkTest {
+    static final String NETWORK_ID = "test";
     private BlockNetwork network;
     private byte allDirections;
     private byte upOnly;
@@ -23,7 +24,7 @@ public class SimpleNetworkTest {
     }
 
     private SidedLocationNetworkNode toNode(Vector3i location, byte sides) {
-        return new SidedLocationNetworkNode(location, sides);
+        return new SidedLocationNetworkNode(NETWORK_ID, false, location, sides);
     }
 
     @Test

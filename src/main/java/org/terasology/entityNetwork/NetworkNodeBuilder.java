@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.fluidTransport.systems;
+package org.terasology.entityNetwork;
 
-import org.terasology.entityNetwork.NetworkNode;
-import org.terasology.math.geom.Vector3i;
+import org.terasology.entitySystem.entity.EntityRef;
 
-public class PumpNode extends NetworkNode {
-    public PumpNode(Vector3i location, byte connectionSides) {
-        super(location, connectionSides);
-    }
+public interface NetworkNodeBuilder {
+    NetworkNode build(EntityRef entityRef);
 }

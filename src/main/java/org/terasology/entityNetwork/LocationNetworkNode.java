@@ -18,29 +18,31 @@ package org.terasology.entityNetwork;
 import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
 
-public class LocationNetworkNode implements NetworkNode {
+public class LocationNetworkNode extends NetworkNode {
     public final Vector3i location;
 
-    public LocationNetworkNode(Vector3i location) {
+    public LocationNetworkNode(String networkId, boolean isLeaf, Vector3i location) {
+        super(networkId, isLeaf);
         this.location = location;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || !this.getClass().isAssignableFrom(o.getClass())) return false;
+        if (!(o instanceof LocationNetworkNode)) return false;
+        if (!super.equals(o)) return false;
 
         LocationNetworkNode that = (LocationNetworkNode) o;
-        if (location != null ? !location.equals(that.location) : that.location != null) {
-            return false;
-        } else {
-            return true;
-        }
+
+        if (location != null ? !location.equals(that.location) : that.location != null) return false;
+
+        return true;
     }
 
     @Override
     public int hashCode() {
-        int result = location != null ? location.hashCode() : 0;
+        int result = super.hashCode();
+        result = 31 * result + (location != null ? location.hashCode() : 0);
         return result;
     }
 

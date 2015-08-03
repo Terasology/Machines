@@ -9,24 +9,25 @@ import java.util.function.BiPredicate;
 public class SidedLocationNetworkNode extends LocationNetworkNode {
     public final byte connectionSides;
 
-    public SidedLocationNetworkNode(Vector3i location, byte connectionSides) {
-        super(location);
+    public SidedLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, byte connectionSides) {
+        super(networkId, isLeaf, location);
         this.connectionSides = connectionSides;
     }
 
-    public SidedLocationNetworkNode(Vector3i location, Side... sides) {
-        this(location, SideBitFlag.getSides(sides));
+    public SidedLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, Side... sides) {
+        this(networkId, isLeaf, location, SideBitFlag.getSides(sides));
     }
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SidedLocationNetworkNode)) return false;
         if (!super.equals(o)) return false;
 
-        if (this == o) return true;
-        if (o == null || !this.getClass().isAssignableFrom(o.getClass())) return false;
-
         SidedLocationNetworkNode that = (SidedLocationNetworkNode) o;
+
         if (connectionSides != that.connectionSides) return false;
+
         return true;
     }
 
