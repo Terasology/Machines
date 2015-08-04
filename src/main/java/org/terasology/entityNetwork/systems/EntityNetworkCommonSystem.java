@@ -28,7 +28,7 @@ import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.components.EntityNetworkComponent;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -41,6 +41,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RegisterSystem
 @Share(EntityNetworkManager.class)
@@ -48,7 +49,7 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
 
     Map<String, BlockNetwork> blockNetworks = Maps.newHashMap();
     Multimap<EntityRef, NetworkNodeBuilder> pendingEntitiesToBeAdded = HashMultimap.create();
-    Map<NetworkNode, EntityRef> entityLookup = Maps.newHashMap();
+    Multimap<NetworkNode, EntityRef> entityLookup = HashMultimap.create();
     Multimap<EntityRef, NetworkNode> nodeLookup = HashMultimap.create();
 
     @In
@@ -56,22 +57,24 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
 
     @ReceiveEvent
     public void onRemovedEntityNetwork(BeforeDeactivateComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
-        for (NetworkNode node : nodeLookup.get(entityRef)) {
+        for (NetworkNode node : Lists.newArrayList(nodeLookup.get(entityRef))) {
             remove(entityRef, node);
         }
     }
 
     private void remove(EntityRef entityRef, NetworkNode node) {
-        entityLookup.remove(node, entityRef);
         nodeLookup.remove(entityRef, node);
-        BlockNetwork blocknetwork = blockNetworks.get(node.getNetworkId());
-        blocknetwork.removeNetworkingBlock(node);
+
+        if (entityLookup.get(node).size() == 1) {
+            BlockNetwork blocknetwork = blockNetworks.get(node.getNetworkId());
+            blocknetwork.removeNetworkingBlock(node);
+        }
+
+        entityLookup.remove(node, entityRef);
     }
 
     private void add(EntityRef entityRef, NetworkNode node) {
-        // retain a link from the entity to the node
         entityLookup.put(node, entityRef);
-        nodeLookup.put(entityRef, node);
 
         // add to the actual network
         String networkId = node.getNetworkId();
@@ -81,10 +84,12 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
             blockNetworks.put(networkId, blockNetwork);
         }
         blockNetwork.addNetworkingBlock(node);
+
+        nodeLookup.put(entityRef, node);
     }
 
     @ReceiveEvent
-    public void onAddedEntityNetwork(OnAddedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+    public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
         Prefab connectionsPrefab = assetManager.getAsset(entityNetworkComponent.connectionsPrefab, Prefab.class).get();
         List<NetworkNodeBuilder> networkNodeBuilders = Lists.newArrayList();
         for (NetworkNodeBuilder builder : Iterables.filter(connectionsPrefab.iterateComponents(), NetworkNodeBuilder.class)) {
@@ -106,8 +111,8 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
                 NetworkNode newNetworkNode = builder.build(entry.getKey());
                 if (newNetworkNode != null) {
                     // we could already determine the type of network node, add it to the network
-                    add(entry.getKey(), newNetworkNode);
                     pendingEntitiesToBeAdded.remove(entry.getKey(), builder);
+                    add(entry.getKey(), newNetworkNode);
                 } else {
                     // keep this builder around for next time
                 }
@@ -135,7 +140,12 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
 
     @Override
     public EntityRef getEntityForNode(NetworkNode node) {
-        return entityLookup.get(node);
+        Optional<EntityRef> entity = entityLookup.get(node).stream().findFirst();
+        if (entity.isPresent()) {
+            return entity.get();
+        } else {
+            return EntityRef.NULL;
+        }
     }
 
     @Override

@@ -1,6 +1,6 @@
 package org.terasology.entityNetwork;
 
-import com.google.common.base.Supplier;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Queues;
@@ -21,11 +21,9 @@ public class BlockNetwork {
 
     private Map<Network, Set<NetworkNode>> allNetworks = Maps.newHashMap();
     // an adjacency list of nodes connecting to each other
-    private Map<NetworkNode, Set<NetworkNode>> allNetworkNodes = Maps.newHashMap();
+    private Map<NetworkNode, Set<NetworkNode>> adjacencyList = Maps.newHashMap();
 
     private Set<NetworkTopologyListener> listeners = Sets.newLinkedHashSet();
-
-    private boolean mutating = false;
 
     public void addTopologyListener(NetworkTopologyListener listener) {
         listeners.add(listener);
@@ -35,43 +33,26 @@ public class BlockNetwork {
         listeners.remove(listener);
     }
 
-    private void validateNotMutating() {
-        if (mutating) {
-            throw new IllegalStateException("Can't modify block network while modification is in progress");
-        }
-    }
-
     public void addNetworkingBlock(NetworkNode networkNode) {
-        validateNotMutating();
-        mutating = true;
-        try {
-            if (!allNetworkNodes.containsKey(networkNode)) {
-                allNetworkNodes.put(networkNode, Sets.<NetworkNode>newHashSet());
+        adjacencyList.put(networkNode, Sets.<NetworkNode>newHashSet());
 
-                // loop through all the nodes and find connections
-                for (NetworkNode existingNode : allNetworkNodes.keySet()) {
-                    if (networkNode != existingNode && networkNode.isConnectedTo(existingNode)) {
-                        allNetworkNodes.get(existingNode).add(networkNode);
-                        if (!networkNode.isLeaf()) {
-                            // leaf nodes do not link back to the other connections, creating a dead end
-                            allNetworkNodes.get(networkNode).add(existingNode);
-                        }
-                    }
-                }
-
-                addToNetwork(networkNode);
+        // loop through all the nodes and find connections
+        for (NetworkNode existingNode : adjacencyList.keySet()) {
+            // ensure that there is mutual agreement between the nodes about a positive connection
+            if (networkNode != existingNode && networkNode.isConnectedTo(existingNode) && existingNode.isConnectedTo(networkNode)) {
+                adjacencyList.get(existingNode).add(networkNode);
+                adjacencyList.get(networkNode).add(existingNode);
             }
-
-        } finally {
-            mutating = false;
         }
+
+        addToNetwork(networkNode);
     }
 
     private void addToNetwork(NetworkNode networkNode) {
-        Set<NetworkNode> connectedNodes = allNetworkNodes.get(networkNode);
-
+        // check the nodes connecting to this one, see if they are all from the same network.  If they are not, merge the networks together
+        Set<NetworkNode> connectedNodes = adjacencyList.get(networkNode);
         Network network = null;
-        for (NetworkNode connectedNode : connectedNodes) {
+        for (NetworkNode connectedNode : Iterables.filter(connectedNodes, x -> !x.isLeaf())) {
             Network foundNetwork = getNetwork(connectedNode);
             if (foundNetwork == null) {
                 // abort, this should not happen
@@ -92,8 +73,15 @@ public class BlockNetwork {
         }
 
         allNetworks.get(network).add(networkNode);
-
         notifyNetworkingNodeAdded(network, networkNode);
+
+        // ensure that all leaf nodes also are added to this network
+        for (NetworkNode leafNode : Iterables.filter(connectedNodes, x -> x.isLeaf())) {
+            if (!allNetworks.get(network).contains(leafNode)) {
+                allNetworks.get(network).add(leafNode);
+                notifyNetworkingNodeAdded(network, leafNode);
+            }
+        }
 
     }
 
@@ -125,110 +113,86 @@ public class BlockNetwork {
         }
     }
 
-    public void updateNetworkingBlock(NetworkNode oldNode, NetworkNode newNode) {
-        logger.info("Replacing networking node: " + oldNode.toString() + " with: " + newNode.toString());
-        removeNetworkingBlock(oldNode);
-        addNetworkingBlock(newNode);
-    }
-
     public void removeNetworkingBlock(NetworkNode networkNode) {
-        validateNotMutating();
-        mutating = true;
-        try {
-            Set<NetworkNode> connectedNodes = allNetworkNodes.get(networkNode);
+        Set<NetworkNode> connectedNodes = adjacencyList.get(networkNode);
 
-            Network originalNetwork = getNetwork(networkNode);
-            allNetworks.get(originalNetwork).remove(networkNode);
-            notifyNetworkingNodeRemoved(originalNetwork, networkNode);
+        Network originalNetwork = getNetwork(networkNode);
+        allNetworks.get(originalNetwork).remove(networkNode);
+        notifyNetworkingNodeRemoved(originalNetwork, networkNode);
 
-            allNetworkNodes.remove(networkNode);
-            // remove all adjacent links
-            for (NetworkNode connectedNode : connectedNodes) {
-                allNetworkNodes.get(connectedNode).remove(networkNode);
-            }
-
-            Queue<NetworkNode> needsNewNetwork = Queues.newArrayDeque();
-            needsNewNetwork.addAll(connectedNodes);
-
-            // ensure that the network is still intact, if not,  split it up
-            // touch all nodes in the starting from each of the connected nodes to the removed node
-            // if a nodes is found in a previously touched list, it connects to that network
-            Map<NetworkNode, NetworkNode> visitedNodes = Maps.newHashMap(); // where Key = a node in the network, Value = the connected node it originated from
-            for (NetworkNode connectedNode : connectedNodes) {
-                visitedNodes.put(connectedNode, connectedNode);
-            }
-
-            Queue<NetworkNode> currentNodes = Queues.newArrayDeque();
-            for (NetworkNode connectedNode : connectedNodes) {
-                if (needsNewNetwork.size() == 0) {
-                    // we have already verified that nothing needs a new network
-                    return;
-                }
-
-                currentNodes.add(connectedNode);
-
-                // search through the nodes connecting to this one
-                while (currentNodes.size() > 0) {
-                    NetworkNode currentNode = currentNodes.poll();
-                    if (visitedNodes.containsKey(currentNode) && currentNode != connectedNode) {
-                        // we have visited this node already
-                        needsNewNetwork.remove(currentNode);
-                    } else {
-                        for (NetworkNode node : allNetworkNodes.get(currentNode)) {
-                            // add all these adjacent nodes to the list of nodes to visit
-                            currentNodes.add(node);
-                        }
-                    }
-                    visitedNodes.put(currentNode, connectedNode);
-                }
-            }
-
-            // reuse the existing network
-            needsNewNetwork.poll();
-            // create new networks
-            for (NetworkNode node : needsNewNetwork) {
-                Network newNetwork = new BasicNetwork();
-                Set<NetworkNode> newNetworkNodes = Sets.newHashSet();
-                allNetworks.put(newNetwork, newNetworkNodes);
-                notifyNetworkAdded(newNetwork);
-                Set<NetworkNode> originalNetworkNodes = allNetworks.get(originalNetwork);
-                for (Map.Entry<NetworkNode, NetworkNode> item : visitedNodes.entrySet()) {
-                    if (item.getValue() == node) {
-                        originalNetworkNodes.remove(item.getKey());
-                        notifyNetworkingNodeRemoved(originalNetwork, item.getKey());
-                        newNetworkNodes.add(item.getKey());
-                        notifyNetworkingNodeAdded(newNetwork, item.getKey());
-
-                    }
-                }
-
-            }
-
-            if (allNetworks.get(originalNetwork).size() == 0) {
-                // this network is empty
-                allNetworks.remove(originalNetwork);
-                notifyNetworkRemoved(originalNetwork);
-            }
-
-        } finally {
-            mutating = false;
+        adjacencyList.remove(networkNode);
+        // remove all adjacent links
+        for (NetworkNode connectedNode : connectedNodes) {
+            adjacencyList.get(connectedNode).remove(networkNode);
         }
-    }
 
-    public void removeNetworkingBlocks(Collection<NetworkNode> networkNodes) {
-        for (NetworkNode node : networkNodes) {
-            removeNetworkingBlock(node);
+        Queue<NetworkNode> needsNewNetwork = Queues.newArrayDeque();
+        needsNewNetwork.addAll(connectedNodes);
+
+        // ensure that the network is still intact, if not,  split it up
+        // touch all nodes in the starting from each of the connected nodes to the removed node
+        // if a nodes is found in a previously touched list, it connects to that network
+        Map<NetworkNode, NetworkNode> visitedNodes = Maps.newHashMap(); // where Key = a node in the network, Value = the connected node it originated from
+        for (NetworkNode connectedNode : connectedNodes) {
+            visitedNodes.put(connectedNode, connectedNode);
+        }
+
+        Queue<NetworkNode> currentNodes = Queues.newArrayDeque();
+        for (NetworkNode connectedNode : connectedNodes) {
+            if (needsNewNetwork.size() == 0) {
+                // we have already verified that nothing needs a new network
+                return;
+            }
+
+            currentNodes.add(connectedNode);
+
+            // search through the nodes connecting to this one
+            while (currentNodes.size() > 0) {
+                NetworkNode currentNode = currentNodes.poll();
+                if (visitedNodes.containsKey(currentNode) && currentNode != connectedNode) {
+                    // we have visited this node already
+                    needsNewNetwork.remove(currentNode);
+                } else {
+                    for (NetworkNode node : adjacencyList.get(currentNode)) {
+                        // add all these adjacent nodes to the list of nodes to visit
+                        currentNodes.add(node);
+                    }
+                }
+                visitedNodes.put(currentNode, connectedNode);
+            }
+        }
+
+        // reuse the existing network
+        needsNewNetwork.poll();
+        // create new networks
+        for (NetworkNode node : needsNewNetwork) {
+            Network newNetwork = new BasicNetwork();
+            Set<NetworkNode> newNetworkNodes = Sets.newHashSet();
+            allNetworks.put(newNetwork, newNetworkNodes);
+            notifyNetworkAdded(newNetwork);
+            Set<NetworkNode> originalNetworkNodes = allNetworks.get(originalNetwork);
+            for (Map.Entry<NetworkNode, NetworkNode> item : visitedNodes.entrySet()) {
+                if (item.getValue() == node) {
+                    originalNetworkNodes.remove(item.getKey());
+                    notifyNetworkingNodeRemoved(originalNetwork, item.getKey());
+                    newNetworkNodes.add(item.getKey());
+                    notifyNetworkingNodeAdded(newNetwork, item.getKey());
+
+                }
+            }
+
+        }
+
+        if (allNetworks.get(originalNetwork).size() == 0) {
+            // this network is empty
+            allNetworks.remove(originalNetwork);
+            notifyNetworkRemoved(originalNetwork);
         }
     }
 
     public Collection<Network> getNetworks() {
         return Collections.unmodifiableCollection(allNetworks.keySet());
     }
-
-    public boolean isNetworkActive(Network network) {
-        return allNetworks.containsKey(network);
-    }
-
 
     private void notifyNetworkAdded(Network network) {
         for (NetworkTopologyListener listener : listeners) {
@@ -264,23 +228,16 @@ public class BlockNetwork {
         }
     }
 
-    private class BasicNetworkFactory implements Supplier<Network> {
-        @Override
-        public Network get() {
-            return new BasicNetwork();
-        }
-    }
-
     public boolean hasNetworkingNode(Network network, NetworkNode networkNode) {
         return allNetworks.get(network).contains(networkNode);
     }
 
     public int getNetworkSize() {
-        return allNetworkNodes.size();
+        return adjacencyList.size();
     }
 
     public Iterable<NetworkNode> getAdjacentNodes(NetworkNode node) {
-        return allNetworkNodes.get(node);
+        return adjacencyList.get(node);
 
     }
 
@@ -325,7 +282,7 @@ public class BlockNetwork {
             NetworkNode currentNode = currentNodes.poll();
 
             int currentConnectedDistance = distances.get(currentNode) + 1;
-            for (NetworkNode connectedNode : allNetworkNodes.get(currentNode)) {
+            for (NetworkNode connectedNode : adjacencyList.get(currentNode)) {
                 // filter out any undesired edges
                 if (edgeFilter != null) {
                     if (!edgeFilter.test(currentNode, connectedNode)) {

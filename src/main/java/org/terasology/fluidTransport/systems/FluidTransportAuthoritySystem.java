@@ -197,6 +197,10 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                             ExtendedFluidManager.removeFluid(sourceTank, totalVolumeTransfered, fluidType);
                         }
                     }
+
+                    FluidPumpComponent fluidPumpComponent = pump.getComponent(FluidPumpComponent.class);
+                    fluidPumpComponent.pressure = 0;
+                    pump.saveComponent(fluidPumpComponent);
                 }
             }
         }

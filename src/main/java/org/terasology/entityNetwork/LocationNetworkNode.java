@@ -15,11 +15,11 @@
  */
 package org.terasology.entityNetwork;
 
-import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
 
 public class LocationNetworkNode extends NetworkNode {
     public final Vector3i location;
+    final int maximumGridDistance = 1;
 
     public LocationNetworkNode(String networkId, boolean isLeaf, Vector3i location) {
         super(networkId, isLeaf);
@@ -54,18 +54,7 @@ public class LocationNetworkNode extends NetworkNode {
     @Override
     public boolean isConnectedTo(NetworkNode networkNode) {
         if (networkNode == null || !(networkNode instanceof LocationNetworkNode)) return false;
-
         LocationNetworkNode locationNetworkNode = (LocationNetworkNode) networkNode;
-
-        // allow for blocks to have multiple network connections
-        if (locationNetworkNode.location.equals(location)) return true;
-
-        for (Side side : Side.values()) {
-            if (locationNetworkNode.location.equals(side.getAdjacentPos(location))) {
-                return true;
-            }
-        }
-
-        return false;
+        return locationNetworkNode.location.gridDistance(location) <= maximumGridDistance;
     }
 }

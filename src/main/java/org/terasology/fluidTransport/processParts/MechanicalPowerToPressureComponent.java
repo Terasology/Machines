@@ -47,7 +47,7 @@ public class MechanicalPowerToPressureComponent implements Component, ProcessPar
         MechanicalPowerConsumerComponent consumer = workstation.getComponent(MechanicalPowerConsumerComponent.class);
         FluidPumpComponent fluidPumpComponent = workstation.getComponent(FluidPumpComponent.class);
         if (consumer != null && fluidPumpComponent != null) {
-            fluidPumpComponent.pressure = consumer.currentStoredPower;
+            fluidPumpComponent.pressure = Math.max(consumer.currentStoredPower, fluidPumpComponent.pressure);
             workstation.saveComponent(fluidPumpComponent);
 
             consumer.currentStoredPower = 0;
@@ -57,11 +57,11 @@ public class MechanicalPowerToPressureComponent implements Component, ProcessPar
 
     @Override
     public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        FluidPumpComponent fluidPumpComponent = workstation.getComponent(FluidPumpComponent.class);
+/*        FluidPumpComponent fluidPumpComponent = workstation.getComponent(FluidPumpComponent.class);
         if (fluidPumpComponent != null) {
             fluidPumpComponent.pressure = 0;
             workstation.saveComponent(fluidPumpComponent);
-        }
+        }*/
     }
 
     @Override
