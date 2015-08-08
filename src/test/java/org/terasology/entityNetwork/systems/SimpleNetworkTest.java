@@ -1,7 +1,9 @@
-package org.terasology.entityNetwork;
+package org.terasology.entityNetwork.systems;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.entityNetwork.NetworkNode;
+import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
 import org.terasology.math.geom.Vector3i;
@@ -23,8 +25,8 @@ public class SimpleNetworkTest {
         upOnly = SideBitFlag.addSide((byte) 0, Side.TOP);
     }
 
-    private SidedLocationNetworkNode toNode(Vector3i location, byte sides) {
-        return new SidedLocationNetworkNode(NETWORK_ID, false, location, sides);
+    private SidedBlockLocationNetworkNode toNode(Vector3i location, byte sides) {
+        return new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, sides);
     }
 
     @Test
@@ -152,8 +154,8 @@ public class SimpleNetworkTest {
 
     @Test
     public void distanceForTwoLeafNodesOnNetwork() {
-        SidedLocationNetworkNode firstLeaf = toNode(new Vector3i(0, 0, 0), allDirections);
-        SidedLocationNetworkNode secondLeaf = toNode(new Vector3i(0, 0, 2), allDirections);
+        SidedBlockLocationNetworkNode firstLeaf = toNode(new Vector3i(0, 0, 0), allDirections);
+        SidedBlockLocationNetworkNode secondLeaf = toNode(new Vector3i(0, 0, 2), allDirections);
         network.addNetworkingBlock(toNode(new Vector3i(0, 0, 1), allDirections));
         network.addNetworkingBlock(secondLeaf);
         network.addNetworkingBlock(firstLeaf);
@@ -165,18 +167,18 @@ public class SimpleNetworkTest {
 
     @Test
     public void distanceFromDifferentSides() {
-        SidedLocationNetworkNode firstLeaf = toNode(new Vector3i(0, 0, 0), allDirections);
-        SidedLocationNetworkNode secondLeaf = toNode(new Vector3i(0, 0, 2), allDirections);
+        SidedBlockLocationNetworkNode firstLeaf = toNode(new Vector3i(0, 0, 0), allDirections);
+        SidedBlockLocationNetworkNode secondLeaf = toNode(new Vector3i(0, 0, 2), allDirections);
         network.addNetworkingBlock(toNode(new Vector3i(0, 0, 1), allDirections));
         network.addNetworkingBlock(toNode(new Vector3i(0, 1, 1), allDirections));
         network.addNetworkingBlock(toNode(new Vector3i(0, 1, 2), allDirections));
         network.addNetworkingBlock(secondLeaf);
         network.addNetworkingBlock(firstLeaf);
 
-        assertTrue(network.isInDistance(2, firstLeaf, secondLeaf, SidedLocationNetworkNode.createSideConnectivityFilter(Side.FRONT, secondLeaf.location)));
-        assertFalse(network.isInDistance(2, firstLeaf, secondLeaf, SidedLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
-        assertFalse(network.isInDistance(3, firstLeaf, secondLeaf, SidedLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
-        assertTrue(network.isInDistance(4, firstLeaf, secondLeaf, SidedLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
+        assertTrue(network.isInDistance(2, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.FRONT, secondLeaf.location)));
+        assertFalse(network.isInDistance(2, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
+        assertFalse(network.isInDistance(3, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
+        assertTrue(network.isInDistance(4, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
     }
 
     @Test

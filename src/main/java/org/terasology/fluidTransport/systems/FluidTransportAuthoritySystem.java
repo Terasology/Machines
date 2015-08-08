@@ -20,7 +20,7 @@ import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.Time;
-import org.terasology.entityNetwork.LocationNetworkNode;
+import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -113,7 +113,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
 
                 // gather the tanks for this network
-                for (LocationNetworkNode node : Iterables.filter(fluidTransportBlockNetwork.getNetworkNodes(network), LocationNetworkNode.class)) {
+                for (BlockLocationNetworkNode node : Iterables.filter(fluidTransportBlockNetwork.getNetworkNodes(network), BlockLocationNetworkNode.class)) {
                     EntityRef entity = blockEntityRegistry.getExistingEntityAt(node.location);
                     if (ExtendedFluidManager.isTank(entity)) {
                         tanksFromBottomUp.put(node.location.y, entity);

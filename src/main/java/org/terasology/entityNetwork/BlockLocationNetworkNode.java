@@ -17,22 +17,27 @@ package org.terasology.entityNetwork;
 
 import org.terasology.math.geom.Vector3i;
 
-public class LocationNetworkNode extends NetworkNode {
+public class BlockLocationNetworkNode extends NetworkNode {
     public final Vector3i location;
-    final int maximumGridDistance = 1;
+    int maximumGridDistance = 1;
 
-    public LocationNetworkNode(String networkId, boolean isLeaf, Vector3i location) {
+    public BlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location) {
         super(networkId, isLeaf);
         this.location = location;
+    }
+
+    public BlockLocationNetworkNode(String networkId, boolean isLeaf, int maximumGridDistance, Vector3i location) {
+        this(networkId, isLeaf, location);
+        this.maximumGridDistance = maximumGridDistance;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof LocationNetworkNode)) return false;
+        if (!(o instanceof BlockLocationNetworkNode)) return false;
         if (!super.equals(o)) return false;
 
-        LocationNetworkNode that = (LocationNetworkNode) o;
+        BlockLocationNetworkNode that = (BlockLocationNetworkNode) o;
 
         if (location != null ? !location.equals(that.location) : that.location != null) return false;
 
@@ -53,8 +58,8 @@ public class LocationNetworkNode extends NetworkNode {
 
     @Override
     public boolean isConnectedTo(NetworkNode networkNode) {
-        if (networkNode == null || !(networkNode instanceof LocationNetworkNode)) return false;
-        LocationNetworkNode locationNetworkNode = (LocationNetworkNode) networkNode;
+        if (networkNode == null || !(networkNode instanceof BlockLocationNetworkNode)) return false;
+        BlockLocationNetworkNode locationNetworkNode = (BlockLocationNetworkNode) networkNode;
         return locationNetworkNode.location.gridDistance(location) <= maximumGridDistance;
     }
 }

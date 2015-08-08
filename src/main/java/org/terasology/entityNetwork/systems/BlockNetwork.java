@@ -1,4 +1,4 @@
-package org.terasology.entityNetwork;
+package org.terasology.entityNetwork.systems;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -7,6 +7,8 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.NetworkNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +18,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiPredicate;
 
-public class BlockNetwork {
+class BlockNetwork {
     private static final Logger logger = LoggerFactory.getLogger(BlockNetwork.class);
 
     private Map<Network, Set<NetworkNode>> allNetworks = Maps.newHashMap();

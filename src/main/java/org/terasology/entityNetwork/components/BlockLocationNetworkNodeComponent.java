@@ -15,7 +15,7 @@
  */
 package org.terasology.entityNetwork.components;
 
-import org.terasology.entityNetwork.LocationNetworkNode;
+import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -24,12 +24,13 @@ import org.terasology.world.block.BlockComponent;
 public class BlockLocationNetworkNodeComponent implements NetworkNodeBuilder {
     public String networkId;
     public boolean isLeaf;
+    public int maximumGridDistance = 1;
 
     @Override
     public NetworkNode build(EntityRef entityRef) {
         BlockComponent blockComponent = entityRef.getComponent(BlockComponent.class);
         if (blockComponent != null) {
-            return new LocationNetworkNode(networkId, isLeaf, blockComponent.getPosition());
+            return new BlockLocationNetworkNode(networkId, isLeaf, maximumGridDistance, blockComponent.getPosition());
         } else {
             return null;
         }

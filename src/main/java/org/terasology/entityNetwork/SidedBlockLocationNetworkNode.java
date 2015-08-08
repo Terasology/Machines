@@ -6,25 +6,25 @@ import org.terasology.math.geom.Vector3i;
 
 import java.util.function.BiPredicate;
 
-public class SidedLocationNetworkNode extends LocationNetworkNode {
+public class SidedBlockLocationNetworkNode extends BlockLocationNetworkNode {
     public final byte connectionSides;
 
-    public SidedLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, byte connectionSides) {
+    public SidedBlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, byte connectionSides) {
         super(networkId, isLeaf, location);
         this.connectionSides = connectionSides;
     }
 
-    public SidedLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, Side... sides) {
+    public SidedBlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, Side... sides) {
         this(networkId, isLeaf, location, SideBitFlag.getSides(sides));
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SidedLocationNetworkNode)) return false;
+        if (!(o instanceof SidedBlockLocationNetworkNode)) return false;
         if (!super.equals(o)) return false;
 
-        SidedLocationNetworkNode that = (SidedLocationNetworkNode) o;
+        SidedBlockLocationNetworkNode that = (SidedBlockLocationNetworkNode) o;
 
         if (connectionSides != that.connectionSides) return false;
 
@@ -47,10 +47,10 @@ public class SidedLocationNetworkNode extends LocationNetworkNode {
     public boolean isConnectedTo(NetworkNode networkNode) {
         if (super.isConnectedTo(networkNode)) {
             byte connectionSidesToTest = 63;
-            if (networkNode instanceof SidedLocationNetworkNode) {
-                connectionSidesToTest = ((SidedLocationNetworkNode) networkNode).connectionSides;
+            if (networkNode instanceof SidedBlockLocationNetworkNode) {
+                connectionSidesToTest = ((SidedBlockLocationNetworkNode) networkNode).connectionSides;
             }
-            LocationNetworkNode locationNetworkNode = (LocationNetworkNode) networkNode;
+            BlockLocationNetworkNode locationNetworkNode = (BlockLocationNetworkNode) networkNode;
             return areConnected(location, connectionSides, locationNetworkNode.location, connectionSidesToTest);
         }
         return false;
@@ -66,7 +66,7 @@ public class SidedLocationNetworkNode extends LocationNetworkNode {
 
     }
 
-    public Side connectionSide(SidedLocationNetworkNode node) {
+    public Side connectionSide(SidedBlockLocationNetworkNode node) {
         Vector3i sideVector = new Vector3i(node.location);
         sideVector.sub(location);
         Side side = Side.inDirection(sideVector.toVector3f());
@@ -88,12 +88,12 @@ public class SidedLocationNetworkNode extends LocationNetworkNode {
 
         @Override
         public boolean test(NetworkNode lhs, NetworkNode rhs) {
-            if (!(lhs instanceof SidedLocationNetworkNode && rhs instanceof SidedLocationNetworkNode)) {
+            if (!(lhs instanceof SidedBlockLocationNetworkNode && rhs instanceof SidedBlockLocationNetworkNode)) {
                 return false;
             }
 
-            SidedLocationNetworkNode source = (SidedLocationNetworkNode) lhs;
-            SidedLocationNetworkNode target = (SidedLocationNetworkNode) rhs;
+            SidedBlockLocationNetworkNode source = (SidedBlockLocationNetworkNode) lhs;
+            SidedBlockLocationNetworkNode target = (SidedBlockLocationNetworkNode) rhs;
 
             if (target.location.equals(targetLocation)) {
                 byte targetSideBitFlag = SideBitFlag.getSide(targetSide);

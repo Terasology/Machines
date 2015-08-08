@@ -17,7 +17,7 @@ package org.terasology.mechanicalPower.systems;
 
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
-import org.terasology.entityNetwork.NetworkTopologyListener;
+import org.terasology.entityNetwork.systems.NetworkTopologyListener;
 import org.terasology.math.geom.Vector3i;
 
 public interface MechanicalPowerBlockNetwork {

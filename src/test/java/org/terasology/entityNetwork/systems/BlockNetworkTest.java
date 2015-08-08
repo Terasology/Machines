@@ -1,10 +1,14 @@
-package org.terasology.entityNetwork;
+package org.terasology.entityNetwork.systems;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.entityNetwork.BlockLocationNetworkNode;
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.NetworkNode;
+import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
 import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
 
@@ -29,8 +33,8 @@ public class BlockNetworkTest {
         allDirections = 63;
     }
 
-    private SidedLocationNetworkNode toNode(Vector3i location, byte directions) {
-        return new SidedLocationNetworkNode(NETWORK_ID, false, location, directions);
+    private SidedBlockLocationNetworkNode toNode(Vector3i location, byte directions) {
+        return new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, directions);
     }
 
     @Test
@@ -100,8 +104,8 @@ public class BlockNetworkTest {
     @Test
     public void addTwoOverlappingCrossingNetworkingNodes() {
         Vector3i location = new Vector3i(0, 0, 0);
-        blockNetwork.addNetworkingBlock(new SidedLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT, Side.LEFT));
-        blockNetwork.addNetworkingBlock(new SidedLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT, Side.BACK));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT, Side.LEFT));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT, Side.BACK));
 
         assertEquals(2, blockNetwork.getNetworks().size());
     }
@@ -121,14 +125,14 @@ public class BlockNetworkTest {
     @Test
     public void cablesInTheSameBlockCanConnectAndHaveCorrectDistance() {
         Vector3i location = new Vector3i(0, 0, 0);
-        final SidedLocationNetworkNode leftRight = new SidedLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT, Side.LEFT);
+        final SidedBlockLocationNetworkNode leftRight = new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT, Side.LEFT);
         blockNetwork.addNetworkingBlock(leftRight);
-        final SidedLocationNetworkNode frontBack = new SidedLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT, Side.BACK);
+        final SidedBlockLocationNetworkNode frontBack = new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT, Side.BACK);
         blockNetwork.addNetworkingBlock(frontBack);
 
-        blockNetwork.addNetworkingBlock(new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 1), allDirections));
-        blockNetwork.addNetworkingBlock(new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 1), allDirections));
-        blockNetwork.addNetworkingBlock(new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 0), allDirections));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 1), allDirections));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 1), allDirections));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 0), allDirections));
 
         assertEquals(1, blockNetwork.getNetworks().size());
 
@@ -137,29 +141,29 @@ public class BlockNetworkTest {
 
     @Test
     public void nodesAgreeAboutConnectivity() {
-        blockNetwork.addNetworkingBlock(new SidedLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), Side.TOP));
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0)));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), Side.TOP));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0)));
 
         assertEquals(1, blockNetwork.getNetworks().size());
 
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, false, new Vector3i(0, -1, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, -1, 0)));
 
         assertEquals(2, blockNetwork.getNetworks().size());
     }
 
     @Test
     public void leafNodesConnectToNormalNodes() {
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0)));
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 1, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 1, 0)));
 
         assertEquals(1, blockNetwork.getNetworks().size());
     }
 
     @Test
     public void leafNodesSplitTheNetworkBetweenNormalNodes() {
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0)));
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 1, 0)));
-        blockNetwork.addNetworkingBlock(new LocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 2, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 1, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 2, 0)));
 
         assertEquals(2, blockNetwork.getNetworks().size());
     }

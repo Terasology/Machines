@@ -1,6 +1,9 @@
-package org.terasology.entityNetwork;
+package org.terasology.entityNetwork.systems;
 
-public interface NetworkTopologyListener {
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.NetworkNode;
+
+interface NetworkTopologyListener {
     public void networkAdded(Network network);
 
     public void networkingNodeAdded(Network network, NetworkNode networkingNode);
