@@ -106,6 +106,11 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     @Override
     public void update(float delta) {
         for (Map.Entry<EntityRef, Collection<NetworkNodeBuilder>> entry : pendingEntitiesToBeAdded.asMap().entrySet()) {
+            if (!entry.getKey().exists() || !entry.getKey().hasComponent(EntityNetworkComponent.class)) {
+                pendingEntitiesToBeAdded.removeAll(entry);
+                continue;
+            }
+
             for (NetworkNodeBuilder builder : Lists.newArrayList(entry.getValue())) {
                 NetworkNode newNetworkNode = builder.build(entry.getKey());
                 if (newNetworkNode != null) {
