@@ -16,9 +16,9 @@
 package org.terasology.mechanicalPower.systems;
 
 import org.terasology.RotationUtils;
-import org.terasology.blockNetwork.Network;
-import org.terasology.blockNetwork.NetworkNode;
-import org.terasology.blockNetwork.NetworkTopologyListener;
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.NetworkNode;
+import org.terasology.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -35,30 +35,23 @@ import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
 import org.terasology.math.Side;
+import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
 import org.terasology.registry.In;
-import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.items.BlockItemComponent;
 
-import java.util.Set;
-
 @RegisterSystem(RegisterMode.CLIENT)
-public class MechanicalPowerClientSystem extends BaseComponentSystem implements NetworkTopologyListener<NetworkNode> {
+public class MechanicalPowerClientSystem extends BaseComponentSystem {
     static final float POWERFOR1RPS = 6.0f;
 
-    @In
-    BlockEntityRegistry blockEntityRegistry;
+    //@In
+    //BlockEntityRegistry blockEntityRegistry;
     @In
     EntityManager entityManager;
     @In
-    MechanicalPowerBlockNetwork mechanicalPowerBlockNetwork;
-
-    @Override
-    public void initialise() {
-        mechanicalPowerBlockNetwork.addTopologyListener(this);
-    }
+    EntityNetworkManager mechanicalPowerBlockNetwork;
 
     @ReceiveEvent
     public void createRenderedAxle(OnAddedComponent event, EntityRef entity, RotatingAxleComponent rotatingAxle, LocationComponent location, BlockComponent block) {
@@ -78,8 +71,10 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         rotatingAxle.renderedEntity = renderedEntityBuilder.build();
         entity.saveComponent(rotatingAxle);
 
-        Network network = mechanicalPowerBlockNetwork.getNetwork(block.getPosition());
-        updateAxlesInNetwork(network);
+        for (NetworkNode node : mechanicalPowerBlockNetwork.getNodesForEntity(entity)) {
+            Network network = mechanicalPowerBlockNetwork.getNetwork(node);
+            updateAxlesInNetwork(network);
+        }
     }
 
     @ReceiveEvent
@@ -91,21 +86,37 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
     @ReceiveEvent
     public void updateAxlesInNetwork(OnChangedComponent event, EntityRef entity, MechanicalPowerProducerComponent powerProducer, BlockComponent block) {
-        Network network = mechanicalPowerBlockNetwork.getNetwork(block.getPosition());
-        updateAxlesInNetwork(network);
+        for (NetworkNode node : mechanicalPowerBlockNetwork.getNodesForEntity(entity)) {
+            Network network = mechanicalPowerBlockNetwork.getNetwork(node);
+            updateAxlesInNetwork(network);
+        }
     }
 
     private void updateAxlesInNetwork(Network network) {
         if (network != null) {
-            MechanicalPowerNetworkDetails details = mechanicalPowerBlockNetwork.getMechanicalPowerNetwork(network);
-            float speed = 1 / (details.totalPower / (details.totalConsumers + 1) / POWERFOR1RPS);
+            float totalPower = 0f;
+            int totalConsumers = 0;
+
             for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
-                if (blockEntityRegistry.hasPermanentBlockEntity(node.location.toVector3i())) {
-                    EntityRef nodeEntity = blockEntityRegistry.getEntityAt(node.location.toVector3i());
+                EntityRef nodeEntity = mechanicalPowerBlockNetwork.getEntityForNode(node);
+                MechanicalPowerProducerComponent producer = nodeEntity.getComponent(MechanicalPowerProducerComponent.class);
+                if (producer != null) {
+                    totalPower += producer.active ? producer.power : 0f;
+                }
+                MechanicalPowerConsumerComponent consumer = nodeEntity.getComponent(MechanicalPowerConsumerComponent.class);
+                if (consumer != null) {
+                    totalConsumers++;
+                }
+
+            }
+
+            float speed = 1 / (totalPower / (totalConsumers + 1) / POWERFOR1RPS);
+            for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
+                EntityRef nodeEntity = mechanicalPowerBlockNetwork.getEntityForNode(node);
 
                     RotatingAxleComponent rotatingAxle = nodeEntity.getComponent(RotatingAxleComponent.class);
                     if (rotatingAxle != null && rotatingAxle.renderedEntity != null) {
-                        if (details.totalPower > 0) {
+                        if (totalPower > 0) {
                             // ensure all axle rotation is turned on
                             turnAxleOn(rotatingAxle.renderedEntity, speed);
                         } else {
@@ -113,7 +124,6 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
                             turnAxleOff(rotatingAxle.renderedEntity);
                         }
                     }
-                }
             }
         }
     }
@@ -139,35 +149,5 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
     private void turnAxleOff(EntityRef renderedEntity) {
         renderedEntity.removeComponent(AnimateRotationComponent.class);
-    }
-
-    @Override
-    public void networkAdded(Network<NetworkNode> network) {
-
-    }
-
-    @Override
-    public void networkingNodesAdded(Network<NetworkNode> network, Set<NetworkNode> networkingNode) {
-        updateAxlesInNetwork(network);
-    }
-
-    @Override
-    public void networkingNodesRemoved(Network<NetworkNode> network, Set<NetworkNode> networkingNode) {
-        updateAxlesInNetwork(network);
-    }
-
-    @Override
-    public void leafNodesAdded(Network<NetworkNode> network, Set<NetworkNode> leafNodes) {
-
-    }
-
-    @Override
-    public void leafNodesRemoved(Network<NetworkNode> network, Set<NetworkNode> leafNodes) {
-
-    }
-
-    @Override
-    public void networkRemoved(Network<NetworkNode> network) {
-
     }
 }

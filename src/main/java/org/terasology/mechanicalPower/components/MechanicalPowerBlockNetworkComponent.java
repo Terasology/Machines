@@ -15,13 +15,14 @@
  */
 package org.terasology.mechanicalPower.components;
 
-import com.google.common.collect.Sets;
+import org.terasology.entityNetwork.components.BlockLocationNetworkNodeComponent;
 import org.terasology.entitySystem.Component;
+import org.terasology.mechanicalPower.systems.MechanicalPowerAuthoritySystem;
 import org.terasology.world.block.ForceBlockActive;
 
-import java.util.Set;
-
 @ForceBlockActive
-public class MechanicalPowerBlockNetworkComponent implements Component {
-    public Set<String> directions = Sets.newHashSet();
+public class MechanicalPowerBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component {
+    public MechanicalPowerBlockNetworkComponent() {
+        networkId = MechanicalPowerAuthoritySystem.NETWORK_ID;
+    }
 }

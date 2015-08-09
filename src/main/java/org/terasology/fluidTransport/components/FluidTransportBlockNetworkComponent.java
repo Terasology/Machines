@@ -15,13 +15,14 @@
  */
 package org.terasology.fluidTransport.components;
 
-import com.google.common.collect.Sets;
+import org.terasology.entityNetwork.components.BlockLocationNetworkNodeComponent;
 import org.terasology.entitySystem.Component;
+import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
 import org.terasology.world.block.ForceBlockActive;
 
-import java.util.Set;
-
 @ForceBlockActive
-public class FluidTransportBlockNetworkComponent implements Component {
-    public Set<String> directions = Sets.newHashSet();
+public class FluidTransportBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component {
+    public FluidTransportBlockNetworkComponent() {
+        this.networkId = FluidTransportAuthoritySystem.NETWORK_ID;
+    }
 }

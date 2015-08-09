@@ -18,9 +18,10 @@ package org.terasology.mechanicalPower.systems;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.blockNetwork.Network;
-import org.terasology.blockNetwork.NetworkNode;
 import org.terasology.engine.Time;
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.NetworkNode;
+import org.terasology.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
@@ -36,22 +37,22 @@ import org.terasology.mechanicalPower.components.MechanicalPowerRegenComponent;
 import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.event.WorkstationStateChanged;
-import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 
 import java.util.Set;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implements UpdateSubscriberSystem {
+    public static final String NETWORK_ID = "MechanicalPower:Power";
     private static final long UPDATE_INTERVAL = 1000;
     private static final Logger logger = LoggerFactory.getLogger(MechanicalPowerAuthoritySystem.class);
 
     @In
     WorldProvider worldProvider;
+    //@In
+    //BlockEntityRegistry blockEntityRegistry;
     @In
-    BlockEntityRegistry blockEntityRegistry;
-    @In
-    MechanicalPowerBlockNetwork mechanicalPowerBlockNetwork;
+    EntityNetworkManager mechanicalPowerBlockNetwork;
     @In
     Time time;
     @In
@@ -82,13 +83,13 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
             }
 
             // add all power distributed through the network
-            for (Network network : mechanicalPowerBlockNetwork.getNetworks()) {
+            for (Network network : mechanicalPowerBlockNetwork.getNetworks(NETWORK_ID)) {
 
                 Set<EntityRef> consumers = Sets.newHashSet();
                 Set<EntityRef> producers = Sets.newHashSet();
                 // gather the consumers and producers for this network
-                for (NetworkNode leafNode : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
-                    EntityRef entity = blockEntityRegistry.getEntityAt(leafNode.location.toVector3i());
+                for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
+                    EntityRef entity = mechanicalPowerBlockNetwork.getEntityForNode(node);
                     if (entity.hasComponent(MechanicalPowerConsumerComponent.class)) {
                         consumers.add(entity);
                     }

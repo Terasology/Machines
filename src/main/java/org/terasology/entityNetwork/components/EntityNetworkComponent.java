@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.fluidTransport.systems;
+package org.terasology.entityNetwork.components;
 
-public class FluidTransportNetworkDetails {
+import org.terasology.entitySystem.Component;
+
+public class EntityNetworkComponent implements Component {
+    public String connectionsPrefab;
 }

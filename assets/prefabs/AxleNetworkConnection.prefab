@@ -1,0 +1,9 @@
+{
+  "MechanicalPowerSidedBlockNetwork": {
+    "isLeaf": false,
+    "directions": [
+      "FORWARD",
+      "BACKWARD"
+    ]
+  }
+}

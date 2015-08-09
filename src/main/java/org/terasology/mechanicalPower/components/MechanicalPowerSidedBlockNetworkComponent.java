@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2015 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,14 @@
  */
 package org.terasology.mechanicalPower.components;
 
+import org.terasology.entityNetwork.components.SidedBlockLocationNetworkNodeComponent;
 import org.terasology.entitySystem.Component;
+import org.terasology.mechanicalPower.systems.MechanicalPowerAuthoritySystem;
+import org.terasology.world.block.ForceBlockActive;
 
-public class MechanicalPowerConductorComponent implements Component {
+@ForceBlockActive
+public class MechanicalPowerSidedBlockNetworkComponent extends SidedBlockLocationNetworkNodeComponent implements Component {
+    public MechanicalPowerSidedBlockNetworkComponent() {
+        networkId = MechanicalPowerAuthoritySystem.NETWORK_ID;
+    }
 }

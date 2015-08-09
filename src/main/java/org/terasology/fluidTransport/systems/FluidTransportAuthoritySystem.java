@@ -15,12 +15,14 @@
  */
 package org.terasology.fluidTransport.systems;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.blockNetwork.Network;
-import org.terasology.blockNetwork.NetworkNode;
 import org.terasology.engine.Time;
+import org.terasology.entityNetwork.BlockLocationNetworkNode;
+import org.terasology.entityNetwork.Network;
+import org.terasology.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
@@ -52,6 +54,7 @@ import java.util.SortedMap;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class FluidTransportAuthoritySystem extends BaseComponentSystem implements UpdateSubscriberSystem {
+    public static final String NETWORK_ID = "FluidTransport:Fluids";
     public static final long UPDATE_INTERVAL = 1000;
     private static final Logger logger = LoggerFactory.getLogger(FluidTransportAuthoritySystem.class);
 
@@ -60,7 +63,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
     @In
     BlockEntityRegistry blockEntityRegistry;
     @In
-    FluidTransportBlockNetwork fluidTransportBlockNetwork;
+    EntityNetworkManager fluidTransportBlockNetwork;
     @In
     Time time;
     @In
@@ -95,7 +98,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
             // flow in and out of a tank is restricted to a static rate
 
             // distribute all fluid through the network
-            for (Network network : fluidTransportBlockNetwork.getNetworks()) {
+            for (Network network : fluidTransportBlockNetwork.getNetworks(NETWORK_ID)) {
 
                 SortedMap<Integer, EntityRef> tanksFromTopDown = Maps.newTreeMap(new Comparator<Integer>() {
                     @Override
@@ -110,13 +113,13 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
 
                 // gather the tanks for this network
-                for (NetworkNode leafNode : fluidTransportBlockNetwork.getNetworkNodes(network)) {
-                    EntityRef entity = blockEntityRegistry.getExistingEntityAt(leafNode.location.toVector3i());
+                for (BlockLocationNetworkNode node : Iterables.filter(fluidTransportBlockNetwork.getNetworkNodes(network), BlockLocationNetworkNode.class)) {
+                    EntityRef entity = blockEntityRegistry.getExistingEntityAt(node.location);
                     if (ExtendedFluidManager.isTank(entity)) {
-                        tanksFromBottomUp.put(leafNode.location.y, entity);
-                        tanksFromTopDown.put(leafNode.location.y, entity);
+                        tanksFromBottomUp.put(node.location.y, entity);
+                        tanksFromTopDown.put(node.location.y, entity);
                     } else if (entity.hasComponent(FluidPumpComponent.class)) {
-                        pumpsFromBottomUp.put(leafNode.location.y, entity);
+                        pumpsFromBottomUp.put(node.location.y, entity);
                     }
                 }
 
@@ -194,6 +197,10 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                             ExtendedFluidManager.removeFluid(sourceTank, totalVolumeTransfered, fluidType);
                         }
                     }
+
+                    FluidPumpComponent fluidPumpComponent = pump.getComponent(FluidPumpComponent.class);
+                    fluidPumpComponent.pressure = 0;
+                    pump.saveComponent(fluidPumpComponent);
                 }
             }
         }

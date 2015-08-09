@@ -17,7 +17,8 @@ package org.terasology.fluidTransport.world;
 
 
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.fluidTransport.components.FluidTransportBlockNetworkComponent;
+import org.terasology.fluidTransport.components.FluidPipeComponent;
+import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.systems.ExtendedFluidManager;
 import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
@@ -46,7 +47,8 @@ public class FluidPipesBlockFamilyFactory extends UpdatesWithNeighboursFamilyFac
 
         private boolean connectsToNeighbor(EntityRef neighborEntity) {
             BlockComponent blockComponent = neighborEntity.getComponent(BlockComponent.class);
-            return neighborEntity.hasComponent(FluidTransportBlockNetworkComponent.class)
+            return neighborEntity.hasComponent(FluidPipeComponent.class)
+                    || neighborEntity.hasComponent(FluidPumpComponent.class)
                     || (blockComponent != null && blockComponent.getBlock().isLiquid())
                     || ExtendedFluidManager.isTank(neighborEntity);
         }
