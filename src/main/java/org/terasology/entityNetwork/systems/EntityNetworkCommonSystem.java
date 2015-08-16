@@ -28,17 +28,19 @@ import org.terasology.entityNetwork.components.EntityNetworkComponent;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.logic.health.DoDestroyEvent;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
+import org.terasology.world.block.BlockComponent;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -56,8 +58,33 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
 
     @ReceiveEvent
     public void onRemovedEntityNetwork(BeforeDeactivateComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+        removeEntityFromNetworks(entityRef);
+    }
+
+
+    @ReceiveEvent
+    public void onDestroyEntityNetwork(DoDestroyEvent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+        removeEntityFromNetworks(entityRef);
+    }
+
+
+    private void removeEntityFromNetworks(EntityRef entityRef) {
         for (NetworkNode node : Lists.newArrayList(nodeLookup.get(entityRef))) {
             remove(entityRef, node);
+        }
+    }
+
+    private void addEntityToNetworks(EntityRef entityRef) {
+        Prefab entityPrefab = entityRef.getParentPrefab();
+
+        // Treat block entities differently as they do not follow normal entity creation with an expected parentPrefab
+        BlockComponent blockComponent = entityRef.getComponent(BlockComponent.class);
+        if (blockComponent != null) {
+            entityPrefab = blockComponent.getBlock().getPrefab().get();
+        }
+
+        if (entityPrefab != null) {
+            addToNetworkViaBuilders(entityRef, entityPrefab);
         }
     }
 
@@ -87,11 +114,27 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
         nodeLookup.put(entityRef, node);
     }
 
+    /**
+     * Treat block entities differently as they do not follow normal entity creation with an expected parentPrefab
+     */
+    @ReceiveEvent
+    public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent, BlockComponent blockComponent) {
+        addEntityToNetworks(entityRef);
+    }
+
     @ReceiveEvent
     public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
-        Prefab connectionsPrefab = assetManager.getAsset(entityNetworkComponent.connectionsPrefab, Prefab.class).get();
-        List<NetworkNodeBuilder> networkNodeBuilders = Lists.newArrayList();
-        for (NetworkNodeBuilder builder : Iterables.filter(connectionsPrefab.iterateComponents(), NetworkNodeBuilder.class)) {
+        addEntityToNetworks(entityRef);
+    }
+
+    @ReceiveEvent
+    public void onChangedEntityNetwork(OnChangedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+        removeEntityFromNetworks(entityRef);
+        addEntityToNetworks(entityRef);
+    }
+
+    private void addToNetworkViaBuilders(EntityRef entityRef, Prefab entityPrefab) {
+        for (NetworkNodeBuilder builder : Iterables.filter(entityPrefab.iterateComponents(), NetworkNodeBuilder.class)) {
             NetworkNode newNetworkNode = builder.build(entityRef);
             if (newNetworkNode != null) {
                 // we could already determine the type of network node, add it to the network

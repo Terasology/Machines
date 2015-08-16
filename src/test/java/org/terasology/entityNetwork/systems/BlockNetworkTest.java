@@ -168,6 +168,15 @@ public class BlockNetworkTest {
         assertEquals(2, blockNetwork.getNetworks().size());
     }
 
+    @Test
+    public void leafNodesConnectToLeafNodes() {
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 0, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 1, 0)));
+        blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, true, new Vector3i(0, 2, 0)));
+
+        assertEquals(2, blockNetwork.getNetworks().size());
+    }
+
     private class TestListener implements NetworkTopologyListener {
         public int networksAdded;
         public int networksRemoved;

@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.terasology.entityNetwork.components;
+package org.terasology.fluidTransport.world;
 
-import org.terasology.entitySystem.Component;
 
-public class EntityNetworkComponent implements Component {
+import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
+import org.terasology.machines.world.SameNetworkByBlockBlockFamilyFactory;
+import org.terasology.world.block.family.RegisterBlockFamilyFactory;
+
+@RegisterBlockFamilyFactory("FluidTransport:FluidPipeBlock")
+public class FluidPipeBlockBlockFamilyFactory extends SameNetworkByBlockBlockFamilyFactory {
+    public FluidPipeBlockBlockFamilyFactory() {
+        super(x -> x.getNetworkId().equals(FluidTransportAuthoritySystem.NETWORK_ID));
+    }
 }
