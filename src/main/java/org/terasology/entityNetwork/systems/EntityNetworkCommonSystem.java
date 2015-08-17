@@ -25,6 +25,7 @@ import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.components.EntityNetworkComponent;
+import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
 import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
@@ -34,7 +35,7 @@ import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
-import org.terasology.logic.health.DoDestroyEvent;
+import org.terasology.logic.console.commandSystem.annotations.Command;
 import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.world.block.BlockComponent;
@@ -55,18 +56,13 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
 
     @In
     AssetManager assetManager;
+    @In
+    EntityManager entityManager;
 
     @ReceiveEvent
     public void onRemovedEntityNetwork(BeforeDeactivateComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
         removeEntityFromNetworks(entityRef);
     }
-
-
-    @ReceiveEvent
-    public void onDestroyEntityNetwork(DoDestroyEvent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
-        removeEntityFromNetworks(entityRef);
-    }
-
 
     private void removeEntityFromNetworks(EntityRef entityRef) {
         for (NetworkNode node : Lists.newArrayList(nodeLookup.get(entityRef))) {
@@ -100,18 +96,20 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     }
 
     private void add(EntityRef entityRef, NetworkNode node) {
-        entityLookup.put(node, entityRef);
+        if (!entityLookup.containsKey(node)) {
+            entityLookup.put(node, entityRef);
 
-        // add to the actual network
-        String networkId = node.getNetworkId();
-        BlockNetwork blockNetwork = blockNetworks.get(networkId);
-        if (blockNetwork == null) {
-            blockNetwork = new BlockNetwork();
-            blockNetworks.put(networkId, blockNetwork);
+            // add to the actual network
+            String networkId = node.getNetworkId();
+            BlockNetwork blockNetwork = blockNetworks.get(networkId);
+            if (blockNetwork == null) {
+                blockNetwork = new BlockNetwork();
+                blockNetworks.put(networkId, blockNetwork);
+            }
+            blockNetwork.addNetworkingBlock(node);
+
+            nodeLookup.put(entityRef, node);
         }
-        blockNetwork.addNetworkingBlock(node);
-
-        nodeLookup.put(entityRef, node);
     }
 
     /**
@@ -204,5 +202,22 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     public Network getNetwork(NetworkNode node) {
         BlockNetwork blockNetwork = blockNetworks.get(node.getNetworkId());
         return blockNetwork.getNetwork(node);
+    }
+
+    @Command(shortDescription = "Resets the entity network and reconnects everything", runOnServer = true)
+    public String entityNetworkResetAllNetworks() {
+        resetAllNetworks();
+        return "Networks Reset";
+    }
+
+    private void resetAllNetworks() {
+        nodeLookup.clear();
+        entityLookup.clear();
+        blockNetworks.clear();
+        pendingEntitiesToBeAdded.clear();
+
+        for (EntityRef entityRef : entityManager.getEntitiesWith(EntityNetworkComponent.class)) {
+            addEntityToNetworks(entityRef);
+        }
     }
 }
