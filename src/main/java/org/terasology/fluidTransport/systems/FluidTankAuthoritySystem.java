@@ -37,19 +37,22 @@ public class FluidTankAuthoritySystem extends BaseComponentSystem {
                                        FluidContainerItemComponent fluidContainer) {
         EntityRef targetBlockEntity = event.getTarget();
         if (ExtendedFluidManager.isTank(targetBlockEntity)) {
-            float tankVolume = ExtendedFluidManager.getTankFluidVolume(targetBlockEntity);
-            float tankEmptyVolume = ExtendedFluidManager.getTankEmptyVolume(targetBlockEntity);
-            String tankFluidType = ExtendedFluidManager.getTankFluidType(targetBlockEntity);
+            float inputTankVolume = ExtendedFluidManager.getTankFluidVolume(targetBlockEntity, true);
+            float inputTankEmptyVolume = ExtendedFluidManager.getTankEmptyVolume(targetBlockEntity, true);
+            String inputTankFluidType = ExtendedFluidManager.getTankFluidType(targetBlockEntity, true);
+            float outputTankVolume = ExtendedFluidManager.getTankFluidVolume(targetBlockEntity, false);
+            float outputTankEmptyVolume = ExtendedFluidManager.getTankEmptyVolume(targetBlockEntity, false);
+            String outputTankFluidType = ExtendedFluidManager.getTankFluidType(targetBlockEntity, false);
 
-            if (fluidContainer.volume <= tankVolume && fluidContainer.fluidType == null && tankFluidType != null) {
+            if (fluidContainer.volume <= outputTankVolume && fluidContainer.fluidType == null && outputTankFluidType != null) {
                 // fill the container from the block
-                fillFluidContainer(event, item, tankFluidType);
-                ExtendedFluidManager.removeFluid(targetBlockEntity, fluidContainer.volume, tankFluidType);
-            } else if (fluidContainer.fluidType != null && fluidContainer.volume <= tankEmptyVolume
+                fillFluidContainer(event, item, outputTankFluidType);
+                ExtendedFluidManager.removeFluid(targetBlockEntity, fluidContainer.volume, outputTankFluidType);
+            } else if (fluidContainer.fluidType != null && fluidContainer.volume <= inputTankEmptyVolume
                     // if the fluid types are the same,  or if the block does not have a fluid type
-                    && (tankFluidType == null || tankFluidType.equals(fluidContainer.fluidType))) {
+                    && (inputTankFluidType == null || inputTankFluidType.equals(fluidContainer.fluidType))) {
                 // empty the container to the block
-                ExtendedFluidManager.giveFluid(targetBlockEntity, fluidContainer.volume, fluidContainer.fluidType);
+                ExtendedFluidManager.giveFluid(targetBlockEntity, fluidContainer.volume, fluidContainer.fluidType, true);
                 fillFluidContainer(event, item, null);
             }
         }

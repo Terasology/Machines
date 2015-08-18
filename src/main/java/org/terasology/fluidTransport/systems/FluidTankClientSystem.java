@@ -60,9 +60,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     public void onTankChanged(OnChangedComponent event, EntityRef entityRef,
                               FluidTankDisplayComponent fluidTankDisplayComponent,
                               FluidInventoryComponent fluidInventoryComponent) {
-        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
-        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
-        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef);
+        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef, true);
+        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef, true);
+        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef, true);
         if (tankFluidVolume == 0) {
             entityRef.removeComponent(FluidDisplayComponent.class);
         } else {
@@ -74,9 +74,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     public void onTankActivated(OnActivatedComponent event, EntityRef entityRef,
                                 FluidTankDisplayComponent fluidTankDisplayComponent,
                                 FluidInventoryComponent fluidInventoryComponent) {
-        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
-        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
-        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef);
+        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef, true);
+        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef, true);
+        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef, true);
         if (tankFluidVolume > 0) {
             setDisplayMesh(entityRef, tankFluidVolume / tankTotalVolume, tankFluidType);
         }
@@ -185,9 +185,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
     @ReceiveEvent
     public void getDurabilityItemTooltip(GetItemTooltip event, EntityRef entityRef, FluidInventoryComponent fluidInventoryComponent) {
-        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef);
-        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef);
-        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef);
+        float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef, true);
+        float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef, true);
+        String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef, true);
         String fluidDisplay = tankFluidType == null ? "Fluid" : fluidRegistry.getFluidRenderer(tankFluidType).getFluidName();
         event.getTooltipLines().add(new TooltipLine(fluidDisplay + ": " + tankFluidVolume + "/" + tankTotalVolume));
     }

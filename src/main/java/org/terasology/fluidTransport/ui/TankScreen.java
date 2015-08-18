@@ -41,8 +41,8 @@ public class TankScreen extends BaseInteractionScreen {
             fluidContainerWidget.bindText(new ReadOnlyBinding<String>() {
                 @Override
                 public String get() {
-                    float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(getInteractionTarget());
-                    float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(getInteractionTarget());
+                    float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(getInteractionTarget(), true);
+                    float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(getInteractionTarget(), true);
                     return tankFluidVolume + "/" + tankTotalVolume + "mL";
                 }
             });

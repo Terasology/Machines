@@ -129,9 +129,9 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                     if (tank.hasComponent(FluidTankDropsFluidComponent.class)) {
                         Vector3i tankBelowLocation = Side.BOTTOM.getAdjacentPos(getLocation(tank));
                         EntityRef tankBelow = blockEntityRegistry.getEntityAt(tankBelowLocation);
-                        String fluidType = ExtendedFluidManager.getTankFluidType(tank);
+                        String fluidType = ExtendedFluidManager.getTankFluidType(tank, true);
                         if (tankBelow.hasComponent(FluidInventoryComponent.class)) {
-                            float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow, ExtendedFluidManager.getTankFluidVolume(tank), fluidType);
+                            float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow, ExtendedFluidManager.getTankFluidVolume(tank, true), fluidType, true);
                             ExtendedFluidManager.removeFluid(tank, volumeGiven, fluidType);
                         }
                     }
@@ -140,13 +140,13 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                 // distribute gravity flow
                 for (EntityRef tank : tanksFromTopDown.values()) {
                     float tankElevation = getTankElevation(tank);
-                    float remainingFlow = getTankFlowAvailable(tank);
+                    float remainingFlow = getTankFlowAvailable(tank, false);
                     float totalVolumeTransfered = 0;
-                    String fluidType = ExtendedFluidManager.getTankFluidType(tank);
+                    String fluidType = ExtendedFluidManager.getTankFluidType(tank, false);
 
                     for (EntityRef downstreamTank : tanksFromTopDown.values()) {
                         if (!downstreamTank.equals(tank) && getTankElevation(downstreamTank) < tankElevation && remainingFlow > 0) {
-                            float volumeTransfered = ExtendedFluidManager.giveFluid(downstreamTank, remainingFlow, fluidType);
+                            float volumeTransfered = ExtendedFluidManager.giveFluid(downstreamTank, remainingFlow, fluidType, true);
                             totalVolumeTransfered += volumeTransfered;
                             remainingFlow -= volumeTransfered;
                         }
@@ -163,6 +163,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                     EntityRef sourceTank = null;
                     String fluidType = null;
+
                     // check each side for a valid source of liquid
                     for (Side side : Side.values()) {
                         Vector3i sidePosition = side.getAdjacentPos(getLocation(pump));
@@ -178,7 +179,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                         EntityRef sideEntity = blockEntityRegistry.getEntityAt(sidePosition);
                         if (ExtendedFluidManager.isTank(sideEntity)) {
                             sourceTank = sideEntity;
-                            fluidType = ExtendedFluidManager.getTankFluidType(sideEntity);
+                            fluidType = ExtendedFluidManager.getTankFluidType(sideEntity, false);
                             break;
                         }
                     }
@@ -187,7 +188,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                         // distribute this fluid
                         for (EntityRef tank : tanksFromBottomUp.values()) {
                             if (!tank.equals(sourceTank) && getTankElevation(tank) < pumpWorldPressure && remainingFlow > 0) {
-                                float volumeTransfered = ExtendedFluidManager.giveFluid(tank, remainingFlow, fluidType);
+                                float volumeTransfered = ExtendedFluidManager.giveFluid(tank, remainingFlow, fluidType, true);
                                 remainingFlow -= volumeTransfered;
                                 totalVolumeTransfered += volumeTransfered;
                             }
@@ -206,7 +207,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
         }
     }
 
-    private float getTankFlowAvailable(EntityRef tank) {
+    private float getTankFlowAvailable(EntityRef tank, boolean forInput) {
         float totalFlow = 0;
         for (Side side : Side.values()) {
             Vector3i sidePosition = side.getAdjacentPos(getLocation(tank));
@@ -219,7 +220,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
             }
         }
 
-        return Math.min(totalFlow, ExtendedFluidManager.getTankFluidVolume(tank));
+        return Math.min(totalFlow, ExtendedFluidManager.getTankFluidVolume(tank, forInput));
     }
 
     private Vector3i getLocation(EntityRef entity) {

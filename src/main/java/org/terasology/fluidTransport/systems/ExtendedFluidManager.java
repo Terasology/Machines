@@ -15,11 +15,17 @@
  */
 package org.terasology.fluidTransport.systems;
 
+import com.google.common.collect.Iterables;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
+import org.terasology.logic.inventory.InventoryAccessComponent;
+import org.terasology.math.IntegerRange;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.workstation.process.WorkstationInventoryUtils;
+import org.terasology.workstation.process.fluid.FluidInputComponent;
+import org.terasology.workstation.process.fluid.FluidOutputComponent;
 
 public final class ExtendedFluidManager {
 
@@ -34,9 +40,9 @@ public final class ExtendedFluidManager {
     }
 
 
-    public static float giveFluid(EntityRef entity, float volume, String fluidType) {
+    public static float giveFluid(EntityRef entity, float volume, String fluidType, boolean forInput) {
         FluidManager fluidManager = CoreRegistry.get(FluidManager.class);
-        float amountToGive = Math.min(volume, getFirstFluidSlotMaximumVolume(entity) - getTankFluidVolume(entity));
+        float amountToGive = Math.min(volume, getFirstFluidSlotMaximumVolume(entity, forInput) - getTankFluidVolume(entity, forInput));
         if (fluidManager.addFluid(entity, entity, fluidType, amountToGive)) {
             return amountToGive;
         } else {
@@ -44,12 +50,12 @@ public final class ExtendedFluidManager {
         }
     }
 
-    public static float getTankTotalVolume(EntityRef entity) {
-        return getFirstFluidSlotMaximumVolume(entity);
+    public static float getTankTotalVolume(EntityRef entity, boolean forInput) {
+        return getFirstFluidSlotMaximumVolume(entity, forInput);
     }
 
-    public static String getTankFluidType(EntityRef entity) {
-        FluidComponent fluidComponent = getFirstFluidSlotFluidComponent(entity);
+    public static String getTankFluidType(EntityRef entity, boolean forInput) {
+        FluidComponent fluidComponent = getFirstFluidSlotFluidComponent(entity, forInput);
         if (fluidComponent != null) {
             return fluidComponent.fluidType;
         } else {
@@ -57,8 +63,8 @@ public final class ExtendedFluidManager {
         }
     }
 
-    public static float getTankFluidVolume(EntityRef entity) {
-        FluidComponent fluidComponent = getFirstFluidSlotFluidComponent(entity);
+    public static float getTankFluidVolume(EntityRef entity, boolean forInput) {
+        FluidComponent fluidComponent = getFirstFluidSlotFluidComponent(entity, forInput);
         if (fluidComponent != null) {
             return fluidComponent.volume;
         } else {
@@ -66,8 +72,8 @@ public final class ExtendedFluidManager {
         }
     }
 
-    private static FluidComponent getFirstFluidSlotFluidComponent(EntityRef entity) {
-        Integer mainFluidSlot = getFirstFluidSlot(entity);
+    private static FluidComponent getFirstFluidSlotFluidComponent(EntityRef entity, boolean forInput) {
+        Integer mainFluidSlot = getFirstFluidSlot(entity, forInput);
         if (mainFluidSlot != null) {
             FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
             return fluidInventoryComponent.fluidSlots.get(mainFluidSlot).getComponent(FluidComponent.class);
@@ -76,9 +82,9 @@ public final class ExtendedFluidManager {
         }
     }
 
-    private static float getFirstFluidSlotMaximumVolume(EntityRef entity) {
+    private static float getFirstFluidSlotMaximumVolume(EntityRef entity, boolean forInput) {
         FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
-        Integer mainFluidSlot = getFirstFluidSlot(entity);
+        Integer mainFluidSlot = getFirstFluidSlot(entity, forInput);
 
         if (mainFluidSlot != null) {
             return fluidInventoryComponent.maximumVolumes.get(mainFluidSlot);
@@ -87,14 +93,31 @@ public final class ExtendedFluidManager {
         }
     }
 
-    private static Integer getFirstFluidSlot(EntityRef entity) {
+    private static Integer getFirstFluidSlot(EntityRef entity, boolean forInput) {
         FluidInventoryComponent fluidInventoryComponent = entity.getComponent(FluidInventoryComponent.class);
         if (fluidInventoryComponent != null) {
-            for (int i = 0; i < fluidInventoryComponent.fluidSlots.size(); i++) {
-                if (fluidInventoryComponent.fluidSlots.get(i).exists()) {
-                    return i;
+            Iterable<Integer> slotRange;
+            InventoryAccessComponent inventoryAccessComponent = entity.getComponent(InventoryAccessComponent.class);
+            if (inventoryAccessComponent != null) {
+                if (forInput) {
+                    slotRange = WorkstationInventoryUtils.getAssignedInputSlots(entity, FluidInputComponent.FLUIDINPUTCATEGORY);
+                } else {
+                    slotRange = WorkstationInventoryUtils.getAssignedOutputSlots(entity, FluidOutputComponent.FLUIDOUTPUTCATEGORY);
+                }
+            } else {
+                // use all slots
+                IntegerRange intRange = new IntegerRange();
+                intRange.addNumbers(0, fluidInventoryComponent.fluidSlots.size() - 1);
+                slotRange = intRange;
+            }
+
+            for (Integer slotIndex : slotRange) {
+                if (fluidInventoryComponent.fluidSlots.get(slotIndex).exists()) {
+                    return slotIndex;
                 }
             }
+
+            return Iterables.getFirst(slotRange, 0);
         }
         return 0;
     }
@@ -103,8 +126,8 @@ public final class ExtendedFluidManager {
         return entity.hasComponent(FluidInventoryComponent.class);
     }
 
-    public static float getTankEmptyVolume(EntityRef entity) {
-        return getTankTotalVolume(entity) - getTankFluidVolume(entity);
+    public static float getTankEmptyVolume(EntityRef entity, boolean forInput) {
+        return getTankTotalVolume(entity, forInput) - getTankFluidVolume(entity, forInput);
 
     }
 }
