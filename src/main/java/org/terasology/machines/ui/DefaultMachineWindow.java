@@ -57,8 +57,8 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
     private UIContainer inputWidgets;
     private ProcessListWidget processList;
 
-
     private String validProcessId;
+    private long nextProcessResultRefreshTime;
 
     @Override
     public void initialise() {
@@ -208,8 +208,12 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 }
             }
 
+            Time time = CoreRegistry.get(Time.class);
+            long currentTime = time.getRealTimeInMs();
+
             // find the process that will run
-            if (processResult != null) {
+            if (processResult != null && currentTime > nextProcessResultRefreshTime) {
+                nextProcessResultRefreshTime = currentTime + 200;
                 // check for valid processes
                 EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
                 WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
