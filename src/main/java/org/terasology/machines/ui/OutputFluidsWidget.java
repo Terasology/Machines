@@ -20,5 +20,6 @@ import org.terasology.workstation.process.fluid.FluidOutputComponent;
 public class OutputFluidsWidget extends FluidsWidget {
     public OutputFluidsWidget() {
         super(FluidOutputComponent.FLUIDOUTPUTCATEGORY);
+        isOutput = true;
     }
 }

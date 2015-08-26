@@ -89,7 +89,7 @@ public final class ExtendedFluidManager {
         if (mainFluidSlot != null) {
             return fluidInventoryComponent.maximumVolumes.get(mainFluidSlot);
         } else {
-            return fluidInventoryComponent.maximumVolumes.get(0);
+            return Iterables.getFirst(fluidInventoryComponent.maximumVolumes, 0f);
         }
     }
 
@@ -117,9 +117,9 @@ public final class ExtendedFluidManager {
                 }
             }
 
-            return Iterables.getFirst(slotRange, 0);
+            return Iterables.getFirst(slotRange, null);
         }
-        return 0;
+        return null;
     }
 
     public static boolean isTank(EntityRef entity) {

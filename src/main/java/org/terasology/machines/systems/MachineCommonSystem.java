@@ -20,6 +20,7 @@ import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.logic.inventory.InventoryAccessComponent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
@@ -57,6 +58,20 @@ public class MachineCommonSystem extends BaseComponentSystem {
             entity.addComponent(inventoryComponent);
         }
 
+        // configure the fluid inventories
+        if (!entity.hasComponent(FluidInventoryComponent.class)) {
+            FluidInventoryComponent fluidInventoryComponent = new FluidInventoryComponent();
+            for (float volume : machineDefinition.fluidInputSlotVolumes) {
+                fluidInventoryComponent.fluidSlots.add(EntityRef.NULL);
+                fluidInventoryComponent.maximumVolumes.add(volume);
+            }
+            for (float volume : machineDefinition.fluidOutputSlotVolumes) {
+                fluidInventoryComponent.fluidSlots.add(EntityRef.NULL);
+                fluidInventoryComponent.maximumVolumes.add(volume);
+            }
+            entity.addComponent(fluidInventoryComponent);
+        }
+
         // configure the categorized inventory
         if (!entity.hasComponent(InventoryAccessComponent.class)) {
             InventoryAccessComponent categorizedInventory = new InventoryAccessComponent();
@@ -71,10 +86,15 @@ public class MachineCommonSystem extends BaseComponentSystem {
                     createSlotRange(totalInputSlots, machineDefinition.outputSlots));
 
             // add fluid slot assignments
-            categorizedInventory.input.put(FluidInputComponent.FLUIDINPUTCATEGORY,
-                    createSlotRange(0, 1));
-            categorizedInventory.output.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY,
-                    createSlotRange(1, 1));
+            if (machineDefinition.fluidInputSlotVolumes.size() > 0) {
+                categorizedInventory.input.put(FluidInputComponent.FLUIDINPUTCATEGORY,
+                        createSlotRange(0, machineDefinition.fluidInputSlotVolumes.size()));
+            }
+            if (machineDefinition.fluidOutputSlotVolumes.size() > 0) {
+                categorizedInventory.output.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY,
+                        createSlotRange(machineDefinition.fluidInputSlotVolumes.size(), machineDefinition.fluidOutputSlotVolumes.size()));
+            }
+
             entity.addComponent(categorizedInventory);
         }
     }

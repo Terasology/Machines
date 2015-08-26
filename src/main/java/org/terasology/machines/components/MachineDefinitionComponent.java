@@ -15,10 +15,12 @@
  */
 package org.terasology.machines.components;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.terasology.entitySystem.Component;
 import org.terasology.world.block.ForceBlockActive;
 
+import java.util.List;
 import java.util.Set;
 
 @ForceBlockActive
@@ -32,4 +34,6 @@ public class MachineDefinitionComponent implements Component {
     public String actionTitle = "Execute";
     public Set<String> outputWidgets = Sets.newHashSet();
     public Set<String> inputWidgets = Sets.newHashSet();
+    public List<Float> fluidInputSlotVolumes = Lists.newLinkedList();
+    public List<Float> fluidOutputSlotVolumes = Lists.newLinkedList();
 }
