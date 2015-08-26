@@ -72,8 +72,9 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
         entity.saveComponent(rotatingAxle);
 
         for (NetworkNode node : mechanicalPowerBlockNetwork.getNodesForEntity(entity)) {
-            Network network = mechanicalPowerBlockNetwork.getNetwork(node);
-            updateAxlesInNetwork(network);
+            for (Network network : mechanicalPowerBlockNetwork.getNetworks(node)) {
+                updateAxlesInNetwork(network);
+            }
         }
     }
 
@@ -87,8 +88,9 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
     @ReceiveEvent
     public void updateAxlesInNetwork(OnChangedComponent event, EntityRef entity, MechanicalPowerProducerComponent powerProducer, BlockComponent block) {
         for (NetworkNode node : mechanicalPowerBlockNetwork.getNodesForEntity(entity)) {
-            Network network = mechanicalPowerBlockNetwork.getNetwork(node);
-            updateAxlesInNetwork(network);
+            for (Network network : mechanicalPowerBlockNetwork.getNetworks(node)) {
+                updateAxlesInNetwork(network);
+            }
         }
     }
 

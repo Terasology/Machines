@@ -166,7 +166,7 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     }
 
     @Override
-    public Iterable<NetworkNode> getNetworkNodes(Network network) {
+    public Collection<NetworkNode> getNetworkNodes(Network network) {
         for (BlockNetwork blockNetwork : blockNetworks.values()) {
             if (blockNetwork.getNetworks().contains(network)) {
                 return blockNetwork.getNetworkNodes(network);
@@ -176,7 +176,7 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     }
 
     @Override
-    public Iterable<Network> getNetworks(String networkId) {
+    public Collection<Network> getNetworks(String networkId) {
         if (blockNetworks.containsKey(networkId)) {
             return blockNetworks.get(networkId).getNetworks();
         }
@@ -199,9 +199,9 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     }
 
     @Override
-    public Network getNetwork(NetworkNode node) {
+    public Collection<Network> getNetworks(NetworkNode node) {
         BlockNetwork blockNetwork = blockNetworks.get(node.getNetworkId());
-        return blockNetwork.getNetwork(node);
+        return blockNetwork.getNetworks(node);
     }
 
     @Command(shortDescription = "Resets the entity network and reconnects everything", runOnServer = true)

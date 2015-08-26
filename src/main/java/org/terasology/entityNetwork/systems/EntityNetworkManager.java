@@ -22,13 +22,13 @@ import org.terasology.entitySystem.entity.EntityRef;
 import java.util.Collection;
 
 public interface EntityNetworkManager {
-    Iterable<NetworkNode> getNetworkNodes(Network network);
+    Collection<NetworkNode> getNetworkNodes(Network network);
 
-    Iterable<Network> getNetworks(String networkId);
+    Collection<Network> getNetworks(String networkId);
 
     EntityRef getEntityForNode(NetworkNode node);
 
     Collection<NetworkNode> getNodesForEntity(EntityRef entity);
 
-    Network getNetwork(NetworkNode node);
+    Collection<Network> getNetworks(NetworkNode node);
 }

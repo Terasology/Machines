@@ -55,15 +55,22 @@ public class SameNetworkByBlockBlockFamilyFactory extends UpdatesWithNeighboursF
         public boolean isConnectingTo(Vector3i blockLocation, Side connectSide, WorldProvider worldProvider, BlockEntityRegistry blockEntityRegistry) {
             final EntityNetworkManager entityNetworkManager = CoreRegistry.get(EntityNetworkManager.class);
             EntityRef thisEntity = blockEntityRegistry.getBlockEntityAt(blockLocation);
-            List<Network> thisNetworks = Lists.newArrayList(Iterables.transform(Iterables.filter(entityNetworkManager.getNodesForEntity(thisEntity), x -> nodeFilter.test(x)), x -> entityNetworkManager.getNetwork(x)));
+            List<Network> thisNetworks = Lists.newArrayList();
+            for (NetworkNode networkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(thisEntity), x -> nodeFilter.test(x))) {
+                thisNetworks.addAll(entityNetworkManager.getNetworks(networkNode));
+            }
 
             Vector3i neighborLocation = new Vector3i(blockLocation);
             neighborLocation.add(connectSide.getVector3i());
             EntityRef neighborEntity = blockEntityRegistry.getBlockEntityAt(neighborLocation);
 
-            for (Network neighborNetwork : Iterables.transform(Iterables.filter(entityNetworkManager.getNodesForEntity(neighborEntity), x -> nodeFilter.test(x)), x -> entityNetworkManager.getNetwork(x))) {
-                if (thisNetworks.contains(neighborNetwork)) {
-                    return true;
+            List<Network> neighborNetworks = Lists.newArrayList();
+
+            for (NetworkNode neighborNetworkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(neighborEntity), x -> nodeFilter.test(x))) {
+                for (Network neighborNetwork : entityNetworkManager.getNetworks(neighborNetworkNode)) {
+                    if (thisNetworks.contains(neighborNetwork)) {
+                        return true;
+                    }
                 }
             }
 
