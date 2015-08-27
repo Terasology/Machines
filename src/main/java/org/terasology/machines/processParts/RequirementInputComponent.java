@@ -15,7 +15,6 @@
  */
 package org.terasology.machines.processParts;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -33,6 +32,8 @@ import org.terasology.workstation.process.WorkstationInventoryUtils;
 import org.terasology.workstation.process.inventory.InventoryInputComponent;
 import org.terasology.workstation.process.inventory.ValidateInventoryItem;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess, ValidateInventoryItem, ProcessPartOrdering {
@@ -104,18 +105,17 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
     }
 
     @Override
-    public ProcessPartDescription getOutputDescription() {
-        return null;
+    public Collection<ProcessPartDescription> getInputDescriptions() {
+        List<ProcessPartDescription> descriptions = Lists.newLinkedList();
+        for (String requirement : requirements) {
+            descriptions.add(new ProcessPartDescription(null, requirement));
+        }
+        return descriptions;
     }
 
     @Override
-    public ProcessPartDescription getInputDescription() {
-        return new ProcessPartDescription(Joiner.on(", ").join(requirements));
-    }
-
-    @Override
-    public int getComplexity() {
-        return requirements.size();
+    public Collection<ProcessPartDescription> getOutputDescriptions() {
+        return Collections.emptyList();
     }
 
     @Override

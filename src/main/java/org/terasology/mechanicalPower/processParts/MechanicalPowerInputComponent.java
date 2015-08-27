@@ -15,12 +15,17 @@
  */
 package org.terasology.mechanicalPower.processParts;
 
+import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 import org.terasology.workstation.process.ProcessPartDescription;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 public class MechanicalPowerInputComponent implements Component, ProcessPart, DescribeProcess {
     public float power;
@@ -72,17 +77,14 @@ public class MechanicalPowerInputComponent implements Component, ProcessPart, De
     }
 
     @Override
-    public ProcessPartDescription getOutputDescription() {
-        return null;
+    public Collection<ProcessPartDescription> getInputDescriptions() {
+        List<ProcessPartDescription> descriptions = Lists.newLinkedList();
+        descriptions.add(new ProcessPartDescription(null, power + " energy"));
+        return descriptions;
     }
 
     @Override
-    public ProcessPartDescription getInputDescription() {
-        return new ProcessPartDescription(power + " energy");
-    }
-
-    @Override
-    public int getComplexity() {
-        return 0;
+    public Collection<ProcessPartDescription> getOutputDescriptions() {
+        return Collections.emptyList();
     }
 }

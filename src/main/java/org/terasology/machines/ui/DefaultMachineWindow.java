@@ -15,6 +15,7 @@
  */
 package org.terasology.machines.ui;
 
+import com.google.common.collect.Iterables;
 import org.terasology.asset.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -34,6 +35,7 @@ import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.component.WorkstationProcessingComponent;
 import org.terasology.workstation.event.WorkstationProcessRequest;
 import org.terasology.workstation.process.DescribeProcess;
+import org.terasology.workstation.process.ProcessPartDescription;
 import org.terasology.workstation.process.ValidateProcess;
 import org.terasology.workstation.process.WorkstationProcess;
 import org.terasology.workstation.system.WorkstationRegistry;
@@ -226,7 +228,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                         ValidateProcess validateProcess = (ValidateProcess) process;
                         if (validateProcess.isValid(character, getInteractionTarget())) {
                             if (process instanceof DescribeProcess) {
-                                if (mostComplexProcess == null || ((DescribeProcess) process).getComplexity() > ((DescribeProcess) mostComplexProcess).getComplexity()) {
+                                if (mostComplexProcess == null || getComplexity((DescribeProcess) process) > getComplexity((DescribeProcess) mostComplexProcess)) {
                                     mostComplexProcess = process;
                                 }
                             }
@@ -236,7 +238,11 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 if (mostComplexProcess != null) {
                     validProcessId = mostComplexProcess.getId();
                     if (mostComplexProcess instanceof DescribeProcess) {
-                        processResult.setContent(((DescribeProcess) mostComplexProcess).getOutputDescription().getWidget());
+                        FlowLayout flowLayout = new FlowLayout();
+                        for (ProcessPartDescription processPartDescription : ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
+                            flowLayout.addWidget(processPartDescription.getWidget(), null);
+                        }
+                        processResult.setContent(flowLayout);
                     } else {
                         UILabel processIdLabel = new UILabel();
                         processIdLabel.setText(validProcessId);
@@ -252,6 +258,10 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 }
             }
         }
+    }
+
+    private int getComplexity(DescribeProcess process) {
+        return Iterables.size(Iterables.filter(process.getInputDescriptions(), x -> x.getResourceUrn() != null));
     }
 
     @Override

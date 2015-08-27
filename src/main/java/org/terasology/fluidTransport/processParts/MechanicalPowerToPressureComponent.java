@@ -15,6 +15,7 @@
  */
 package org.terasology.fluidTransport.processParts;
 
+import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
@@ -23,6 +24,9 @@ import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponen
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 import org.terasology.workstation.process.ProcessPartDescription;
+
+import java.util.Collection;
+import java.util.List;
 
 public class MechanicalPowerToPressureComponent implements Component, ProcessPart, DescribeProcess {
     @Override
@@ -65,17 +69,16 @@ public class MechanicalPowerToPressureComponent implements Component, ProcessPar
     }
 
     @Override
-    public ProcessPartDescription getOutputDescription() {
-        return new ProcessPartDescription("1 psi");
+    public Collection<ProcessPartDescription> getOutputDescriptions() {
+        List<ProcessPartDescription> descriptions = Lists.newLinkedList();
+        descriptions.add(new ProcessPartDescription(null, "1 psi"));
+        return descriptions;
     }
 
     @Override
-    public ProcessPartDescription getInputDescription() {
-        return new ProcessPartDescription("1 energy");
-    }
-
-    @Override
-    public int getComplexity() {
-        return 0;
+    public Collection<ProcessPartDescription> getInputDescriptions() {
+        List<ProcessPartDescription> descriptions = Lists.newLinkedList();
+        descriptions.add(new ProcessPartDescription(null, "1 energy"));
+        return descriptions;
     }
 }
