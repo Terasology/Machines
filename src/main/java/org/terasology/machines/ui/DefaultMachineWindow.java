@@ -16,9 +16,12 @@
 package org.terasology.machines.ui;
 
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.terasology.asset.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.inGameHelp.InGameHelpClient;
 import org.terasology.logic.players.LocalPlayer;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.registry.CoreRegistry;
@@ -26,6 +29,7 @@ import org.terasology.rendering.nui.BaseInteractionScreen;
 import org.terasology.rendering.nui.UIWidget;
 import org.terasology.rendering.nui.asset.UIElement;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
+import org.terasology.rendering.nui.layouts.ColumnLayout;
 import org.terasology.rendering.nui.layouts.FlowLayout;
 import org.terasology.rendering.nui.widgets.ActivateEventListener;
 import org.terasology.rendering.nui.widgets.UIButton;
@@ -41,6 +45,11 @@ import org.terasology.workstation.process.WorkstationProcess;
 import org.terasology.workstation.system.WorkstationRegistry;
 import org.terasology.workstation.ui.ProcessListWidget;
 import org.terasology.workstation.ui.WorkstationUI;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 
 public class DefaultMachineWindow extends BaseInteractionScreen {
 
@@ -58,6 +67,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
     private UIContainer outputWidgets;
     private UIContainer inputWidgets;
     private ProcessListWidget processList;
+    private UIContainer outputItems;
 
     private String validProcessId;
     private long nextProcessResultRefreshTime;
@@ -86,6 +96,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         processList = find("processList", ProcessListWidget.class);
         outputWidgets = find("outputWidgets", UIContainer.class);
         inputWidgets = find("inputWidgets", UIContainer.class);
+        outputItems = find("outputItems", UIContainer.class);
     }
 
     private void requestProcessExecution() {
@@ -184,6 +195,43 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
         if (processList != null) {
             processList.initializeWorkstation(interactionTarget);
+        }
+
+        if (outputItems != null) {
+            ColumnLayout itemsLayout = new ColumnLayout();
+            itemsLayout.setColumns(5);
+            itemsLayout.setAutoSizeColumns(true);
+            itemsLayout.setFillVerticalSpace(false);
+
+            WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+
+            Set<String> alreadyAddedResourceUrns = Sets.newHashSet();
+            for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
+                if (process instanceof DescribeProcess) {
+                    DescribeProcess describeProcess = (DescribeProcess) process;
+                    List<ProcessPartDescription> processPartDescriptions = Lists.newArrayList(describeProcess.getOutputDescriptions());
+                    // sort the processDescriptions so that visual order is the same all the time
+                    Collections.sort(processPartDescriptions, new Comparator<ProcessPartDescription>() {
+                        @Override
+                        public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
+                            return o1.getResourceUrn().compareTo(o2.getResourceUrn());
+                        }
+                    });
+                    for (ProcessPartDescription processPartDescription : processPartDescriptions) {
+                        final String hyperlink = processPartDescription.getResourceUrn() != null ? processPartDescription.getResourceUrn().toString() : null;
+                        if (hyperlink == null || !alreadyAddedResourceUrns.contains(hyperlink)) {
+                            if (hyperlink != null) {
+                                alreadyAddedResourceUrns.add(hyperlink);
+                            }
+                            OverlapLayout overlapLayout = new OverlapLayout();
+                            overlapLayout.addWidget(processPartDescription.getWidget());
+                            overlapLayout.subscribe(x -> CoreRegistry.get(InGameHelpClient.class).showHelpForHyperlink(hyperlink));
+                            itemsLayout.addWidget(overlapLayout);
+                        }
+                    }
+                }
+            }
+            outputItems.setContent(itemsLayout);
         }
     }
 

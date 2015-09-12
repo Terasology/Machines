@@ -164,9 +164,8 @@
           "useContentWidth": true
         },
         "content": {
-          "type": "ProcessListWidget",
-          "id": "processList",
-          "family": "processlist"
+          "type": "UIContainer",
+          "id": "outputItems"
         }
       }
     ]
