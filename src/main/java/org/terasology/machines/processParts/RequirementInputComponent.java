@@ -16,14 +16,24 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
+import org.terasology.asset.Assets;
+import org.terasology.assets.ResourceUrn;
+import org.terasology.engine.Time;
 import org.terasology.entitySystem.Component;
+import org.terasology.entitySystem.entity.EntityBuilder;
+import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.logic.inventory.InventoryManager;
+import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.machines.components.ProcessRequirementsProviderComponent;
-import org.terasology.machines.components.ProvidesProcessRequirements;
+import org.terasology.machines.components.ProcessRequirementsProviderFromWorkstationComponent;
 import org.terasology.machines.events.RequirementUsedEvent;
+import org.terasology.machines.ui.OverlapLayout;
 import org.terasology.registry.CoreRegistry;
+import org.terasology.rendering.nui.UIWidget;
+import org.terasology.rendering.nui.databinding.ReadOnlyBinding;
 import org.terasology.workstation.process.DescribeProcess;
 import org.terasology.workstation.process.ProcessPart;
 import org.terasology.workstation.process.ProcessPartDescription;
@@ -31,6 +41,7 @@ import org.terasology.workstation.process.ProcessPartOrdering;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
 import org.terasology.workstation.process.inventory.InventoryInputComponent;
 import org.terasology.workstation.process.inventory.ValidateInventoryItem;
+import org.terasology.workstation.ui.InventoryItem;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -38,6 +49,7 @@ import java.util.List;
 
 public class RequirementInputComponent implements Component, ProcessPart, DescribeProcess, ValidateInventoryItem, ProcessPartOrdering {
     public static final String REQUIREMENTSINVENTORYCATEGORY = "REQUIREMENTS";
+    public static final int TIMEBETWEENWIDGETSWITCH = 1500;
 
     public List<String> requirements = Lists.newArrayList();
 
@@ -48,18 +60,17 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
         List<String> requirementsProvided = Lists.newArrayList();
 
         // get the requirements provided by the machine
-        for (Component component : workstation.iterateComponents()) {
-            if (component instanceof ProvidesProcessRequirements) {
-                requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));
-            }
+        ProcessRequirementsProviderFromWorkstationComponent workstationProcessRequirements
+                = workstation.getComponent(ProcessRequirementsProviderFromWorkstationComponent.class);
+        if (workstationProcessRequirements != null) {
+            requirementsProvided.addAll(workstationProcessRequirements.requirements);
         }
 
         // get the requirements provided by items (tools)
         for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, false, REQUIREMENTSINVENTORYCATEGORY)) {
-            for (Component component : item.iterateComponents()) {
-                if (component instanceof ProvidesProcessRequirements) {
-                    requirementsProvided.addAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()));
-                }
+            ProcessRequirementsProviderComponent processRequirementsProviderComponent = item.getComponent(ProcessRequirementsProviderComponent.class);
+            if (processRequirementsProviderComponent != null) {
+                requirementsProvided.addAll(processRequirementsProviderComponent.requirements);
             }
         }
 
@@ -78,24 +89,24 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
         List<String> requirementsRequired = Lists.newArrayList(requirements);
 
         // get the requirements provided by the machine
-        for (Component component : workstation.iterateComponents()) {
-            if (component instanceof ProvidesProcessRequirements) {
-                if (requirementsRequired.removeAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()))) {
-                    workstation.send(new RequirementUsedEvent(processEntity));
-                }
+        ProcessRequirementsProviderFromWorkstationComponent workstationProcessRequirements
+                = workstation.getComponent(ProcessRequirementsProviderFromWorkstationComponent.class);
+        if (workstationProcessRequirements != null) {
+            if (requirementsRequired.removeAll(workstationProcessRequirements.requirements)) {
+                workstation.send(new RequirementUsedEvent(processEntity));
             }
         }
 
         // get the requirements provided by items (tools)
         for (EntityRef item : ExtendedInventoryManager.iterateItems(inventoryManager, workstation, false, REQUIREMENTSINVENTORYCATEGORY)) {
-            for (Component component : item.iterateComponents()) {
-                if (component instanceof ProvidesProcessRequirements) {
-                    if (requirementsRequired.removeAll(Lists.newArrayList(((ProvidesProcessRequirements) component).getRequirementsProvided()))) {
-                        item.send(new RequirementUsedEvent(processEntity));
-                    }
+            ProcessRequirementsProviderComponent processRequirementsProviderComponent = item.getComponent(ProcessRequirementsProviderComponent.class);
+            if (processRequirementsProviderComponent != null) {
+                if (requirementsRequired.removeAll(processRequirementsProviderComponent.requirements)) {
+                    item.send(new RequirementUsedEvent(processEntity));
                 }
             }
         }
+
 
     }
 
@@ -108,9 +119,48 @@ public class RequirementInputComponent implements Component, ProcessPart, Descri
     public Collection<ProcessPartDescription> getInputDescriptions() {
         List<ProcessPartDescription> descriptions = Lists.newLinkedList();
         for (String requirement : requirements) {
-            descriptions.add(new ProcessPartDescription(null, requirement));
+            UIWidget widget = createWidgetForRequirement(requirement, CoreRegistry.get(EntityManager.class), CoreRegistry.get(Time.class));
+            descriptions.add(new ProcessPartDescription(null, requirement, widget));
         }
         return descriptions;
+    }
+
+    private static UIWidget createWidgetForRequirement(String requirement, EntityManager entityManager, Time time) {
+        List<Prefab> relatedPrefabs = Lists.newArrayList();
+        for (ResourceUrn resourceUrn : Assets.list(Prefab.class)) {
+            Prefab prefab = Assets.get(resourceUrn, Prefab.class).get();
+            ProcessRequirementsProviderComponent requirementsProviderComponent = prefab.getComponent(ProcessRequirementsProviderComponent.class);
+            if (prefab.hasComponent(ItemComponent.class) && requirementsProviderComponent != null && requirementsProviderComponent.requirements.contains(requirement)) {
+                relatedPrefabs.add(prefab);
+            }
+        }
+
+        OverlapLayout layout = new OverlapLayout();
+        for (int i = 0; i < relatedPrefabs.size(); i++) {
+            Prefab prefab = relatedPrefabs.get(i);
+            final Integer visibleAtIndex = i;
+
+            // create entity to display
+            EntityBuilder entityBuilder = entityManager.newBuilder(prefab);
+            entityBuilder.setPersistent(false);
+            EntityRef entityRef = entityBuilder.build();
+
+            // create the widget
+            InventoryItem inventoryItem = new InventoryItem(entityRef);
+            inventoryItem.bindVisible(new ReadOnlyBinding<Boolean>() {
+                @Override
+                public Boolean get() {
+                    return Math.floor(time.getRealTimeInMs() / TIMEBETWEENWIDGETSWITCH) % relatedPrefabs.size() == visibleAtIndex;
+                }
+            });
+
+            // clean up and add the widget
+            entityRef.destroy();
+            layout.addWidget(inventoryItem);
+        }
+
+        return layout;
+
     }
 
     @Override
