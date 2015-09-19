@@ -15,7 +15,6 @@
  */
 package org.terasology.machines.ui;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.terasology.asset.Assets;
@@ -214,6 +213,12 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                     Collections.sort(processPartDescriptions, new Comparator<ProcessPartDescription>() {
                         @Override
                         public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
+                            if (o1.getResourceUrn() == null) {
+                                return -1;
+                            }
+                            if (o2.getResourceUrn() == null) {
+                                return 1;
+                            }
                             return o1.getResourceUrn().compareTo(o2.getResourceUrn());
                         }
                     });
@@ -309,7 +314,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
     }
 
     private int getComplexity(DescribeProcess process) {
-        return Iterables.size(Iterables.filter(process.getInputDescriptions(), x -> x.getResourceUrn() != null));
+        return process.getInputDescriptions().size();
     }
 
     @Override
