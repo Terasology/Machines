@@ -119,4 +119,8 @@ public class OverlapLayout extends CoreLayout<LayoutHint> {
         listeners.remove(listener);
     }
 
+    @Override
+    public void removeWidget(UIWidget element) {
+        // TODO: Implement (added as compile fix after engine change)
+    }
 }
