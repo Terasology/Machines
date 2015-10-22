@@ -16,13 +16,47 @@
 package org.terasology.mechanicalPower.components;
 
 import org.terasology.entitySystem.Component;
+import org.terasology.logic.inventory.ItemDifferentiating;
 import org.terasology.network.Replicate;
 import org.terasology.world.block.ForceBlockActive;
 
 @ForceBlockActive
+@ItemDifferentiating
 public class MechanicalPowerConsumerComponent implements Component {
     @Replicate
     public float currentStoredPower;
     @Replicate
     public float maximumStoredPower;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        MechanicalPowerConsumerComponent that = (MechanicalPowerConsumerComponent) o;
+
+        if (that.currentStoredPower > 0 || this.currentStoredPower > 0) {
+            // never allow items with power to stack
+            return false;
+        }
+        if (Float.compare(that.currentStoredPower, currentStoredPower) != 0) {
+            return false;
+        }
+        if (Float.compare(that.maximumStoredPower, maximumStoredPower) != 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (currentStoredPower != +0.0f ? Float.floatToIntBits(currentStoredPower) : 0);
+        result = 31 * result + (maximumStoredPower != +0.0f ? Float.floatToIntBits(maximumStoredPower) : 0);
+        return result;
+    }
 }

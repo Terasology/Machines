@@ -39,6 +39,8 @@ import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponen
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
 import org.terasology.registry.In;
+import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.rendering.nui.widgets.TooltipLine;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.items.BlockItemComponent;
 
@@ -116,16 +118,16 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
             for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
                 EntityRef nodeEntity = mechanicalPowerBlockNetwork.getEntityForNode(node);
 
-                    RotatingAxleComponent rotatingAxle = nodeEntity.getComponent(RotatingAxleComponent.class);
-                    if (rotatingAxle != null && rotatingAxle.renderedEntity != null) {
-                        if (totalPower > 0) {
-                            // ensure all axle rotation is turned on
-                            turnAxleOn(rotatingAxle.renderedEntity, speed);
-                        } else {
-                            // ensure all axle rotation is turned off
-                            turnAxleOff(rotatingAxle.renderedEntity);
-                        }
+                RotatingAxleComponent rotatingAxle = nodeEntity.getComponent(RotatingAxleComponent.class);
+                if (rotatingAxle != null && rotatingAxle.renderedEntity != null) {
+                    if (totalPower > 0) {
+                        // ensure all axle rotation is turned on
+                        turnAxleOn(rotatingAxle.renderedEntity, speed);
+                    } else {
+                        // ensure all axle rotation is turned off
+                        turnAxleOff(rotatingAxle.renderedEntity);
                     }
+                }
             }
         }
     }
@@ -151,5 +153,10 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
 
     private void turnAxleOff(EntityRef renderedEntity) {
         renderedEntity.removeComponent(AnimateRotationComponent.class);
+    }
+
+    @ReceiveEvent
+    public void getItemTooltip(GetItemTooltip event, EntityRef entityRef, MechanicalPowerConsumerComponent consumerComponent) {
+        event.getTooltipLines().add(new TooltipLine(String.format("Power: %.0f/%.0f", consumerComponent.currentStoredPower, consumerComponent.maximumStoredPower)));
     }
 }

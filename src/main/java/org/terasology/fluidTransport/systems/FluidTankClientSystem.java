@@ -184,7 +184,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
 
     @ReceiveEvent
-    public void getDurabilityItemTooltip(GetItemTooltip event, EntityRef entityRef, FluidInventoryComponent fluidInventoryComponent) {
+    public void getItemTooltip(GetItemTooltip event, EntityRef entityRef, FluidInventoryComponent fluidInventoryComponent) {
         float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef, true);
         float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef, true);
         String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef, true);
