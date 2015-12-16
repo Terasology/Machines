@@ -1,6 +1,6 @@
 {
     "id": "Machines",
-    "version": "0.1.1-SNAPSHOT",
+    "version": "0.1.2-SNAPSHOT",
     "author": "Josharias",
     "displayName": "Machines",
     "description": "A library for machines",
