@@ -187,7 +187,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                     if (fluidType != null) {
                         // distribute this fluid
                         for (EntityRef tank : tanksFromBottomUp.values()) {
-                            if (!tank.equals(sourceTank) && getTankElevation(tank) < pumpWorldPressure && remainingFlow > 0) {
+                            if (!tank.equals(sourceTank) && getTankElevation(tank) <= pumpWorldPressure && remainingFlow > 0) {
                                 float volumeTransfered = ExtendedFluidManager.giveFluid(tank, remainingFlow, fluidType, true);
                                 remainingFlow -= volumeTransfered;
                                 totalVolumeTransfered += volumeTransfered;
@@ -197,11 +197,13 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                         if (sourceTank != null) {
                             ExtendedFluidManager.removeFluid(sourceTank, totalVolumeTransfered, fluidType);
                         }
-                    }
 
-                    FluidPumpComponent fluidPumpComponent = pump.getComponent(FluidPumpComponent.class);
-                    fluidPumpComponent.pressure = 0;
-                    pump.saveComponent(fluidPumpComponent);
+                        if (totalVolumeTransfered > 0) {
+                            FluidPumpComponent fluidPumpComponent = pump.getComponent(FluidPumpComponent.class);
+                            fluidPumpComponent.pressure = 0;
+                            pump.saveComponent(fluidPumpComponent);
+                        }
+                    }
                 }
             }
         }

@@ -34,7 +34,7 @@ public final class ExtendedFluidManager {
 
     public static void removeFluid(EntityRef entity, float volume, String fluidType) {
         FluidManager fluidManager = CoreRegistry.get(FluidManager.class);
-        if (volume > 0) {
+        if (volume > 0 && fluidType != null) {
             fluidManager.removeFluid(entity, entity, fluidType, volume);
         }
     }
@@ -43,7 +43,7 @@ public final class ExtendedFluidManager {
     public static float giveFluid(EntityRef entity, float volume, String fluidType, boolean forInput) {
         FluidManager fluidManager = CoreRegistry.get(FluidManager.class);
         float amountToGive = Math.min(volume, getFirstFluidSlotMaximumVolume(entity, forInput) - getTankFluidVolume(entity, forInput));
-        if (fluidManager.addFluid(entity, entity, fluidType, amountToGive)) {
+        if (volume > 0 && fluidType != null && fluidManager.addFluid(entity, entity, fluidType, amountToGive)) {
             return amountToGive;
         } else {
             return 0;

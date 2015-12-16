@@ -51,7 +51,7 @@ public class MachineCommonSystem extends BaseComponentSystem {
     private void addProcessingMachine(EntityRef entity, MachineDefinitionComponent machineDefinition) {
 
         // configure the input/output inventories
-        if (!entity.hasComponent(InventoryComponent.class)) {
+        if (!entity.hasComponent(InventoryComponent.class) && machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots > 0) {
             int totalSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots;
             InventoryComponent inventoryComponent = new InventoryComponent(totalSlots);
             inventoryComponent.privateToOwner = false;
@@ -59,7 +59,7 @@ public class MachineCommonSystem extends BaseComponentSystem {
         }
 
         // configure the fluid inventories
-        if (!entity.hasComponent(FluidInventoryComponent.class)) {
+        if (!entity.hasComponent(FluidInventoryComponent.class) && machineDefinition.fluidInputSlotVolumes.size() + machineDefinition.fluidOutputSlotVolumes.size() > 0) {
             FluidInventoryComponent fluidInventoryComponent = new FluidInventoryComponent();
             for (float volume : machineDefinition.fluidInputSlotVolumes) {
                 fluidInventoryComponent.fluidSlots.add(EntityRef.NULL);
@@ -73,26 +73,30 @@ public class MachineCommonSystem extends BaseComponentSystem {
         }
 
         // configure the categorized inventory
-        if (!entity.hasComponent(InventoryAccessComponent.class)) {
+        if (!entity.hasComponent(InventoryAccessComponent.class) && (entity.hasComponent(InventoryComponent.class) || entity.hasComponent(FluidInventoryComponent.class))) {
             InventoryAccessComponent categorizedInventory = new InventoryAccessComponent();
-            categorizedInventory.input = new HashMap();
-            categorizedInventory.output = new HashMap();
-            int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
-            categorizedInventory.input.put(InventoryInputComponent.WORKSTATIONINPUTCATEGORY,
-                    createSlotRange(0, machineDefinition.inputSlots));
-            categorizedInventory.input.put(RequirementInputComponent.REQUIREMENTSINVENTORYCATEGORY,
-                    createSlotRange(machineDefinition.inputSlots, machineDefinition.requirementSlots));
-            categorizedInventory.output.put(InventoryOutputComponent.WORKSTATIONOUTPUTCATEGORY,
-                    createSlotRange(totalInputSlots, machineDefinition.outputSlots));
+            if (entity.hasComponent(InventoryComponent.class)) {
+                categorizedInventory.input = new HashMap();
+                categorizedInventory.output = new HashMap();
+                int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
+                categorizedInventory.input.put(InventoryInputComponent.WORKSTATIONINPUTCATEGORY,
+                        createSlotRange(0, machineDefinition.inputSlots));
+                categorizedInventory.input.put(RequirementInputComponent.REQUIREMENTSINVENTORYCATEGORY,
+                        createSlotRange(machineDefinition.inputSlots, machineDefinition.requirementSlots));
+                categorizedInventory.output.put(InventoryOutputComponent.WORKSTATIONOUTPUTCATEGORY,
+                        createSlotRange(totalInputSlots, machineDefinition.outputSlots));
+            }
 
             // add fluid slot assignments
-            if (machineDefinition.fluidInputSlotVolumes.size() > 0) {
-                categorizedInventory.input.put(FluidInputComponent.FLUIDINPUTCATEGORY,
-                        createSlotRange(0, machineDefinition.fluidInputSlotVolumes.size()));
-            }
-            if (machineDefinition.fluidOutputSlotVolumes.size() > 0) {
-                categorizedInventory.output.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY,
-                        createSlotRange(machineDefinition.fluidInputSlotVolumes.size(), machineDefinition.fluidOutputSlotVolumes.size()));
+            if (entity.hasComponent(FluidInventoryComponent.class)) {
+                if (machineDefinition.fluidInputSlotVolumes.size() > 0) {
+                    categorizedInventory.input.put(FluidInputComponent.FLUIDINPUTCATEGORY,
+                            createSlotRange(0, machineDefinition.fluidInputSlotVolumes.size()));
+                }
+                if (machineDefinition.fluidOutputSlotVolumes.size() > 0) {
+                    categorizedInventory.output.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY,
+                            createSlotRange(machineDefinition.fluidInputSlotVolumes.size(), machineDefinition.fluidOutputSlotVolumes.size()));
+                }
             }
 
             entity.addComponent(categorizedInventory);
