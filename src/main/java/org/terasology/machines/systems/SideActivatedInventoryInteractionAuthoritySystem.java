@@ -58,8 +58,11 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
     /// Capture the raw button event manually so that we can do this inventory interaction with an empty hand
     @ReceiveEvent(components = {CharacterComponent.class, InventoryComponent.class})
     public void onUseItemButton(UseItemButton event, EntityRef entity, CharacterComponent characterComponent) {
-        EntityRef selectedItemEntity = InventoryUtils.getItemAt(entity, characterComponent.selectedItem);
-       /* if (selectedItemEntity.exists()) {
+
+        // TODO: characterComponent no longer contains the selected item, new component available
+        //EntityRef selectedItemEntity = InventoryUtils.getItemAt(entity, characterComponent.selectedItem);
+
+        /* if (selectedItemEntity.exists()) {
             // let the normal handler get this
             return;
         }
