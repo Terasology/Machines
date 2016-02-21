@@ -21,8 +21,7 @@ import org.terasology.network.Replicate;
 import org.terasology.world.block.ForceBlockActive;
 
 @ForceBlockActive
-@ItemDifferentiating
-public class MechanicalPowerConsumerComponent implements Component {
+public class MechanicalPowerConsumerComponent implements Component, ItemDifferentiating {
     @Replicate
     public float currentStoredPower;
     @Replicate
