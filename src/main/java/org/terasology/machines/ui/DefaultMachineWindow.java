@@ -17,7 +17,7 @@ package org.terasology.machines.ui;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.terasology.asset.Assets;
+import org.terasology.utilities.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.inGameHelp.InGameHelpClient;

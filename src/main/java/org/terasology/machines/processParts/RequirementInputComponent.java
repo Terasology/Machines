@@ -16,7 +16,7 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
-import org.terasology.asset.Assets;
+import org.terasology.utilities.Assets;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.Component;

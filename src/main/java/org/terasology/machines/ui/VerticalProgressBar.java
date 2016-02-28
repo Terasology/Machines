@@ -15,7 +15,7 @@
  */
 package org.terasology.machines.ui;
 
-import org.terasology.asset.Assets;
+import org.terasology.utilities.Assets;
 import org.terasology.math.geom.Rect2i;
 import org.terasology.math.TeraMath;
 import org.terasology.math.geom.Vector2i;
