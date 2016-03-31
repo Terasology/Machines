@@ -15,62 +15,8 @@
  */
 package org.terasology.mechanicalPower.processParts;
 
-import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
-import org.terasology.workstation.process.DescribeProcess;
-import org.terasology.workstation.process.ProcessPart;
-import org.terasology.workstation.process.ProcessPartDescription;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-public class ActivateEngineOutputComponent implements Component, ProcessPart, DescribeProcess {
+public class ActivateEngineOutputComponent implements Component {
     public long activateTime;
-
-    @Override
-    public boolean validateBeforeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        MechanicalPowerProducerComponent producer = workstation.getComponent(MechanicalPowerProducerComponent.class);
-        if (producer != null && !producer.active) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public long getDuration(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        return activateTime;
-    }
-
-    @Override
-    public void executeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        MechanicalPowerProducerComponent producer = workstation.getComponent(MechanicalPowerProducerComponent.class);
-        if (producer != null) {
-            producer.active = true;
-            workstation.saveComponent(producer);
-        }
-    }
-
-    @Override
-    public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        MechanicalPowerProducerComponent producer = workstation.getComponent(MechanicalPowerProducerComponent.class);
-        if (producer != null) {
-            producer.active = false;
-            workstation.saveComponent(producer);
-        }
-    }
-
-    @Override
-    public Collection<ProcessPartDescription> getOutputDescriptions() {
-        List<ProcessPartDescription> descriptions = Lists.newLinkedList();
-        descriptions.add(new ProcessPartDescription(null, (activateTime / 1000) + " sec"));
-        return descriptions;
-    }
-
-    @Override
-    public Collection<ProcessPartDescription> getInputDescriptions() {
-        return Collections.emptyList();
-    }
 }

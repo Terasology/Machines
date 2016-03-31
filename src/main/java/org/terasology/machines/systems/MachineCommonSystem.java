@@ -25,12 +25,12 @@ import org.terasology.logic.inventory.InventoryAccessComponent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.NestedMachineComponent;
-import org.terasology.machines.processParts.RequirementInputComponent;
+import org.terasology.machines.processParts.RequirementInputProcessPartCommonSystem;
 import org.terasology.math.IntegerRange;
-import org.terasology.workstation.process.fluid.FluidInputComponent;
-import org.terasology.workstation.process.fluid.FluidOutputComponent;
-import org.terasology.workstation.process.inventory.InventoryInputComponent;
-import org.terasology.workstation.process.inventory.InventoryOutputComponent;
+import org.terasology.workstation.process.fluid.FluidInputProcessPartCommonSystem;
+import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;
+import org.terasology.workstation.process.inventory.InventoryInputProcessPartCommonSystem;
+import org.terasology.workstation.process.inventory.InventoryOutputProcessPartCommonSystem;
 import org.terasology.world.block.BlockComponent;
 
 import java.util.HashMap;
@@ -79,22 +79,22 @@ public class MachineCommonSystem extends BaseComponentSystem {
                 categorizedInventory.input = new HashMap();
                 categorizedInventory.output = new HashMap();
                 int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
-                categorizedInventory.input.put(InventoryInputComponent.WORKSTATIONINPUTCATEGORY,
+                categorizedInventory.input.put(InventoryInputProcessPartCommonSystem.WORKSTATIONINPUTCATEGORY,
                         createSlotRange(0, machineDefinition.inputSlots));
-                categorizedInventory.input.put(RequirementInputComponent.REQUIREMENTSINVENTORYCATEGORY,
+                categorizedInventory.input.put(RequirementInputProcessPartCommonSystem.REQUIREMENTSINVENTORYCATEGORY,
                         createSlotRange(machineDefinition.inputSlots, machineDefinition.requirementSlots));
-                categorizedInventory.output.put(InventoryOutputComponent.WORKSTATIONOUTPUTCATEGORY,
+                categorizedInventory.output.put(InventoryOutputProcessPartCommonSystem.WORKSTATIONOUTPUTCATEGORY,
                         createSlotRange(totalInputSlots, machineDefinition.outputSlots));
             }
 
             // add fluid slot assignments
             if (entity.hasComponent(FluidInventoryComponent.class)) {
                 if (machineDefinition.fluidInputSlotVolumes.size() > 0) {
-                    categorizedInventory.input.put(FluidInputComponent.FLUIDINPUTCATEGORY,
+                    categorizedInventory.input.put(FluidInputProcessPartCommonSystem.FLUIDINPUTCATEGORY,
                             createSlotRange(0, machineDefinition.fluidInputSlotVolumes.size()));
                 }
                 if (machineDefinition.fluidOutputSlotVolumes.size() > 0) {
-                    categorizedInventory.output.put(FluidOutputComponent.FLUIDOUTPUTCATEGORY,
+                    categorizedInventory.output.put(FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY,
                             createSlotRange(machineDefinition.fluidInputSlotVolumes.size(), machineDefinition.fluidOutputSlotVolumes.size()));
                 }
             }

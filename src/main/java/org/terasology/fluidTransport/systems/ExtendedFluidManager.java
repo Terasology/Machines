@@ -24,8 +24,8 @@ import org.terasology.logic.inventory.InventoryAccessComponent;
 import org.terasology.math.IntegerRange;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
-import org.terasology.workstation.process.fluid.FluidInputComponent;
-import org.terasology.workstation.process.fluid.FluidOutputComponent;
+import org.terasology.workstation.process.fluid.FluidInputProcessPartCommonSystem;
+import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;
 
 public final class ExtendedFluidManager {
 
@@ -100,9 +100,9 @@ public final class ExtendedFluidManager {
             InventoryAccessComponent inventoryAccessComponent = entity.getComponent(InventoryAccessComponent.class);
             if (inventoryAccessComponent != null) {
                 if (forInput) {
-                    slotRange = WorkstationInventoryUtils.getAssignedInputSlots(entity, FluidInputComponent.FLUIDINPUTCATEGORY);
+                    slotRange = WorkstationInventoryUtils.getAssignedInputSlots(entity, FluidInputProcessPartCommonSystem.FLUIDINPUTCATEGORY);
                 } else {
-                    slotRange = WorkstationInventoryUtils.getAssignedOutputSlots(entity, FluidOutputComponent.FLUIDOUTPUTCATEGORY);
+                    slotRange = WorkstationInventoryUtils.getAssignedOutputSlots(entity, FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY);
                 }
             } else {
                 // use all slots

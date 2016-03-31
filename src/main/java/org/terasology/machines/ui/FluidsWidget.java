@@ -27,8 +27,8 @@ import org.terasology.rendering.nui.CoreWidget;
 import org.terasology.rendering.nui.UIWidget;
 import org.terasology.rendering.nui.layouts.ColumnLayout;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
-import org.terasology.workstation.process.fluid.FluidInputComponent;
-import org.terasology.workstation.process.fluid.FluidOutputComponent;
+import org.terasology.workstation.process.fluid.FluidInputProcessPartCommonSystem;
+import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;
 import org.terasology.workstation.ui.WorkstationUI;
 
 import java.util.Collections;
@@ -76,9 +76,9 @@ public abstract class FluidsWidget extends CoreWidget implements WorkstationUI {
         if (fluidInventoryComponent != null) {
             Iterable<Integer> slots = null;
             if (isOutput) {
-                slots = WorkstationInventoryUtils.getAssignedOutputSlots(workstation, FluidOutputComponent.FLUIDOUTPUTCATEGORY);
+                slots = WorkstationInventoryUtils.getAssignedOutputSlots(workstation, FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY);
             } else {
-                slots = WorkstationInventoryUtils.getAssignedInputSlots(workstation, FluidInputComponent.FLUIDINPUTCATEGORY);
+                slots = WorkstationInventoryUtils.getAssignedInputSlots(workstation, FluidInputProcessPartCommonSystem.FLUIDINPUTCATEGORY);
             }
 
             for (int slot : slots) {

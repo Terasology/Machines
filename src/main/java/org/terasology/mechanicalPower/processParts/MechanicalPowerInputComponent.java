@@ -15,76 +15,8 @@
  */
 package org.terasology.mechanicalPower.processParts;
 
-import com.google.common.collect.Lists;
 import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
-import org.terasology.workstation.process.DescribeProcess;
-import org.terasology.workstation.process.ProcessPart;
-import org.terasology.workstation.process.ProcessPartDescription;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-public class MechanicalPowerInputComponent implements Component, ProcessPart, DescribeProcess {
+public class MechanicalPowerInputComponent implements Component {
     public float power;
-
-    @Override
-    public boolean validateBeforeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        MechanicalPowerConsumerComponent consumer = workstation.getComponent(MechanicalPowerConsumerComponent.class);
-        if (consumer != null) {
-            if (consumer.currentStoredPower >= power) {
-                return true;
-            }
-        }
-
-        consumer = instigator.getComponent(MechanicalPowerConsumerComponent.class);
-        if (consumer != null) {
-            if (consumer.currentStoredPower >= power) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public long getDuration(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        return 0;
-    }
-
-    @Override
-    public void executeStart(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-        MechanicalPowerConsumerComponent consumer = workstation.getComponent(MechanicalPowerConsumerComponent.class);
-        if (consumer != null) {
-            consumer.currentStoredPower -= power;
-            workstation.saveComponent(consumer);
-            return;
-        }
-
-        consumer = workstation.getComponent(MechanicalPowerConsumerComponent.class);
-        if (consumer != null) {
-            consumer.currentStoredPower -= power;
-            workstation.saveComponent(consumer);
-            return;
-        }
-    }
-
-    @Override
-    public void executeEnd(EntityRef instigator, EntityRef workstation, EntityRef processEntity) {
-
-    }
-
-    @Override
-    public Collection<ProcessPartDescription> getInputDescriptions() {
-        List<ProcessPartDescription> descriptions = Lists.newLinkedList();
-        descriptions.add(new ProcessPartDescription(null, power + " energy"));
-        return descriptions;
-    }
-
-    @Override
-    public Collection<ProcessPartDescription> getOutputDescriptions() {
-        return Collections.emptyList();
-    }
 }

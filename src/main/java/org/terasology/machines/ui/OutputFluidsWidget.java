@@ -15,11 +15,11 @@
  */
 package org.terasology.machines.ui;
 
-import org.terasology.workstation.process.fluid.FluidOutputComponent;
+import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;
 
 public class OutputFluidsWidget extends FluidsWidget {
     public OutputFluidsWidget() {
-        super(FluidOutputComponent.FLUIDOUTPUTCATEGORY);
+        super(FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY);
         isOutput = true;
     }
 }
