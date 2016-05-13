@@ -19,6 +19,7 @@ import com.google.common.collect.Sets;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
+import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Direction;
@@ -29,7 +30,7 @@ import org.terasology.world.block.BlockComponent;
 
 import java.util.Set;
 
-public class SidedBlockLocationNetworkNodeComponent implements NetworkNodeBuilder {
+public class SidedBlockLocationNetworkNodeComponent implements Component, NetworkNodeBuilder {
     public String networkId;
     public boolean isLeaf;
     public Set<String> directions = Sets.newHashSet();

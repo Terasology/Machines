@@ -18,10 +18,11 @@ package org.terasology.entityNetwork.components;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
+import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.world.block.BlockComponent;
 
-public class BlockLocationNetworkNodeComponent implements NetworkNodeBuilder {
+public class BlockLocationNetworkNodeComponent implements Component, NetworkNodeBuilder {
     public String networkId;
     public boolean isLeaf;
     public int maximumGridDistance = 1;

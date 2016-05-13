@@ -6,6 +6,8 @@ See the forum for discussion: http://forum.terasology.org/threads/machines.938/
 ##Entity Network
 - A set of components and systems to join entities together in a group.  These groups can then be queried so that interactions between joined entites can be orchestrated.
 
+[Entity Network Readme](src/main/java/org/terasology/entityNetwork/README.md)
+
 ##Fluid
 see Fluid
 
@@ -13,9 +15,6 @@ see Fluid
 - Tanks that can be interacted with by containers of fluid (like a bucket).
 - Pipes that simulate gravity and let fluid naturally flow from elevated tanks to lower tanks.
 - Pumps that input power to lift fluid to elevated tanks.
-
-##Item Rendering
-see ItemRendering
 
 ##Item Transport
 - Ejection/extraction of items to/from adjacent inventories
@@ -26,7 +25,6 @@ see ItemRendering
 - Surface Placement block family to assist connecting devices in the right direction
 
 ##Mechanical Power
-- Uses the BlockNetwork module to enable transfer, storage, and production of energy
+- Uses the EntityNetwork submodule and PotentialEnergyDevices module to enable transfer, storage, and production of energy
 
-##Processing
-see Workstation
+[Mechanical Power Readme](src/main/java/org/terasology/mechanicalPower/README.md)
