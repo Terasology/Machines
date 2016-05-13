@@ -19,7 +19,7 @@ import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
+import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.workstation.process.ProcessPartDescription;
 import org.terasology.workstation.processPart.ProcessEntityIsInvalidToStartEvent;
 import org.terasology.workstation.processPart.ProcessEntityStartExecutionEvent;
@@ -34,16 +34,16 @@ public class MechanicalPowerInputProcessPartCommonSystem extends BaseComponentSy
     @ReceiveEvent
     public void validateToStartExecution(ProcessEntityIsInvalidToStartEvent event, EntityRef processEntity,
                                          MechanicalPowerInputComponent mechanicalPowerInputComponent) {
-        MechanicalPowerConsumerComponent consumer = event.getWorkstation().getComponent(MechanicalPowerConsumerComponent.class);
+        PotentialEnergyDeviceComponent consumer = event.getWorkstation().getComponent(PotentialEnergyDeviceComponent.class);
         if (consumer != null) {
-            if (consumer.currentStoredPower >= mechanicalPowerInputComponent.power) {
+            if (consumer.currentStoredEnergy >= mechanicalPowerInputComponent.power) {
                 return;
             }
         }
 
-        consumer = event.getInstigator().getComponent(MechanicalPowerConsumerComponent.class);
+        consumer = event.getInstigator().getComponent(PotentialEnergyDeviceComponent.class);
         if (consumer != null) {
-            if (consumer.currentStoredPower >= mechanicalPowerInputComponent.power) {
+            if (consumer.currentStoredEnergy >= mechanicalPowerInputComponent.power) {
                 return;
             }
         }
@@ -54,16 +54,16 @@ public class MechanicalPowerInputProcessPartCommonSystem extends BaseComponentSy
     @ReceiveEvent
     public void startExecution(ProcessEntityStartExecutionEvent event, EntityRef processEntity,
                                MechanicalPowerInputComponent mechanicalPowerInputComponent) {
-        MechanicalPowerConsumerComponent consumer = event.getWorkstation().getComponent(MechanicalPowerConsumerComponent.class);
+        PotentialEnergyDeviceComponent consumer = event.getWorkstation().getComponent(PotentialEnergyDeviceComponent.class);
         if (consumer != null) {
-            consumer.currentStoredPower -= mechanicalPowerInputComponent.power;
+            consumer.currentStoredEnergy -= mechanicalPowerInputComponent.power;
             event.getWorkstation().saveComponent(consumer);
             return;
         }
 
-        consumer = event.getInstigator().getComponent(MechanicalPowerConsumerComponent.class);
+        consumer = event.getInstigator().getComponent(PotentialEnergyDeviceComponent.class);
         if (consumer != null) {
-            consumer.currentStoredPower -= mechanicalPowerInputComponent.power;
+            consumer.currentStoredEnergy -= mechanicalPowerInputComponent.power;
             event.getInstigator().saveComponent(consumer);
             return;
         }

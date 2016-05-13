@@ -31,9 +31,8 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.math.TeraMath;
-import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
-import org.terasology.mechanicalPower.components.MechanicalPowerRegenComponent;
+import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.event.WorkstationStateChanged;
@@ -49,8 +48,6 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
 
     @In
     WorldProvider worldProvider;
-    //@In
-    //BlockEntityRegistry blockEntityRegistry;
     @In
     EntityNetworkManager mechanicalPowerBlockNetwork;
     @In
@@ -70,17 +67,6 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
         if (currentTime > nextUpdateTime) {
             nextUpdateTime = currentTime + UPDATE_INTERVAL;
 
-            // add all natural regen/decay
-            for (EntityRef entity : entityManager.getEntitiesWith(MechanicalPowerRegenComponent.class,
-                    MechanicalPowerConsumerComponent.class)) {
-                MechanicalPowerRegenComponent regenComponent = entity.getComponent(MechanicalPowerRegenComponent.class);
-                MechanicalPowerConsumerComponent consumerComponent = entity.getComponent(MechanicalPowerConsumerComponent.class);
-                if (consumerComponent.currentStoredPower < consumerComponent.maximumStoredPower) {
-                    consumerComponent.currentStoredPower =
-                            TeraMath.clamp(consumerComponent.currentStoredPower + regenComponent.power, 0, consumerComponent.maximumStoredPower);
-                    entity.saveComponent(consumerComponent);
-                }
-            }
 
             // add all power distributed through the network
             for (Network network : mechanicalPowerBlockNetwork.getNetworks(NETWORK_ID)) {
@@ -90,7 +76,7 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
                 // gather the consumers and producers for this network
                 for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
                     EntityRef entity = mechanicalPowerBlockNetwork.getEntityForNode(node);
-                    if (entity.hasComponent(MechanicalPowerConsumerComponent.class)) {
+                    if (entity.hasComponent(PotentialEnergyDeviceComponent.class)) {
                         consumers.add(entity);
                     }
                     if (entity.hasComponent(MechanicalPowerProducerComponent.class)) {
@@ -109,10 +95,10 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
                 if (totalPower > 0 && consumers.size() > 0) {
                     float powerToEachConsumer = totalPower / consumers.size();
                     for (EntityRef consumerEntity : consumers) {
-                        MechanicalPowerConsumerComponent consumer = consumerEntity.getComponent(MechanicalPowerConsumerComponent.class);
-                        if (consumer.currentStoredPower < consumer.maximumStoredPower) {
-                            consumer.currentStoredPower = TeraMath.clamp(consumer.currentStoredPower + powerToEachConsumer, 0, consumer.maximumStoredPower);
-                            consumerEntity.saveComponent(consumer);
+                        PotentialEnergyDeviceComponent deviceComponent = consumerEntity.getComponent(PotentialEnergyDeviceComponent.class);
+                        if (deviceComponent.currentStoredEnergy < deviceComponent.maximumStoredEnergy) {
+                            deviceComponent.currentStoredEnergy = TeraMath.clamp(deviceComponent.currentStoredEnergy + powerToEachConsumer, 0, deviceComponent.maximumStoredEnergy);
+                            consumerEntity.saveComponent(deviceComponent);
                         }
                     }
                 }
@@ -123,7 +109,7 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
     @ReceiveEvent
     public void powerChangedInMachine(OnChangedComponent event, EntityRef workstation,
                                       WorkstationComponent workstationComponent,
-                                      MechanicalPowerConsumerComponent consumerComponent) {
+                                      PotentialEnergyDeviceComponent potentialEnergyDeviceComponent) {
         workstation.send(new WorkstationStateChanged());
     }
 

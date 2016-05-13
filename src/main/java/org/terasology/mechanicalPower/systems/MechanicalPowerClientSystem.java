@@ -30,17 +30,16 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
+import org.terasology.logic.inventory.ItemCommonSystem;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
 import org.terasology.math.Side;
-import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
+import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.registry.In;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.rendering.nui.widgets.TooltipLine;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.items.BlockItemComponent;
 
@@ -63,6 +62,8 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
         BlockItemComponent blockItem = renderedEntityBuilder.getComponent(BlockItemComponent.class);
         blockItem.blockFamily = rotatingAxle.renderedBlockFamily;
         renderedEntityBuilder.saveComponent(blockItem);
+
+        ItemCommonSystem.addOrUpdateBlockMeshComponent(blockItem, renderedEntityBuilder);
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
         Side direction = BlockFamilyUtil.getSideDefinedDirection(block.getBlock());
@@ -107,8 +108,8 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
                 if (producer != null) {
                     totalPower += producer.active ? producer.power : 0f;
                 }
-                MechanicalPowerConsumerComponent consumer = nodeEntity.getComponent(MechanicalPowerConsumerComponent.class);
-                if (consumer != null) {
+                PotentialEnergyDeviceComponent potentialEnergyDeviceComponent = nodeEntity.getComponent(PotentialEnergyDeviceComponent.class);
+                if (potentialEnergyDeviceComponent != null) {
                     totalConsumers++;
                 }
 
@@ -153,10 +154,5 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem {
 
     private void turnAxleOff(EntityRef renderedEntity) {
         renderedEntity.removeComponent(AnimateRotationComponent.class);
-    }
-
-    @ReceiveEvent
-    public void getItemTooltip(GetItemTooltip event, EntityRef entityRef, MechanicalPowerConsumerComponent consumerComponent) {
-        event.getTooltipLines().add(new TooltipLine(String.format("Power: %.0f/%.0f", consumerComponent.currentStoredPower, consumerComponent.maximumStoredPower)));
     }
 }

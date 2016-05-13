@@ -20,7 +20,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
-import org.terasology.mechanicalPower.components.MechanicalPowerConsumerComponent;
+import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.workstation.process.ProcessPartDescription;
 import org.terasology.workstation.processPart.ProcessEntityGetDurationEvent;
 import org.terasology.workstation.processPart.ProcessEntityIsInvalidToStartEvent;
@@ -35,10 +35,10 @@ public class MechanicalPowerToPressureProcessPartCommonSystem extends BaseCompon
     @ReceiveEvent
     public void validateToStartExecution(ProcessEntityIsInvalidToStartEvent event, EntityRef processEntity,
                                          MechanicalPowerToPressureComponent mechanicalPowerToPressureComponent) {
-        MechanicalPowerConsumerComponent consumer = event.getWorkstation().getComponent(MechanicalPowerConsumerComponent.class);
+        PotentialEnergyDeviceComponent consumer = event.getWorkstation().getComponent(PotentialEnergyDeviceComponent.class);
         FluidPumpComponent fluidPumpComponent = event.getWorkstation().getComponent(FluidPumpComponent.class);
         if (consumer != null && fluidPumpComponent != null) {
-            if (consumer.currentStoredPower > 0) {
+            if (consumer.currentStoredEnergy > 0) {
                 return;
             }
         }
@@ -48,13 +48,13 @@ public class MechanicalPowerToPressureProcessPartCommonSystem extends BaseCompon
     @ReceiveEvent
     public void startExecution(ProcessEntityStartExecutionEvent event, EntityRef processEntity,
                                MechanicalPowerToPressureComponent mechanicalPowerToPressureComponent) {
-        MechanicalPowerConsumerComponent consumer = event.getWorkstation().getComponent(MechanicalPowerConsumerComponent.class);
+        PotentialEnergyDeviceComponent consumer = event.getWorkstation().getComponent(PotentialEnergyDeviceComponent.class);
         FluidPumpComponent fluidPumpComponent = event.getWorkstation().getComponent(FluidPumpComponent.class);
         if (consumer != null && fluidPumpComponent != null) {
-            fluidPumpComponent.pressure = Math.max(consumer.currentStoredPower, fluidPumpComponent.pressure);
+            fluidPumpComponent.pressure = Math.max(consumer.currentStoredEnergy, fluidPumpComponent.pressure);
             event.getWorkstation().saveComponent(fluidPumpComponent);
 
-            consumer.currentStoredPower = 0;
+            consumer.currentStoredEnergy = 0;
             event.getWorkstation().saveComponent(consumer);
         }
     }
