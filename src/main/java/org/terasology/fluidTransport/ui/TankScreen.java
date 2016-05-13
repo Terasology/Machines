@@ -26,7 +26,7 @@ public class TankScreen extends BaseInteractionScreen {
     UILabel fluidContainerWidget;
 
     @Override
-    protected void initialise() {
+    public void initialise() {
         fluidContainerWidget = find("fluidWidget", UILabel.class);
     }
 
