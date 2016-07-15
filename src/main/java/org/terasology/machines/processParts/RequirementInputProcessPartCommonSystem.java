@@ -30,6 +30,7 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.logic.inventory.events.BeforeItemPutInInventory;
 import org.terasology.machines.ExtendedInventoryManager;
+import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.machines.components.ProcessRequirementsProviderFromWorkstationComponent;
 import org.terasology.machines.events.RequirementUsedEvent;
@@ -128,6 +129,11 @@ public class RequirementInputProcessPartCommonSystem extends BaseComponentSystem
     @ReceiveEvent
     public void preventNonRequirementProvidingItemsIntoRequirementSlot(BeforeItemPutInInventory event, EntityRef entity,
                                                                        InventoryComponent workstationInventory) {
+        // Only perform the following actions if this workstation is actually a machine.
+        if (!entity.hasComponent(MachineDefinitionComponent.class)) {
+            return;
+        }
+
         if (WorkstationInventoryUtils.getAssignedInputSlots(entity, REQUIREMENTSINVENTORYCATEGORY).contains(event.getSlot())) {
             ProcessRequirementsProviderComponent requirementsProvider = event.getItem().getComponent(ProcessRequirementsProviderComponent.class);
             if (requirementsProvider == null) {
