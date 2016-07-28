@@ -12,7 +12,7 @@
         "id" : "Fluid", "minVersion" : "0.1.0"
     },
     {
-        "id" : "ItemRendering", "minVersion" : "0.1.0"
+        "id" : "ItemRendering", "minVersion" : "0.2.0"
     },
     {
         "id" : "InGameHelp", "minVersion" : "0.1.0"
