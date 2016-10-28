@@ -16,6 +16,7 @@
 package org.terasology.fluidTransport.systems;
 
 import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.entitySystem.event.EventPriority;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
@@ -32,7 +33,8 @@ public class FluidTankAuthoritySystem extends BaseComponentSystem {
     @In
     InventoryManager inventoryManager;
 
-    @ReceiveEvent(components = {ItemComponent.class})
+    // Prioritize interacting with tanks over other things
+    @ReceiveEvent(components = {ItemComponent.class}, priority = EventPriority.PRIORITY_HIGH)
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item,
                                        FluidContainerItemComponent fluidContainer) {
         EntityRef targetBlockEntity = event.getTarget();
@@ -44,25 +46,26 @@ public class FluidTankAuthoritySystem extends BaseComponentSystem {
             float outputTankEmptyVolume = ExtendedFluidManager.getTankEmptyVolume(targetBlockEntity, false);
             String outputTankFluidType = ExtendedFluidManager.getTankFluidType(targetBlockEntity, false);
 
-            if (fluidContainer.volume <= outputTankVolume && fluidContainer.fluidType == null && outputTankFluidType != null) {
+            if (outputTankVolume > 0 && fluidContainer.fluidType == null && outputTankFluidType != null) {
                 // fill the container from the block
-                fillFluidContainer(event, item, outputTankFluidType);
-                ExtendedFluidManager.removeFluid(targetBlockEntity, fluidContainer.volume, outputTankFluidType);
+                float amountToFill = Math.min(fluidContainer.maxVolume, outputTankVolume);
+                fillFluidContainer(event, item, outputTankFluidType, amountToFill);
+                ExtendedFluidManager.removeFluid(targetBlockEntity, amountToFill, outputTankFluidType);
             } else if (fluidContainer.fluidType != null && fluidContainer.volume <= inputTankEmptyVolume
                     // if the fluid types are the same,  or if the block does not have a fluid type
                     && (inputTankFluidType == null || inputTankFluidType.equals(fluidContainer.fluidType))) {
                 // empty the container to the block
                 ExtendedFluidManager.giveFluid(targetBlockEntity, fluidContainer.volume, fluidContainer.fluidType, true);
-                fillFluidContainer(event, item, null);
+                fillFluidContainer(event, item, null, 0);
             }
         }
     }
 
-    private void fillFluidContainer(ActivateEvent event, EntityRef item, String fluidType) {
+    private void fillFluidContainer(ActivateEvent event, EntityRef item, String fluidType, float volume) {
         EntityRef owner = item.getOwner();
         final EntityRef removedItem = inventoryManager.removeItem(owner, event.getInstigator(), item, false, 1);
         if (removedItem != null) {
-            FluidUtils.setFluidForContainerItem(removedItem, fluidType);
+            FluidUtils.setFluidForContainerItem(removedItem, fluidType, volume);
             if (!inventoryManager.giveItem(owner, event.getInstigator(), removedItem)) {
                 removedItem.destroy();
             }
