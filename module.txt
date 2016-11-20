@@ -1,6 +1,6 @@
 {
     "id": "Machines",
-    "version": "1.1.1-SNAPSHOT",
+    "version": "1.1.2-SNAPSHOT",
     "author": "Josharias",
     "displayName": "Machines",
     "description": "A library for machines",
@@ -9,13 +9,13 @@
         "id": "Workstation", "minVersion": "1.0.0"
     },
     {
-        "id" : "Fluid", "minVersion" : "0.2.0"
+        "id" : "Fluid", "minVersion" : "1.0.0"
     },
     {
-        "id" : "ItemRendering", "minVersion" : "0.1.0"
+        "id" : "ItemRendering", "minVersion" : "1.0.0"
     },
     {
-        "id" : "InGameHelp", "minVersion" : "0.1.0"
+        "id" : "InGameHelp", "minVersion" : "1.0.0"
     },
     {
         "id" : "PotentialEnergyDevices", "minVersion" : "1.0.0"
