@@ -45,10 +45,7 @@ import org.terasology.workstation.system.WorkstationRegistry;
 import org.terasology.workstation.ui.ProcessListWidget;
 import org.terasology.workstation.ui.WorkstationUI;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultMachineWindow extends BaseInteractionScreen {
 
@@ -106,51 +103,15 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
     @Override
     protected void initializeWithInteractionTarget(EntityRef interactionTarget) {
-        WorkstationComponent workstation = getInteractionTarget().getComponent(WorkstationComponent.class);
-        MachineDefinitionComponent machineDefinition = getInteractionTarget().getComponent(MachineDefinitionComponent.class);
+        WorkstationComponent workstation = interactionTarget.getComponent(WorkstationComponent.class);
+        MachineDefinitionComponent machineDefinition = interactionTarget.getComponent(MachineDefinitionComponent.class);
         int requirementInputSlots = machineDefinition.requirementSlots;
         int blockInputSlots = machineDefinition.inputSlots;
         int blockOutputSlots = machineDefinition.outputSlots;
 
-        if (inputWidgets != null) {
-            if (machineDefinition.inputWidgets.isEmpty()) {
-                inputWidgets.setContent(null);
-                inputWidgets.setVisible(false);
-            } else {
-                inputWidgets.setVisible(true);
-                FlowLayout widgetLayout = new FlowLayout();
-                for (String widgetUri : machineDefinition.inputWidgets) {
-                    UIElement widgetUIElement = Assets.getUIElement(widgetUri).get();
-                    UIWidget widget = widgetUIElement.getRootWidget();
+        initializeIoWidgets(inputWidgets, interactionTarget, machineDefinition.inputWidgets);
 
-                    if (widget instanceof WorkstationUI) {
-                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
-                    }
-                    widgetLayout.addWidget(widget, null);
-                }
-                inputWidgets.setContent(widgetLayout);
-            }
-        }
-
-        if (outputWidgets != null) {
-            if (machineDefinition.outputWidgets.isEmpty()) {
-                outputWidgets.setContent(null);
-                outputWidgets.setVisible(false);
-            } else {
-                outputWidgets.setVisible(true);
-                FlowLayout widgetLayout = new FlowLayout();
-                for (String widgetUri : machineDefinition.outputWidgets) {
-                    UIElement widgetUIElement = Assets.getUIElement(widgetUri).get();
-                    UIWidget widget = widgetUIElement.getRootWidget();
-
-                    if (widget instanceof WorkstationUI) {
-                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
-                    }
-                    widgetLayout.addWidget(widget, null);
-                }
-                outputWidgets.setContent(widgetLayout);
-            }
-        }
+        initializeIoWidgets(outputWidgets, interactionTarget, machineDefinition.outputWidgets);
 
         if (ingredients != null) {
             ingredients.setTargetEntity(interactionTarget);
@@ -237,6 +198,33 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                 }
             }
             outputItems.setContent(itemsLayout);
+        }
+    }
+
+    private static void initializeIoWidgets(UIContainer widgetContainer, EntityRef interactionTarget, Set<String> machineWidgetUris) {
+        if (widgetContainer != null) {
+            if (machineWidgetUris.isEmpty()) {
+                widgetContainer.setContent(null);
+                widgetContainer.setVisible(false);
+            } else {
+                widgetContainer.setVisible(true);
+                FlowLayout widgetLayout = new FlowLayout();
+                for (String widgetUri : machineWidgetUris) {
+                    UIElement widgetUIElement;
+                    Optional<UIElement> uiElementOptional = Assets.getUIElement(widgetUri);
+                    if (!uiElementOptional.isPresent()) {
+                        continue;  // FIXME: log warnings here!
+                    }
+                    widgetUIElement = uiElementOptional.get();
+                    UIWidget widget = widgetUIElement.getRootWidget();
+
+                    if (widget instanceof WorkstationUI) {
+                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
+                    }
+                    widgetLayout.addWidget(widget, null);
+                }
+                widgetContainer.setContent(widgetLayout);
+            }
         }
     }
 
