@@ -17,6 +17,8 @@ package org.terasology.machines.ui;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terasology.rendering.nui.UILayout;
 import org.terasology.utilities.Assets;
 import org.terasology.engine.Time;
@@ -71,6 +73,8 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
     private String validProcessId;
     private long nextProcessResultRefreshTime;
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultMachineWindow.class);
 
     @Override
     public void initialise() {
@@ -244,7 +248,11 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         final EntityRef interactionTarget = getInteractionTarget();
         if (interactionTarget == null) {
             return;
+        } else if (!interactionTarget.exists()) {
+            logger.error("interaction target does not exist? {} {}", this, interactionTarget);
+            return;
         }
+
 
         if (progressBar != null) {
             // update the progress bar
@@ -300,9 +308,10 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
     private static WorkstationProcess getMostComplexProcess(WorkstationComponent workstation, EntityRef interactionTarget) {
         EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
         WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+        final Collection<WorkstationProcess> processes = workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet());
         // isolate the valid processes to one single process
         WorkstationProcess mostComplexProcess = null;
-        for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
+        for (WorkstationProcess process : processes) {
             if (process instanceof ValidateProcess) {
                 ValidateProcess validateProcess = (ValidateProcess) process;
                 if (validateProcess.isValid(character, interactionTarget)) {
