@@ -46,7 +46,10 @@ import org.terasology.workstation.system.WorkstationRegistry;
 import org.terasology.workstation.ui.ProcessListWidget;
 import org.terasology.workstation.ui.WorkstationUI;
 
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 public class DefaultMachineWindow extends BaseInteractionScreen {
 
