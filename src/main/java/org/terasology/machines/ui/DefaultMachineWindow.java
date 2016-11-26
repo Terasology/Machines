@@ -17,6 +17,7 @@ package org.terasology.machines.ui;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.terasology.rendering.nui.UILayout;
 import org.terasology.utilities.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -148,7 +149,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         }
 
         if (executeButton != null) {
-            // hide the button, if there arent any manual processes
+            // hide the button, if there aren't any manual processes
             executeButton.setVisible(workstation.supportedProcessTypes.values().contains(false));
             executeButton.setText(machineDefinition.actionTitle);
         }
@@ -158,47 +159,53 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         }
 
         if (outputItems != null) {
-            ColumnLayout itemsLayout = new ColumnLayout();
-            itemsLayout.setColumns(5);
-            itemsLayout.setAutoSizeColumns(true);
-            itemsLayout.setFillVerticalSpace(false);
+            outputItems.setContent(layoutOutputItems(workstation));
+        }
+    }
 
-            WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+    private static UILayout layoutOutputItems(WorkstationComponent workstation) {
+        WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+        InGameHelpClient helpClient = CoreRegistry.get(InGameHelpClient.class);
 
-            Set<String> alreadyAddedResourceUrns = Sets.newHashSet();
-            for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
-                if (process instanceof DescribeProcess) {
-                    DescribeProcess describeProcess = (DescribeProcess) process;
-                    List<ProcessPartDescription> processPartDescriptions = Lists.newArrayList(describeProcess.getOutputDescriptions());
-                    // sort the processDescriptions so that visual order is the same all the time
-                    Collections.sort(processPartDescriptions, new Comparator<ProcessPartDescription>() {
-                        @Override
-                        public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
-                            if (o1.getResourceUrn() == null) {
-                                return -1;
-                            }
-                            if (o2.getResourceUrn() == null) {
-                                return 1;
-                            }
-                            return o1.getResourceUrn().compareTo(o2.getResourceUrn());
+        ColumnLayout itemsLayout = new ColumnLayout();
+        itemsLayout.setColumns(5);
+        itemsLayout.setAutoSizeColumns(true);
+        itemsLayout.setFillVerticalSpace(false);
+
+        Set<String> alreadyAddedResourceUrns = Sets.newHashSet();
+        for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
+            if (process instanceof DescribeProcess) {
+                DescribeProcess describeProcess = (DescribeProcess) process;
+                List<ProcessPartDescription> processPartDescriptions = Lists.newArrayList(describeProcess.getOutputDescriptions());
+                // sort the processDescriptions so that visual order is the same all the time
+                processPartDescriptions.sort(new Comparator<ProcessPartDescription>() {
+                    @Override
+                    public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
+                        if (o1.getResourceUrn() == null) {
+                            return -1;
                         }
-                    });
-                    for (ProcessPartDescription processPartDescription : processPartDescriptions) {
-                        final String hyperlink = processPartDescription.getResourceUrn() != null ? processPartDescription.getResourceUrn().toString() : null;
-                        if (hyperlink == null || !alreadyAddedResourceUrns.contains(hyperlink)) {
-                            if (hyperlink != null) {
-                                alreadyAddedResourceUrns.add(hyperlink);
-                            }
-                            OverlapLayout overlapLayout = new OverlapLayout();
-                            overlapLayout.addWidget(processPartDescription.getWidget());
-                            overlapLayout.subscribe(x -> CoreRegistry.get(InGameHelpClient.class).showHelpForHyperlink(hyperlink));
-                            itemsLayout.addWidget(overlapLayout);
+                        if (o2.getResourceUrn() == null) {
+                            return 1;
                         }
+                        return o1.getResourceUrn().compareTo(o2.getResourceUrn());
+                    }
+                });
+                for (ProcessPartDescription processPartDescription : processPartDescriptions) {
+                    final String hyperlink = processPartDescription.getResourceUrn() != null ? processPartDescription.getResourceUrn().toString() : null;
+                    if (hyperlink == null || !alreadyAddedResourceUrns.contains(hyperlink)) {
+                        if (hyperlink != null) {
+                            alreadyAddedResourceUrns.add(hyperlink);
+                        }
+                        OverlapLayout overlapLayout = new OverlapLayout();
+                        overlapLayout.addWidget(processPartDescription.getWidget());
+                        overlapLayout.subscribe(x -> { helpClient.showHelpForHyperlink(hyperlink); });
+                        itemsLayout.addWidget(overlapLayout);
                     }
                 }
             }
-            outputItems.setContent(itemsLayout);
         }
+
+        return itemsLayout;
     }
 
     private static void initializeIoWidgets(UIContainer widgetContainer, EntityRef interactionTarget, Set<String> machineWidgetUris) {
