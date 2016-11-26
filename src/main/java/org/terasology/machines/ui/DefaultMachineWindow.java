@@ -198,7 +198,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                         }
                         OverlapLayout overlapLayout = new OverlapLayout();
                         overlapLayout.addWidget(processPartDescription.getWidget());
-                        overlapLayout.subscribe(x -> { helpClient.showHelpForHyperlink(hyperlink); });
+                        overlapLayout.subscribe(x -> helpClient.showHelpForHyperlink(hyperlink));
                         itemsLayout.addWidget(overlapLayout);
                     }
                 }
@@ -248,53 +248,70 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
             updateProgressBar(progressBar, interactionTarget);
         }
 
+
+        // find the process that will run
+        if (processResult != null) {
+            updateProcessResult(processResult, interactionTarget);
+        }
+    }
+
+    private void updateProcessResult(UIContainer processResult, EntityRef interactionTarget) {
         Time time = CoreRegistry.get(Time.class);
         long currentTime = time.getGameTimeInMs();
 
-        // find the process that will run
-        if (processResult != null && currentTime > nextProcessResultRefreshTime) {
-            nextProcessResultRefreshTime = currentTime + 200;
-            // check for valid processes
-            EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
-            WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
-            WorkstationComponent workstation = interactionTarget.getComponent(WorkstationComponent.class);
+        if (currentTime < nextProcessResultRefreshTime) {
+            return;
+        }
+        nextProcessResultRefreshTime = currentTime + 200;
 
-            // isolate the valid processes to one single process
-            WorkstationProcess mostComplexProcess = null;
-            for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
-                if (process instanceof ValidateProcess) {
-                    ValidateProcess validateProcess = (ValidateProcess) process;
-                    if (validateProcess.isValid(character, interactionTarget)) {
-                        if (process instanceof DescribeProcess) {
-                            if (mostComplexProcess == null || getComplexity((DescribeProcess) process) > getComplexity((DescribeProcess) mostComplexProcess)) {
-                                mostComplexProcess = process;
-                            }
+        // check for valid processes
+        WorkstationComponent workstation = interactionTarget.getComponent(WorkstationComponent.class);
+        WorkstationProcess mostComplexProcess = getMostComplexProcess(workstation, interactionTarget);
+
+        UIWidget resultContent = null;
+        boolean buttonVisible = false;
+
+        if (mostComplexProcess != null) {
+            validProcessId = mostComplexProcess.getId();
+            if (mostComplexProcess instanceof DescribeProcess) {
+                FlowLayout flowLayout = new FlowLayout();
+                for (ProcessPartDescription processPartDescription : ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
+                    flowLayout.addWidget(processPartDescription.getWidget(), null);
+                }
+                resultContent = flowLayout;
+            } else {
+                resultContent = new UILabel(validProcessId);
+            }
+            buttonVisible = workstation.supportedProcessTypes.values().contains(false);
+        } else {
+            validProcessId = null;
+        }
+
+        processResult.setContent(resultContent);
+        processResult.setVisible(resultContent != null);
+        if (executeButton != null) {
+            executeButton.setVisible(buttonVisible);
+        }
+    }
+
+    private static WorkstationProcess getMostComplexProcess(WorkstationComponent workstation, EntityRef interactionTarget) {
+        EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
+        WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+        // isolate the valid processes to one single process
+        WorkstationProcess mostComplexProcess = null;
+        for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
+            if (process instanceof ValidateProcess) {
+                ValidateProcess validateProcess = (ValidateProcess) process;
+                if (validateProcess.isValid(character, interactionTarget)) {
+                    if (process instanceof DescribeProcess) {
+                        if (mostComplexProcess == null || getComplexity((DescribeProcess) process) > getComplexity((DescribeProcess) mostComplexProcess)) {
+                            mostComplexProcess = process;
                         }
                     }
                 }
             }
-            if (mostComplexProcess != null) {
-                validProcessId = mostComplexProcess.getId();
-                if (mostComplexProcess instanceof DescribeProcess) {
-                    FlowLayout flowLayout = new FlowLayout();
-                    for (ProcessPartDescription processPartDescription : ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
-                        flowLayout.addWidget(processPartDescription.getWidget(), null);
-                    }
-                    processResult.setContent(flowLayout);
-                } else {
-                    UILabel processIdLabel = new UILabel();
-                    processIdLabel.setText(validProcessId);
-                    processResult.setContent(processIdLabel);
-                }
-                processResult.setVisible(true);
-                executeButton.setVisible(true && workstation.supportedProcessTypes.values().contains(false));
-            } else {
-                validProcessId = null;
-                processResult.setContent(null);
-                processResult.setVisible(false);
-                executeButton.setVisible(false);
-            }
         }
+        return mostComplexProcess;
     }
 
     private static void updateProgressBar(HorizontalProgressBar progressBar, EntityRef interactionTarget) {
@@ -314,7 +331,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         }
     }
 
-    private int getComplexity(DescribeProcess process) {
+    private static int getComplexity(DescribeProcess process) {
         return process.getInputDescriptions().size();
     }
 
