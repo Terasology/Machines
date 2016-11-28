@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 MovingBlocks
+ * Copyright 2016 MovingBlocks
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,12 +48,14 @@ import org.terasology.workstation.system.WorkstationRegistry;
 import org.terasology.workstation.ui.ProcessListWidget;
 import org.terasology.workstation.ui.WorkstationUI;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public class DefaultMachineWindow extends BaseInteractionScreen {
+    private static final Logger logger = LoggerFactory.getLogger(DefaultMachineWindow.class);
 
     private InventoryGrid ingredients;
     private InventoryGrid tools;
@@ -73,8 +75,6 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
     private String validProcessId;
     private long nextProcessResultRefreshTime;
-
-    private static final Logger logger = LoggerFactory.getLogger(DefaultMachineWindow.class);
 
     @Override
     public void initialise() {
@@ -266,7 +266,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         }
     }
 
-    private void updateProcessResult(UIContainer processResult, EntityRef interactionTarget) {
+    private void updateProcessResult(UIContainer targetProcessResult, EntityRef interactionTarget) {
         Time time = CoreRegistry.get(Time.class);
         long currentTime = time.getGameTimeInMs();
 
@@ -298,8 +298,8 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
             validProcessId = null;
         }
 
-        processResult.setContent(resultContent);
-        processResult.setVisible(resultContent != null);
+        targetProcessResult.setContent(resultContent);
+        targetProcessResult.setVisible(resultContent != null);
         if (executeButton != null) {
             executeButton.setVisible(buttonVisible);
         }
