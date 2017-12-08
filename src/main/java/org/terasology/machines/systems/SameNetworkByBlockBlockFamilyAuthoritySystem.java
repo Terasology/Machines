@@ -30,11 +30,8 @@ import org.terasology.world.block.family.UpdatesWithNeighboursFamily;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class SameNetworkByBlockBlockFamilyAuthoritySystem extends BaseComponentSystem {
-
     @In
     WorldProvider worldProvider;
-    @In
-    BlockEntityRegistry blockEntityRegistry;
 
     /**
      * Ensure that when an UpdatesWithNeighboursFamily block is placed, it verifies the block type after the entity magic has happened
@@ -46,7 +43,7 @@ public class SameNetworkByBlockBlockFamilyAuthoritySystem extends BaseComponentS
     public void onBlockChangedWithSameNetworkByBlockBlockFamily(OnChangedBlock event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
         if (event.getNewType().getBlockFamily() instanceof UpdatesWithNeighboursFamily) {
             UpdatesWithNeighboursFamily blockFamily = (UpdatesWithNeighboursFamily) event.getNewType().getBlockFamily();
-            Block shouldBeBlock = blockFamily.getBlockForNeighborUpdate(worldProvider, blockEntityRegistry, event.getBlockPosition(), event.getNewType());
+            Block shouldBeBlock = blockFamily.getBlockForNeighborUpdate(event.getBlockPosition(), event.getNewType());
             if (shouldBeBlock != event.getNewType()) {
                 worldProvider.setBlock(event.getBlockPosition(), shouldBeBlock);
             }

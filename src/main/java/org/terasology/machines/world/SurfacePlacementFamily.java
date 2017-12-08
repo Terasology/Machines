@@ -16,43 +16,70 @@
 package org.terasology.machines.world;
 
 import com.google.common.collect.Maps;
+import org.terasology.math.Pitch;
+import org.terasology.math.Rotation;
 import org.terasology.math.Side;
+import org.terasology.math.Yaw;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.naming.Name;
-import org.terasology.world.BlockEntityRegistry;
-import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
+import org.terasology.world.block.BlockBuilderHelper;
 import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.AbstractBlockFamily;
-import org.terasology.world.block.family.SideDefinedBlockFamily;
+import org.terasology.world.block.family.*;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
 
+import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
 
+@RegisterBlockFamily("surfacePlacement")
+@BlockSections({"front", "left", "right", "back", "top", "bottom", "archetype"})
+@MultiSections({
+        @MultiSection(name = "all", coversSection = "null", appliesToSections = {"front", "left", "right", "back", "top", "bottom"}),
+        @MultiSection(name = "topBottom", coversSection = "null", appliesToSections = {"top", "bottom"}),
+        @MultiSection(name = "sides", coversSection = "null", appliesToSections = {"front", "left", "right", "back"})
+})
 public class SurfacePlacementFamily extends AbstractBlockFamily implements SideDefinedBlockFamily {
     private Map<Side, Block> blocks = Maps.newEnumMap(Side.class);
     private Block archetype;
 
-    public SurfacePlacementFamily(BlockUri uri, Block archetypeBlock, Map<Side, Block> blocks, Iterable<String> categories) {
-        super(uri, categories);
+    public SurfacePlacementFamily(BlockFamilyDefinition family, BlockBuilderHelper blockBuilder) {
+        super(family, blockBuilder);
+
+        Map<Side, Block> blocksBySide = new EnumMap<>(Side.class);
+
+        Block archetypeBlock = blockBuilder.constructSimpleBlock(family, "archetype");
+        blocksBySide.put(Side.FRONT, blockBuilder.constructSimpleBlock(family, "front"));
+        blocksBySide.put(Side.LEFT, blockBuilder.constructTransformedBlock(family, "left", Rotation.rotate(Yaw.CLOCKWISE_90)));
+        blocksBySide.put(Side.BACK, blockBuilder.constructTransformedBlock(family, "back", Rotation.rotate(Yaw.CLOCKWISE_180)));
+        blocksBySide.put(Side.RIGHT, blockBuilder.constructTransformedBlock(family, "right", Rotation.rotate(Yaw.CLOCKWISE_270)));
+        blocksBySide.put(Side.TOP, blockBuilder.constructTransformedBlock(family, "top", Rotation.rotate(Pitch.CLOCKWISE_90)));
+        blocksBySide.put(Side.BOTTOM, blockBuilder.constructTransformedBlock(family, "bottom", Rotation.rotate(Pitch.CLOCKWISE_270)));
+        BlockUri familyUri = new BlockUri(family.getUrn());
+
+        for (Map.Entry<Side, Block> item : blocksBySide.entrySet()) {
+            item.getValue().setDirection(item.getKey());
+        }
+
         for (Side side : Side.values()) {
-            Block block = blocks.get(side);
+            Block block = blocksBySide.get(side);
             if (block != null) {
-                this.blocks.put(side, block);
+                blocks.put(side, block);
                 block.setBlockFamily(this);
-                block.setUri(new BlockUri(uri, new Name(side.name())));
+                block.setUri(new BlockUri(familyUri, new Name(side.name())));
             }
         }
 
-        if (!blocks.values().contains(archetypeBlock)) {
+        if (!blocksBySide.values().contains(archetypeBlock)) {
             archetypeBlock.setBlockFamily(this);
-            archetypeBlock.setUri(new BlockUri(uri, new Name("archetype")));
+            archetypeBlock.setUri(new BlockUri(familyUri, new Name("archetype")));
         }
+
         archetype = archetypeBlock;
     }
 
     @Override
-    public Block getBlockForPlacement(WorldProvider worldProvider, BlockEntityRegistry blockEntityRegistry, Vector3i location, Side attachmentSide, Side direction) {
+    public Block getBlockForPlacement(Vector3i location, Side attachmentSide, Side direction) {
         return blocks.get(attachmentSide);
     }
 

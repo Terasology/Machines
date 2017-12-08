@@ -17,12 +17,14 @@ package org.terasology.fluidTransport.world;
 
 
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
-import org.terasology.machines.world.SameNetworkByBlockBlockFamilyFactory;
-import org.terasology.world.block.family.RegisterBlockFamilyFactory;
+import org.terasology.machines.world.SameNetworkByBlockBlockFamily;
+import org.terasology.world.block.BlockBuilderHelper;
+import org.terasology.world.block.family.RegisterBlockFamily;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
 
-@RegisterBlockFamilyFactory("FluidTransport:FluidPipeBlock")
-public class FluidPipeBlockBlockFamilyFactory extends SameNetworkByBlockBlockFamilyFactory {
-    public FluidPipeBlockBlockFamilyFactory() {
-        super(x -> x.getNetworkId().equals(FluidTransportAuthoritySystem.NETWORK_ID));
+@RegisterBlockFamily("FluidTransport:FluidPipeBlock")
+public class FluidPipeBlockBlockFamily extends SameNetworkByBlockBlockFamily {
+    public FluidPipeBlockBlockFamily(BlockFamilyDefinition family, BlockBuilderHelper builderHelper) {
+        super(family, builderHelper, x -> x.getNetworkId().equals(FluidTransportAuthoritySystem.NETWORK_ID));
     }
 }
