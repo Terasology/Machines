@@ -22,7 +22,6 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.registry.In;
-import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.OnChangedBlock;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
@@ -36,8 +35,8 @@ public class SameNetworkByBlockBlockFamilyAuthoritySystem extends BaseComponentS
     /**
      * Ensure that when an UpdatesWithNeighboursFamily block is placed, it verifies the block type after the entity magic has happened
      *
-     * @param event
-     * @param entityRef
+     * @param event the event received
+     * @param entityRef the entity that sent the event
      */
     @ReceiveEvent
     public void onBlockChangedWithSameNetworkByBlockBlockFamily(OnChangedBlock event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {

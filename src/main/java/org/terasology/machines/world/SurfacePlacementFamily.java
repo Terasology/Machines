@@ -25,7 +25,12 @@ import org.terasology.naming.Name;
 import org.terasology.world.block.Block;
 import org.terasology.world.block.BlockBuilderHelper;
 import org.terasology.world.block.BlockUri;
-import org.terasology.world.block.family.*;
+import org.terasology.world.block.family.AbstractBlockFamily;
+import org.terasology.world.block.family.BlockSections;
+import org.terasology.world.block.family.MultiSection;
+import org.terasology.world.block.family.MultiSections;
+import org.terasology.world.block.family.RegisterBlockFamily;
+import org.terasology.world.block.family.SideDefinedBlockFamily;
 import org.terasology.world.block.loader.BlockFamilyDefinition;
 
 import java.util.EnumMap;
