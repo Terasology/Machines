@@ -8,23 +8,23 @@ See the forum for discussion: http://forum.terasology.org/threads/machines.938/
 
 [Entity Network Readme](src/main/java/org/terasology/entityNetwork/README.md)
 
-##Fluid
+## Fluid
 see Fluid
 
-##Fluid Transport
+## Fluid Transport
 - Tanks that can be interacted with by containers of fluid (like a bucket).
 - Pipes that simulate gravity and let fluid naturally flow from elevated tanks to lower tanks.
 - Pumps that input power to lift fluid to elevated tanks.
 
-##Item Transport
+## Item Transport
 - Ejection/extraction of items to/from adjacent inventories
 
-##Machines
+## Machines
 - A default UI implementation for an inventory based workstation process that allows a single visual extension
 - A system to simplify setup of a block to be a machine. It will automatically add an inventory, slot mappings, and extension of the default UI
 - Surface Placement block family to assist connecting devices in the right direction
 
-##Mechanical Power
+## Mechanical Power
 - Uses the EntityNetwork submodule and PotentialEnergyDevices module to enable transfer, storage, and production of energy
 
 [Mechanical Power Readme](src/main/java/org/terasology/mechanicalPower/README.md)
