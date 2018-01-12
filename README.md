@@ -3,7 +3,7 @@ A module that provides the infrastructure to easily make machines for processing
 
 See the forum for discussion: http://forum.terasology.org/threads/machines.938/
 
-##Entity Network
+## Entity Network
 - A set of components and systems to join entities together in a group.  These groups can then be queried so that interactions between joined entites can be orchestrated.
 
 [Entity Network Readme](src/main/java/org/terasology/entityNetwork/README.md)
