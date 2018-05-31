@@ -33,7 +33,7 @@ import org.terasology.world.block.family.RegisterBlockFamily;
 import org.terasology.world.block.family.SideDefinedBlockFamily;
 import org.terasology.world.block.loader.BlockFamilyDefinition;
 
-import java.util.EnumMap;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
@@ -45,37 +45,29 @@ import java.util.Map;
         @MultiSection(name = "sides", coversSection = "null", appliesToSections = {"front", "left", "right", "back"})
 })
 public class SurfacePlacementFamily extends AbstractBlockFamily implements SideDefinedBlockFamily {
-    private Map<Side, Block> blocks = Maps.newEnumMap(Side.class);
-    private Block archetype;
+    private final Map<Side, Block> blocks = Maps.newEnumMap(Side.class);
+    private final Block archetype;
 
     public SurfacePlacementFamily(BlockFamilyDefinition family, BlockBuilderHelper blockBuilder) {
         super(family, blockBuilder);
 
-        Map<Side, Block> blocksBySide = new EnumMap<>(Side.class);
+        ArrayList<Block> blocksBySide = new ArrayList<>();
 
-        Block archetypeBlock = blockBuilder.constructSimpleBlock(family, "archetype");
-        blocksBySide.put(Side.FRONT, blockBuilder.constructSimpleBlock(family, "front"));
-        blocksBySide.put(Side.LEFT, blockBuilder.constructTransformedBlock(family, "left", Rotation.rotate(Yaw.CLOCKWISE_90)));
-        blocksBySide.put(Side.BACK, blockBuilder.constructTransformedBlock(family, "back", Rotation.rotate(Yaw.CLOCKWISE_180)));
-        blocksBySide.put(Side.RIGHT, blockBuilder.constructTransformedBlock(family, "right", Rotation.rotate(Yaw.CLOCKWISE_270)));
-        blocksBySide.put(Side.TOP, blockBuilder.constructTransformedBlock(family, "top", Rotation.rotate(Pitch.CLOCKWISE_90)));
-        blocksBySide.put(Side.BOTTOM, blockBuilder.constructTransformedBlock(family, "bottom", Rotation.rotate(Pitch.CLOCKWISE_270)));
+
+        Block archetypeBlock = blockBuilder.constructSimpleBlock(family, "archetype", new BlockUri(family.getUrn()), this);
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "front", Rotation.none(), new BlockUri(family.getUrn(), new Name(Side.FRONT.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "left", Rotation.rotate(Yaw.CLOCKWISE_90), new BlockUri(family.getUrn(), new Name(Side.LEFT.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "back", Rotation.rotate(Yaw.CLOCKWISE_180), new BlockUri(family.getUrn(), new Name(Side.BACK.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "right", Rotation.rotate(Yaw.CLOCKWISE_270), new BlockUri(family.getUrn(), new Name(Side.RIGHT.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "top", Rotation.rotate(Pitch.CLOCKWISE_90), new BlockUri(family.getUrn(), new Name(Side.TOP.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "bottom", Rotation.rotate(Pitch.CLOCKWISE_270), new BlockUri(family.getUrn(), new Name(Side.BOTTOM.name())), this));
         BlockUri familyUri = new BlockUri(family.getUrn());
 
-        for (Map.Entry<Side, Block> item : blocksBySide.entrySet()) {
-            item.getValue().setDirection(item.getKey());
+        for (Block block : blocksBySide) {
+            blocks.put(block.getDirection(), block);
         }
 
-        for (Side side : Side.values()) {
-            Block block = blocksBySide.get(side);
-            if (block != null) {
-                blocks.put(side, block);
-                block.setBlockFamily(this);
-                block.setUri(new BlockUri(familyUri, new Name(side.name())));
-            }
-        }
-
-        if (!blocksBySide.values().contains(archetypeBlock)) {
+        if (!blocksBySide.contains(archetypeBlock)) {
             archetypeBlock.setBlockFamily(this);
             archetypeBlock.setUri(new BlockUri(familyUri, new Name("archetype")));
         }
