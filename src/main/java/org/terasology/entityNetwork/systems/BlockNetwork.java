@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -199,7 +200,7 @@ class BlockNetwork {
     }
 
     public Collection<Network> getNetworks() {
-        return Collections.unmodifiableCollection(allNetworks.keySet());
+        return Collections.unmodifiableCollection(new ArrayList<>(allNetworks.keySet()));
     }
 
     private void notifyNetworkAdded(Network network) {

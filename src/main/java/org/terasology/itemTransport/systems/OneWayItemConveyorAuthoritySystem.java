@@ -36,7 +36,6 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.InventoryUtils;
 import org.terasology.logic.inventory.events.InventorySlotChangedEvent;
 import org.terasology.logic.inventory.events.InventorySlotStackSizeChangedEvent;
-import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
@@ -319,6 +318,6 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
         // find out what way this block is pointed
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
         Block block = blockComponent.getBlock();
-        return BlockFamilyUtil.getSideDefinedDirection(block).getRelativeSide(direction);
+        return block.getDirection().getRelativeSide(direction);
     }
 }

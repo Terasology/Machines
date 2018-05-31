@@ -18,6 +18,7 @@ package org.terasology.fluidTransport.processParts;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
+import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
@@ -28,6 +29,7 @@ import org.terasology.workstation.processPart.ProcessEntityStartExecutionEvent;
 import org.terasology.workstation.processPart.metadata.ProcessEntityGetInputDescriptionEvent;
 import org.terasology.workstation.processPart.metadata.ProcessEntityGetOutputDescriptionEvent;
 
+@RegisterSystem
 public class MechanicalPowerToPressureProcessPartCommonSystem extends BaseComponentSystem {
 
     ///// Processing

@@ -40,6 +40,7 @@ import org.terasology.registry.In;
 import org.terasology.registry.Share;
 import org.terasology.world.block.BlockComponent;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -169,7 +170,7 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     public Collection<NetworkNode> getNetworkNodes(Network network) {
         for (BlockNetwork blockNetwork : blockNetworks.values()) {
             if (blockNetwork.getNetworks().contains(network)) {
-                return blockNetwork.getNetworkNodes(network);
+                return Collections.unmodifiableCollection(new ArrayList<>(blockNetwork.getNetworkNodes(network)));
             }
         }
         return Collections.EMPTY_LIST;
@@ -178,7 +179,7 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     @Override
     public Collection<Network> getNetworks(String networkId) {
         if (blockNetworks.containsKey(networkId)) {
-            return blockNetworks.get(networkId).getNetworks();
+            return Collections.unmodifiableCollection(new ArrayList<>(blockNetworks.get(networkId).getNetworks()));
         }
         return Collections.EMPTY_LIST;
     }
@@ -195,13 +196,13 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
 
     @Override
     public Collection<NetworkNode> getNodesForEntity(EntityRef entity) {
-        return nodeLookup.get(entity);
+        return Collections.unmodifiableCollection(new ArrayList<>(nodeLookup.get(entity)));
     }
 
     @Override
     public Collection<Network> getNetworks(NetworkNode node) {
         BlockNetwork blockNetwork = blockNetworks.get(node.getNetworkId());
-        return blockNetwork.getNetworks(node);
+        return Collections.unmodifiableCollection(new ArrayList<>(blockNetwork.getNetworks(node)));
     }
 
     @Command(shortDescription = "Resets the entity network and reconnects everything", runOnServer = true)

@@ -18,13 +18,31 @@ package org.terasology.fluidTransport.world;
 
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
 import org.terasology.machines.world.SameNetworkByBlockBlockFamily;
+import org.terasology.math.Side;
+import org.terasology.math.geom.Vector3i;
+import org.terasology.registry.In;
+import org.terasology.world.WorldProvider;
 import org.terasology.world.block.BlockBuilderHelper;
 import org.terasology.world.block.family.RegisterBlockFamily;
 import org.terasology.world.block.loader.BlockFamilyDefinition;
 
-@RegisterBlockFamily("FluidTransport:FluidPipeBlock")
-public class FluidPipeBlockBlockFamily extends SameNetworkByBlockBlockFamily {
-    public FluidPipeBlockBlockFamily(BlockFamilyDefinition family, BlockBuilderHelper builderHelper) {
+@RegisterBlockFamily("FluidTransport:FluidPumpBlock")
+public class FluidPumpBlockBlockFamily extends SameNetworkByBlockBlockFamily {
+    @In
+    WorldProvider worldProvider;
+
+    public FluidPumpBlockBlockFamily(BlockFamilyDefinition family, BlockBuilderHelper builderHelper) {
         super(family, builderHelper, x -> x.getNetworkId().equals(FluidTransportAuthoritySystem.NETWORK_ID));
+    }
+
+    @Override
+    protected boolean connectionCondition(Vector3i blockLocation, Side connectSide) {
+        boolean result = super.connectionCondition(blockLocation, connectSide);
+        if( !result) {
+            Vector3i targetLocation = new Vector3i(blockLocation);
+            targetLocation.add(connectSide.getVector3i());
+            result = worldProvider.getLiquid(targetLocation).getDepth() > 0;
+        }
+        return result;
     }
 }
