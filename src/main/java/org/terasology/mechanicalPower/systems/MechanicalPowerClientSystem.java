@@ -15,7 +15,7 @@
  */
 package org.terasology.mechanicalPower.systems;
 
-import org.terasology.RotationUtils;
+import org.terasology.engine.Time;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
@@ -29,56 +29,67 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
 import org.terasology.logic.inventory.ItemCommonSystem;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
-import org.terasology.math.Side;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.registry.In;
 import org.terasology.world.block.BlockComponent;
+import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.items.BlockItemComponent;
 
 @RegisterSystem(RegisterMode.CLIENT)
-public class MechanicalPowerClientSystem extends BaseComponentSystem {
+public class MechanicalPowerClientSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
     static final float POWERFOR1RPS = 6.0f;
 
-    //@In
-    //BlockEntityRegistry blockEntityRegistry;
     @In
     EntityManager entityManager;
     @In
     EntityNetworkManager mechanicalPowerBlockNetwork;
+    @In
+    BlockManager blockManager;
+    @In
+    Time time;
+
+    long nextUpdateTime;
+
+    @Override
+    public void update(float delta) {
+        long currentTime = time.getGameTimeInMs();
+        if (currentTime > nextUpdateTime) {
+            for (Network network : mechanicalPowerBlockNetwork.getNetworks(MechanicalPowerAuthoritySystem.NETWORK_ID)) {
+                updateAxlesInNetwork(network);
+            }
+            nextUpdateTime = currentTime + 1000;
+        }
+    }
 
     @ReceiveEvent
     public void createRenderedAxle(OnAddedComponent event, EntityRef entity, RotatingAxleComponent rotatingAxle, LocationComponent location, BlockComponent block) {
         EntityBuilder renderedEntityBuilder = entityManager.newBuilder("RotatingAxle");
         renderedEntityBuilder.setOwner(entity);
+        renderedEntityBuilder.setPersistent(false);
         // set the look of the rendered entity
         BlockItemComponent blockItem = renderedEntityBuilder.getComponent(BlockItemComponent.class);
-        blockItem.blockFamily = rotatingAxle.renderedBlockFamily;
+
+        blockItem.blockFamily = block.getBlock().getBlockFamily();
         renderedEntityBuilder.saveComponent(blockItem);
+
 
         ItemCommonSystem.addOrUpdateBlockMeshComponent(blockItem, renderedEntityBuilder);
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
-        Side direction = BlockFamilyUtil.getSideDefinedDirection(block.getBlock());
-        Rotation rotation = RotationUtils.getRotation(direction);
+        Rotation rotation = block.getBlock().getRotation();
         location.setWorldRotation(rotation.getQuat4f());
         entity.saveComponent(location);
 
         rotatingAxle.renderedEntity = renderedEntityBuilder.build();
         entity.saveComponent(rotatingAxle);
-
-        for (NetworkNode node : mechanicalPowerBlockNetwork.getNodesForEntity(entity)) {
-            for (Network network : mechanicalPowerBlockNetwork.getNetworks(node)) {
-                updateAxlesInNetwork(network);
-            }
-        }
     }
 
     @ReceiveEvent

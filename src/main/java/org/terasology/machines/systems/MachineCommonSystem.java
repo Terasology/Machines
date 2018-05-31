@@ -75,9 +75,9 @@ public class MachineCommonSystem extends BaseComponentSystem {
         // configure the categorized inventory
         if (!entity.hasComponent(InventoryAccessComponent.class) && (entity.hasComponent(InventoryComponent.class) || entity.hasComponent(FluidInventoryComponent.class))) {
             InventoryAccessComponent categorizedInventory = new InventoryAccessComponent();
+            categorizedInventory.input = new HashMap();
+            categorizedInventory.output = new HashMap();
             if (entity.hasComponent(InventoryComponent.class)) {
-                categorizedInventory.input = new HashMap();
-                categorizedInventory.output = new HashMap();
                 int totalInputSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots;
                 categorizedInventory.input.put(InventoryInputProcessPartCommonSystem.WORKSTATIONINPUTCATEGORY,
                         createSlotRange(0, machineDefinition.inputSlots));

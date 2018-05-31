@@ -16,43 +16,67 @@
 package org.terasology.machines.world;
 
 import com.google.common.collect.Maps;
+import org.terasology.math.Pitch;
+import org.terasology.math.Rotation;
 import org.terasology.math.Side;
+import org.terasology.math.Yaw;
 import org.terasology.math.geom.Vector3i;
 import org.terasology.naming.Name;
-import org.terasology.world.BlockEntityRegistry;
-import org.terasology.world.WorldProvider;
 import org.terasology.world.block.Block;
+import org.terasology.world.block.BlockBuilderHelper;
 import org.terasology.world.block.BlockUri;
 import org.terasology.world.block.family.AbstractBlockFamily;
+import org.terasology.world.block.family.BlockSections;
+import org.terasology.world.block.family.MultiSection;
+import org.terasology.world.block.family.MultiSections;
+import org.terasology.world.block.family.RegisterBlockFamily;
 import org.terasology.world.block.family.SideDefinedBlockFamily;
+import org.terasology.world.block.loader.BlockFamilyDefinition;
 
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 
+@RegisterBlockFamily("surfacePlacement")
+@BlockSections({"front", "left", "right", "back", "top", "bottom", "archetype"})
+@MultiSections({
+        @MultiSection(name = "all", coversSection = "null", appliesToSections = {"front", "left", "right", "back", "top", "bottom"}),
+        @MultiSection(name = "topBottom", coversSection = "null", appliesToSections = {"top", "bottom"}),
+        @MultiSection(name = "sides", coversSection = "null", appliesToSections = {"front", "left", "right", "back"})
+})
 public class SurfacePlacementFamily extends AbstractBlockFamily implements SideDefinedBlockFamily {
-    private Map<Side, Block> blocks = Maps.newEnumMap(Side.class);
-    private Block archetype;
+    private final Map<Side, Block> blocks = Maps.newEnumMap(Side.class);
+    private final Block archetype;
 
-    public SurfacePlacementFamily(BlockUri uri, Block archetypeBlock, Map<Side, Block> blocks, Iterable<String> categories) {
-        super(uri, categories);
-        for (Side side : Side.values()) {
-            Block block = blocks.get(side);
-            if (block != null) {
-                this.blocks.put(side, block);
-                block.setBlockFamily(this);
-                block.setUri(new BlockUri(uri, new Name(side.name())));
-            }
+    public SurfacePlacementFamily(BlockFamilyDefinition family, BlockBuilderHelper blockBuilder) {
+        super(family, blockBuilder);
+
+        ArrayList<Block> blocksBySide = new ArrayList<>();
+
+
+        Block archetypeBlock = blockBuilder.constructSimpleBlock(family, "archetype", new BlockUri(family.getUrn()), this);
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "front", Rotation.none(), new BlockUri(family.getUrn(), new Name(Side.FRONT.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "left", Rotation.rotate(Yaw.CLOCKWISE_90), new BlockUri(family.getUrn(), new Name(Side.LEFT.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "back", Rotation.rotate(Yaw.CLOCKWISE_180), new BlockUri(family.getUrn(), new Name(Side.BACK.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "right", Rotation.rotate(Yaw.CLOCKWISE_270), new BlockUri(family.getUrn(), new Name(Side.RIGHT.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "top", Rotation.rotate(Pitch.CLOCKWISE_90), new BlockUri(family.getUrn(), new Name(Side.TOP.name())), this));
+        blocksBySide.add(blockBuilder.constructTransformedBlock(family, "bottom", Rotation.rotate(Pitch.CLOCKWISE_270), new BlockUri(family.getUrn(), new Name(Side.BOTTOM.name())), this));
+        BlockUri familyUri = new BlockUri(family.getUrn());
+
+        for (Block block : blocksBySide) {
+            blocks.put(block.getDirection(), block);
         }
 
-        if (!blocks.values().contains(archetypeBlock)) {
+        if (!blocksBySide.contains(archetypeBlock)) {
             archetypeBlock.setBlockFamily(this);
-            archetypeBlock.setUri(new BlockUri(uri, new Name("archetype")));
+            archetypeBlock.setUri(new BlockUri(familyUri, new Name("archetype")));
         }
+
         archetype = archetypeBlock;
     }
 
     @Override
-    public Block getBlockForPlacement(WorldProvider worldProvider, BlockEntityRegistry blockEntityRegistry, Vector3i location, Side attachmentSide, Side direction) {
+    public Block getBlockForPlacement(Vector3i location, Side attachmentSide, Side direction) {
         return blocks.get(attachmentSide);
     }
 

@@ -18,10 +18,8 @@ package org.terasology.mechanicalPower.components;
 import org.terasology.entitySystem.Component;
 import org.terasology.entitySystem.Owns;
 import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.world.block.family.BlockFamily;
 
 public class RotatingAxleComponent implements Component {
-    public BlockFamily renderedBlockFamily;
     @Owns
     public EntityRef renderedEntity;
 }
