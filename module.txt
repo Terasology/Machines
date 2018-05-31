@@ -22,6 +22,7 @@
     },
     {
         "id" : "PotentialEnergyDevices", "minVersion" : "1.0.0"
-    }
+    },
+    "isLibrary": true
   ]
 }
