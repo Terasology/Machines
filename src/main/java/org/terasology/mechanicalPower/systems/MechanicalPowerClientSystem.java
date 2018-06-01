@@ -39,6 +39,8 @@ import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponen
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.registry.In;
+import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.rendering.nui.widgets.TooltipLine;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.items.BlockItemComponent;
@@ -66,6 +68,13 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
                 updateAxlesInNetwork(network);
             }
             nextUpdateTime = currentTime + 1000;
+        }
+    }
+
+    @ReceiveEvent
+    public void getItemTooltip(GetItemTooltip event, EntityRef entityRef, MechanicalPowerProducerComponent mechanicalPowerProducerComponent) {
+        if( mechanicalPowerProducerComponent.active) {
+            event.getTooltipLines().add(new TooltipLine("Producing: " + mechanicalPowerProducerComponent.power + " mechanical power"));
         }
     }
 
