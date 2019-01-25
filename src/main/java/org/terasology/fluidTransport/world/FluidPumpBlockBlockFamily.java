@@ -38,11 +38,14 @@ public class FluidPumpBlockBlockFamily extends SameNetworkByBlockBlockFamily {
     @Override
     protected boolean connectionCondition(Vector3i blockLocation, Side connectSide) {
         boolean result = super.connectionCondition(blockLocation, connectSide);
-        if( !result) {
-            Vector3i targetLocation = new Vector3i(blockLocation);
-            targetLocation.add(connectSide.getVector3i());
-            result = worldProvider.getLiquid(targetLocation).getDepth() > 0;
-        }
+        /* Removed as a part of PR MovingBlocks/Terasology
+         * TODO: Re-implement connections when the side is a liquid
+         */
+//        if( !result) {
+//            Vector3i targetLocation = new Vector3i(blockLocation);
+//            targetLocation.add(connectSide.getVector3i());
+//            result = worldProvider.getLiquid(targetLocation).getDepth() > 0;
+//        }
         return result;
     }
 }
