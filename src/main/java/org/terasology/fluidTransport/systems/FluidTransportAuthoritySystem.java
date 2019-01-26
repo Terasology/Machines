@@ -47,7 +47,6 @@ import org.terasology.workstation.event.WorkstationStateChanged;
 import org.terasology.world.BlockEntityRegistry;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.BlockComponent;
-import org.terasology.world.liquid.LiquidData;
 
 import java.util.Comparator;
 import java.util.SortedMap;
@@ -168,12 +167,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                     for (Side side : Side.values()) {
                         Vector3i sidePosition = side.getAdjacentPos(getLocation(pump));
 
-                        // check for world liquid blocks
-                        LiquidData liquidData = worldProvider.getLiquid(sidePosition);
-                        if (liquidData.getDepth() > 0) {
-                            fluidType = fluidRegistry.getFluidType(liquidData.getType());
-                            break;
-                        }
+                        //TODO: Implement ability to pump from source blocks
 
                         // check for a tank block
                         EntityRef sideEntity = blockEntityRegistry.getEntityAt(sidePosition);
