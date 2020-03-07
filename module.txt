@@ -6,9 +6,6 @@
     "description": "A library for machines",
     "dependencies": [
     {
-        "id": "engine", "minVersion": "2.0.0"
-    },
-    {
         "id": "Workstation", "minVersion": "1.0.0"
     },
     {
