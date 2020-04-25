@@ -21,6 +21,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.logic.common.RetainComponentsComponent;
 import org.terasology.logic.inventory.InventoryAccessComponent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
@@ -49,9 +50,12 @@ public class MachineCommonSystem extends BaseComponentSystem {
     }
 
     private void addProcessingMachine(EntityRef entity, MachineDefinitionComponent machineDefinition) {
+        RetainComponentsComponent retainComponents = new RetainComponentsComponent();
 
         // configure the input/output inventories
         if (!entity.hasComponent(InventoryComponent.class) && machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots > 0) {
+            retainComponents.components.add(InventoryComponent.class);
+            entity.addOrSaveComponent(retainComponents);
             int totalSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots;
             InventoryComponent inventoryComponent = new InventoryComponent(totalSlots);
             inventoryComponent.privateToOwner = false;
@@ -60,6 +64,8 @@ public class MachineCommonSystem extends BaseComponentSystem {
 
         // configure the fluid inventories
         if (!entity.hasComponent(FluidInventoryComponent.class) && machineDefinition.fluidInputSlotVolumes.size() + machineDefinition.fluidOutputSlotVolumes.size() > 0) {
+            retainComponents.components.add(FluidInventoryComponent.class);
+            entity.addOrSaveComponent(retainComponents);
             FluidInventoryComponent fluidInventoryComponent = new FluidInventoryComponent();
             for (float volume : machineDefinition.fluidInputSlotVolumes) {
                 fluidInventoryComponent.fluidSlots.add(EntityRef.NULL);
@@ -74,6 +80,8 @@ public class MachineCommonSystem extends BaseComponentSystem {
 
         // configure the categorized inventory
         if (!entity.hasComponent(InventoryAccessComponent.class) && (entity.hasComponent(InventoryComponent.class) || entity.hasComponent(FluidInventoryComponent.class))) {
+            retainComponents.components.add(InventoryAccessComponent.class);
+            entity.addOrSaveComponent(retainComponents);
             InventoryAccessComponent categorizedInventory = new InventoryAccessComponent();
             categorizedInventory.input = new HashMap();
             categorizedInventory.output = new HashMap();
