@@ -5,11 +5,11 @@
     "displayName": "Machines",
     "description": "A library for machines",
     "dependencies": [
-        { "id": "Fluid", "minVersion": "1.0.0" },
-        { "id": "InGameHelp", "minVersion": "1.0.0" },
-        { "id": "ItemRendering", "minVersion": "1.0.0" },
-        { "id": "PotentialEnergyDevices", "minVersion": "1.0.0" },
-        { "id": "Workstation", "minVersion": "1.0.0" }
+        { "id": "Fluid", "minVersion": "1.1.0" },
+        { "id": "InGameHelp", "minVersion": "1.1.0" },
+        { "id": "ItemRendering", "minVersion": "1.1.0" },
+        { "id": "PotentialEnergyDevices", "minVersion": "1.1.0" },
+        { "id": "Workstation", "minVersion": "1.1.0" }
     ],
     "isLibrary": true
 }
