@@ -7,6 +7,7 @@
     "dependencies": [
         { "id": "Fluid", "minVersion": "1.1.0" },
         { "id": "InGameHelp", "minVersion": "1.1.0" },
+        { "id": "Inventory", "minVersion": "1.1.0" },
         { "id": "ItemRendering", "minVersion": "1.1.0" },
         { "id": "PotentialEnergyDevices", "minVersion": "1.1.0" },
         { "id": "Workstation", "minVersion": "1.1.0" }
