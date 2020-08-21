@@ -1,25 +1,12 @@
-/*
- * Copyright 2016 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.machines.ui;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.rendering.nui.UILayout;
+import org.terasology.nui.UILayout;
 import org.terasology.utilities.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -28,15 +15,15 @@ import org.terasology.logic.players.LocalPlayer;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.registry.CoreRegistry;
 import org.terasology.rendering.nui.BaseInteractionScreen;
-import org.terasology.rendering.nui.UIWidget;
-import org.terasology.rendering.nui.asset.UIElement;
+import org.terasology.nui.UIWidget;
+import org.terasology.nui.asset.UIElement;
 import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
-import org.terasology.rendering.nui.layouts.ColumnLayout;
-import org.terasology.rendering.nui.layouts.FlowLayout;
-import org.terasology.rendering.nui.widgets.ActivateEventListener;
-import org.terasology.rendering.nui.widgets.UIButton;
-import org.terasology.rendering.nui.widgets.UIImage;
-import org.terasology.rendering.nui.widgets.UILabel;
+import org.terasology.nui.layouts.ColumnLayout;
+import org.terasology.nui.layouts.FlowLayout;
+import org.terasology.nui.widgets.ActivateEventListener;
+import org.terasology.nui.widgets.UIButton;
+import org.terasology.nui.widgets.UIImage;
+import org.terasology.nui.widgets.UILabel;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.component.WorkstationProcessingComponent;
 import org.terasology.workstation.event.WorkstationProcessRequest;
