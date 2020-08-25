@@ -1,20 +1,8 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
+import org.terasology.fluid.system.FluidContainerAssetResolver;
 import org.terasology.utilities.Assets;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.entitySystem.entity.EntityBuilder;
@@ -29,7 +17,6 @@ import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidRegistry;
-import org.terasology.fluid.system.FluidRenderer;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
@@ -44,7 +31,7 @@ import org.terasology.rendering.assets.mesh.MeshBuilder;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.logic.MeshComponent;
 import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.rendering.nui.widgets.TooltipLine;
+import org.terasology.nui.widgets.TooltipLine;
 import org.terasology.world.block.regions.BlockRegionComponent;
 
 import java.util.Optional;
@@ -114,8 +101,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         ResourceUrn materialUrn = new ResourceUrn("Machines", "FluidTank", tankFluidType);
         Optional<Material> material = Assets.getMaterial(materialUrn.toString());
         if (!material.isPresent()) {
-            FluidRenderer fluidRenderer = fluidRegistry.getFluidRenderer(tankFluidType);
-            Texture texture = fluidRenderer.getTexture().getTexture();
+            Texture texture = Assets.getTexture(FluidContainerAssetResolver.getFluidBaseUri(tankFluidType)).get();
             MaterialData terrainMatData = new MaterialData(Assets.getShader("engine:genericMeshMaterial").get());
             terrainMatData.setParam("diffuse", texture);
             terrainMatData.setParam("colorOffset", new float[]{1, 1, 1});
@@ -152,7 +138,40 @@ public class FluidTankClientSystem extends BaseComponentSystem {
 
             @Override
             public Vector2f map(int vertexIndex, float u, float v) {
-                return new Vector2f(1f, 1f);
+                switch (vertexIndex) {
+                    // Front face
+                    case  0 : return new Vector2f(0f, 1f);
+                    case  1 : return new Vector2f(1f, 1f);
+                    case  2 : return new Vector2f(1f, 1-fullness);
+                    case  3 : return new Vector2f(0f, 1-fullness);
+                    // Back face
+                    case  4 : return new Vector2f(1f, 1f);
+                    case  5 : return new Vector2f(1f, 1-fullness);
+                    case  6 : return new Vector2f(0f, 1-fullness);
+                    case  7 : return new Vector2f(0f, 1f);
+                    // Top face
+                    case  8 : return new Vector2f(1f, 0f);
+                    case  9 : return new Vector2f(1f, 1f);
+                    case 10 : return new Vector2f(0f, 1f);
+                    case 11 : return new Vector2f(0f, 0f);
+                    // Bottom face
+                    case 12 : return new Vector2f(1f, 0f);
+                    case 13 : return new Vector2f(0f, 0f);
+                    case 14 : return new Vector2f(0f, 1f);
+                    case 15 : return new Vector2f(1f, 1f);
+                    // Right face
+                    case 16 : return new Vector2f(1f, 1f);
+                    case 17 : return new Vector2f(1f, 1-fullness);
+                    case 18 : return new Vector2f(0f, 1-fullness);
+                    case 19 : return new Vector2f(0f, 1f);
+                    // Left face
+                    case 20 : return new Vector2f(0f, 0f);
+                    case 21 : return new Vector2f(1f, 0f);
+                    case 22 : return new Vector2f(1f, fullness);
+                    case 23 : return new Vector2f(0f, fullness);
+
+                    default : throw new RuntimeException("Unreachable state.");
+                }
             }
         });
 
@@ -188,7 +207,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         float tankFluidVolume = ExtendedFluidManager.getTankFluidVolume(entityRef, true);
         float tankTotalVolume = ExtendedFluidManager.getTankTotalVolume(entityRef, true);
         String tankFluidType = ExtendedFluidManager.getTankFluidType(entityRef, true);
-        String fluidDisplay = tankFluidType == null ? "Fluid" : fluidRegistry.getFluidRenderer(tankFluidType).getFluidName();
+        String fluidDisplay = tankFluidType == null ? "Fluid" : fluidRegistry.getDisplayName(tankFluidType);
         event.getTooltipLines().add(new TooltipLine(fluidDisplay + ": " + tankFluidVolume + "/" + tankTotalVolume));
     }
 
