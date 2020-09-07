@@ -3,7 +3,6 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
-import org.terasology.assets.ResourceUrn;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -12,6 +11,7 @@ import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.prefab.Prefab;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.gestalt.assets.ResourceUrn;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
@@ -22,10 +22,10 @@ import org.terasology.machines.components.ProcessRequirementsProviderComponent;
 import org.terasology.machines.components.ProcessRequirementsProviderFromWorkstationComponent;
 import org.terasology.machines.events.RequirementUsedEvent;
 import org.terasology.machines.ui.OverlapLayout;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.registry.In;
 import org.terasology.nui.UIWidget;
 import org.terasology.nui.databinding.ReadOnlyBinding;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.registry.In;
 import org.terasology.utilities.Assets;
 import org.terasology.workstation.process.ProcessPartDescription;
 import org.terasology.workstation.process.WorkstationInventoryUtils;

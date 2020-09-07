@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
-import org.terasology.fluid.system.FluidContainerAssetResolver;
-import org.terasology.utilities.Assets;
-import org.terasology.assets.ResourceUrn;
 import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -16,13 +13,16 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.fluid.system.FluidContainerAssetResolver;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
+import org.terasology.gestalt.assets.ResourceUrn;
 import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector2f;
 import org.terasology.math.geom.Vector3f;
+import org.terasology.nui.widgets.TooltipLine;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.material.Material;
 import org.terasology.rendering.assets.material.MaterialData;
@@ -31,7 +31,7 @@ import org.terasology.rendering.assets.mesh.MeshBuilder;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.logic.MeshComponent;
 import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.nui.widgets.TooltipLine;
+import org.terasology.utilities.Assets;
 import org.terasology.world.block.regions.BlockRegionComponent;
 
 import java.util.Optional;
