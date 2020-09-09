@@ -2,37 +2,37 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
-import org.terasology.entitySystem.entity.EntityBuilder;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityBuilder;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.logic.location.LocationComponent;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.rendering.assets.material.Material;
+import org.terasology.engine.rendering.assets.material.MaterialData;
+import org.terasology.engine.rendering.assets.mesh.Mesh;
+import org.terasology.engine.rendering.assets.mesh.MeshBuilder;
+import org.terasology.engine.rendering.assets.texture.Texture;
+import org.terasology.engine.rendering.logic.MeshComponent;
+import org.terasology.engine.utilities.Assets;
+import org.terasology.engine.world.block.regions.BlockRegionComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidContainerAssetResolver;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
 import org.terasology.gestalt.assets.ResourceUrn;
+import org.terasology.inventory.rendering.nui.layers.ingame.GetItemTooltip;
 import org.terasology.itemRendering.components.RenderItemComponent;
-import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.geom.Vector2f;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.nui.widgets.TooltipLine;
-import org.terasology.registry.In;
-import org.terasology.rendering.assets.material.Material;
-import org.terasology.rendering.assets.material.MaterialData;
-import org.terasology.rendering.assets.mesh.Mesh;
-import org.terasology.rendering.assets.mesh.MeshBuilder;
-import org.terasology.rendering.assets.texture.Texture;
-import org.terasology.rendering.logic.MeshComponent;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.utilities.Assets;
-import org.terasology.world.block.regions.BlockRegionComponent;
 
 import java.util.Optional;
 
@@ -70,12 +70,14 @@ public class FluidTankClientSystem extends BaseComponentSystem {
     }
 
     @ReceiveEvent
-    public void removeRenderedTank(BeforeDeactivateComponent event, EntityRef entityRef, FluidTankDisplayComponent fluidTankDisplayComponent) {
+    public void removeRenderedTank(BeforeDeactivateComponent event, EntityRef entityRef,
+                                   FluidTankDisplayComponent fluidTankDisplayComponent) {
         entityRef.removeComponent(FluidDisplayComponent.class);
     }
 
     @ReceiveEvent
-    public void removeRenderedFluid(BeforeDeactivateComponent event, EntityRef entityRef, FluidDisplayComponent fluidDisplayComponent) {
+    public void removeRenderedFluid(BeforeDeactivateComponent event, EntityRef entityRef,
+                                    FluidDisplayComponent fluidDisplayComponent) {
         if (fluidDisplayComponent.renderedEntity != null) {
             fluidDisplayComponent.renderedEntity.destroy();
         }
@@ -140,37 +142,62 @@ public class FluidTankClientSystem extends BaseComponentSystem {
             public Vector2f map(int vertexIndex, float u, float v) {
                 switch (vertexIndex) {
                     // Front face
-                    case  0 : return new Vector2f(0f, 1f);
-                    case  1 : return new Vector2f(1f, 1f);
-                    case  2 : return new Vector2f(1f, 1-fullness);
-                    case  3 : return new Vector2f(0f, 1-fullness);
+                    case 0:
+                        return new Vector2f(0f, 1f);
+                    case 1:
+                        return new Vector2f(1f, 1f);
+                    case 2:
+                        return new Vector2f(1f, 1 - fullness);
+                    case 3:
+                        return new Vector2f(0f, 1 - fullness);
                     // Back face
-                    case  4 : return new Vector2f(1f, 1f);
-                    case  5 : return new Vector2f(1f, 1-fullness);
-                    case  6 : return new Vector2f(0f, 1-fullness);
-                    case  7 : return new Vector2f(0f, 1f);
+                    case 4:
+                        return new Vector2f(1f, 1f);
+                    case 5:
+                        return new Vector2f(1f, 1 - fullness);
+                    case 6:
+                        return new Vector2f(0f, 1 - fullness);
+                    case 7:
+                        return new Vector2f(0f, 1f);
                     // Top face
-                    case  8 : return new Vector2f(1f, 0f);
-                    case  9 : return new Vector2f(1f, 1f);
-                    case 10 : return new Vector2f(0f, 1f);
-                    case 11 : return new Vector2f(0f, 0f);
+                    case 8:
+                        return new Vector2f(1f, 0f);
+                    case 9:
+                        return new Vector2f(1f, 1f);
+                    case 10:
+                        return new Vector2f(0f, 1f);
+                    case 11:
+                        return new Vector2f(0f, 0f);
                     // Bottom face
-                    case 12 : return new Vector2f(1f, 0f);
-                    case 13 : return new Vector2f(0f, 0f);
-                    case 14 : return new Vector2f(0f, 1f);
-                    case 15 : return new Vector2f(1f, 1f);
+                    case 12:
+                        return new Vector2f(1f, 0f);
+                    case 13:
+                        return new Vector2f(0f, 0f);
+                    case 14:
+                        return new Vector2f(0f, 1f);
+                    case 15:
+                        return new Vector2f(1f, 1f);
                     // Right face
-                    case 16 : return new Vector2f(1f, 1f);
-                    case 17 : return new Vector2f(1f, 1-fullness);
-                    case 18 : return new Vector2f(0f, 1-fullness);
-                    case 19 : return new Vector2f(0f, 1f);
+                    case 16:
+                        return new Vector2f(1f, 1f);
+                    case 17:
+                        return new Vector2f(1f, 1 - fullness);
+                    case 18:
+                        return new Vector2f(0f, 1 - fullness);
+                    case 19:
+                        return new Vector2f(0f, 1f);
                     // Left face
-                    case 20 : return new Vector2f(0f, 0f);
-                    case 21 : return new Vector2f(1f, 0f);
-                    case 22 : return new Vector2f(1f, fullness);
-                    case 23 : return new Vector2f(0f, fullness);
+                    case 20:
+                        return new Vector2f(0f, 0f);
+                    case 21:
+                        return new Vector2f(1f, 0f);
+                    case 22:
+                        return new Vector2f(1f, fullness);
+                    case 23:
+                        return new Vector2f(0f, fullness);
 
-                    default : throw new RuntimeException("Unreachable state.");
+                    default:
+                        throw new RuntimeException("Unreachable state.");
                 }
             }
         });

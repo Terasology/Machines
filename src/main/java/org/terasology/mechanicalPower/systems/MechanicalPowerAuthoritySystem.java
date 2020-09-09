@@ -1,42 +1,29 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.mechanicalPower.systems;
 
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.engine.Time;
+import org.terasology.engine.core.Time;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.WorldProvider;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.math.TeraMath;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
-import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.event.WorkstationStateChanged;
-import org.terasology.world.WorldProvider;
 
 import java.util.Set;
 
@@ -86,7 +73,8 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
 
                 float totalPower = 0;
                 for (EntityRef producerEntity : producers) {
-                    MechanicalPowerProducerComponent producer = producerEntity.getComponent(MechanicalPowerProducerComponent.class);
+                    MechanicalPowerProducerComponent producer =
+                            producerEntity.getComponent(MechanicalPowerProducerComponent.class);
                     if (producer.active) {
                         totalPower += producer.power;
                     }
@@ -95,9 +83,12 @@ public class MechanicalPowerAuthoritySystem extends BaseComponentSystem implemen
                 if (totalPower > 0 && consumers.size() > 0) {
                     float powerToEachConsumer = totalPower / consumers.size();
                     for (EntityRef consumerEntity : consumers) {
-                        PotentialEnergyDeviceComponent deviceComponent = consumerEntity.getComponent(PotentialEnergyDeviceComponent.class);
+                        PotentialEnergyDeviceComponent deviceComponent =
+                                consumerEntity.getComponent(PotentialEnergyDeviceComponent.class);
                         if (deviceComponent.currentStoredEnergy < deviceComponent.maximumStoredEnergy) {
-                            deviceComponent.currentStoredEnergy = TeraMath.clamp(deviceComponent.currentStoredEnergy + powerToEachConsumer, 0, deviceComponent.maximumStoredEnergy);
+                            deviceComponent.currentStoredEnergy =
+                                    TeraMath.clamp(deviceComponent.currentStoredEnergy + powerToEachConsumer, 0,
+                                            deviceComponent.maximumStoredEnergy);
                             consumerEntity.saveComponent(deviceComponent);
                         }
                     }

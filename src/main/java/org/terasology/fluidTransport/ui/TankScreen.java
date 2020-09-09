@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.ui;
 
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.rendering.nui.BaseInteractionScreen;
 import org.terasology.fluidTransport.systems.ExtendedFluidManager;
-import org.terasology.rendering.nui.BaseInteractionScreen;
 import org.terasology.nui.databinding.ReadOnlyBinding;
 import org.terasology.nui.widgets.UILabel;
 

@@ -1,3 +1,6 @@
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 package org.terasology.entityNetwork.systems;
 
 import com.google.common.collect.HashMultimap;
@@ -5,11 +8,11 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.engine.math.Side;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
-import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3i;
 
 import java.util.Set;
@@ -104,8 +107,10 @@ public class BlockNetworkTest {
     @Test
     public void addTwoOverlappingCrossingNetworkingNodes() {
         Vector3i location = new Vector3i(0, 0, 0);
-        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT, Side.LEFT));
-        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT, Side.BACK));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT,
+                Side.LEFT));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT,
+                Side.BACK));
 
         assertEquals(2, blockNetwork.getNetworks().size());
     }
@@ -125,14 +130,19 @@ public class BlockNetworkTest {
     @Test
     public void cablesInTheSameBlockCanConnectAndHaveCorrectDistance() {
         Vector3i location = new Vector3i(0, 0, 0);
-        final SidedBlockLocationNetworkNode leftRight = new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.RIGHT, Side.LEFT);
+        final SidedBlockLocationNetworkNode leftRight = new SidedBlockLocationNetworkNode(NETWORK_ID, false, location
+                , Side.RIGHT, Side.LEFT);
         blockNetwork.addNetworkingBlock(leftRight);
-        final SidedBlockLocationNetworkNode frontBack = new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, Side.FRONT, Side.BACK);
+        final SidedBlockLocationNetworkNode frontBack = new SidedBlockLocationNetworkNode(NETWORK_ID, false, location
+                , Side.FRONT, Side.BACK);
         blockNetwork.addNetworkingBlock(frontBack);
 
-        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 1), allDirections));
-        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 1), allDirections));
-        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 0), allDirections));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 1),
+                allDirections));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 1),
+                allDirections));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(1, 0, 0),
+                allDirections));
 
         assertEquals(1, blockNetwork.getNetworks().size());
 
@@ -141,7 +151,8 @@ public class BlockNetworkTest {
 
     @Test
     public void nodesAgreeAboutConnectivity() {
-        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0), Side.TOP));
+        blockNetwork.addNetworkingBlock(new SidedBlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 0, 0),
+                Side.TOP));
         blockNetwork.addNetworkingBlock(new BlockLocationNetworkNode(NETWORK_ID, false, new Vector3i(0, 1, 0)));
 
         assertEquals(1, blockNetwork.getNetworks().size());
@@ -235,8 +246,8 @@ public class BlockNetworkTest {
     }
 
     private class ValidatingListener implements NetworkTopologyListener {
-        private Set<Network> networks = Sets.newHashSet();
-        private Multimap<Network, NetworkNode> localNetworkingNodes = HashMultimap.create();
+        private final Set<Network> networks = Sets.newHashSet();
+        private final Multimap<Network, NetworkNode> localNetworkingNodes = HashMultimap.create();
 
         @Override
         public void networkAdded(Network network) {

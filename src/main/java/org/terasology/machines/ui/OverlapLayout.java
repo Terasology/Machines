@@ -3,7 +3,6 @@
 package org.terasology.machines.ui;
 
 import com.google.common.collect.Lists;
-import org.terasology.input.MouseInput;
 import org.joml.Vector2i;
 import org.terasology.nui.BaseInteractionListener;
 import org.terasology.nui.Canvas;
@@ -12,14 +11,26 @@ import org.terasology.nui.InteractionListener;
 import org.terasology.nui.LayoutHint;
 import org.terasology.nui.UIWidget;
 import org.terasology.nui.events.NUIMouseClickEvent;
+import org.terasology.nui.input.MouseInput;
 import org.terasology.nui.widgets.ActivateEventListener;
 
 import java.util.Iterator;
 import java.util.List;
 
 public class OverlapLayout extends CoreLayout<LayoutHint> {
+    private final List<UIWidget> widgets = Lists.newLinkedList();
+    private final List<ActivateEventListener> listeners = Lists.newArrayList();
+    private final InteractionListener interactionListener = new BaseInteractionListener() {
+
+        @Override
+        public boolean onMouseClick(NUIMouseClickEvent event) {
+            if (event.getMouseButton() == MouseInput.MOUSE_LEFT) {
+                activate();
+            }
+            return false;
+        }
+    };
     private boolean down;
-    private List<UIWidget> widgets = Lists.newLinkedList();
 
     public OverlapLayout() {
     }
@@ -77,20 +88,6 @@ public class OverlapLayout extends CoreLayout<LayoutHint> {
     public Iterator<UIWidget> iterator() {
         return widgets.iterator();
     }
-
-
-    private List<ActivateEventListener> listeners = Lists.newArrayList();
-
-    private InteractionListener interactionListener = new BaseInteractionListener() {
-
-        @Override
-        public boolean onMouseClick(NUIMouseClickEvent event) {
-            if (event.getMouseButton() == MouseInput.MOUSE_LEFT) {
-                activate();
-            }
-            return false;
-        }
-    };
 
     private void activate() {
         for (ActivateEventListener listener : listeners) {

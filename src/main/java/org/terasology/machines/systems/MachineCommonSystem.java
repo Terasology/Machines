@@ -1,39 +1,25 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.machines.systems;
 
-import org.terasology.entitySystem.entity.EntityBuilder;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.logic.common.RetainComponentsComponent;
+import org.terasology.engine.math.IntegerRange;
+import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
-import org.terasology.logic.common.RetainComponentsComponent;
-import org.terasology.logic.inventory.InventoryAccessComponent;
-import org.terasology.logic.inventory.InventoryComponent;
+import org.terasology.inventory.logic.InventoryAccessComponent;
+import org.terasology.inventory.logic.InventoryComponent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.NestedMachineComponent;
 import org.terasology.machines.processParts.RequirementInputProcessPartCommonSystem;
-import org.terasology.math.IntegerRange;
 import org.terasology.workstation.process.fluid.FluidInputProcessPartCommonSystem;
 import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;
 import org.terasology.workstation.process.inventory.InventoryInputProcessPartCommonSystem;
 import org.terasology.workstation.process.inventory.InventoryOutputProcessPartCommonSystem;
-import org.terasology.world.block.BlockComponent;
 
 import java.util.HashMap;
 
@@ -41,12 +27,14 @@ import java.util.HashMap;
 public class MachineCommonSystem extends BaseComponentSystem {
 
     @ReceiveEvent(components = {BlockComponent.class})
-    public void onMachineDefinitionAdded(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
+    public void onMachineDefinitionAdded(OnAddedComponent event, EntityRef entity,
+                                         MachineDefinitionComponent machineDefinition) {
         addProcessingMachine(entity, machineDefinition);
     }
 
     @ReceiveEvent(components = {NestedMachineComponent.class})
-    public void onNestedMachineDefinitionAdded(OnAddedComponent event, EntityRef entity, MachineDefinitionComponent machineDefinition) {
+    public void onNestedMachineDefinitionAdded(OnAddedComponent event, EntityRef entity,
+                                               MachineDefinitionComponent machineDefinition) {
         addProcessingMachine(entity, machineDefinition);
     }
 
@@ -56,7 +44,8 @@ public class MachineCommonSystem extends BaseComponentSystem {
         // configure the input/output inventories
         if (!entity.hasComponent(InventoryComponent.class) && machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots > 0) {
             retainComponents.components.add(InventoryComponent.class);
-            int totalSlots = machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots;
+            int totalSlots =
+                    machineDefinition.inputSlots + machineDefinition.requirementSlots + machineDefinition.outputSlots;
             InventoryComponent inventoryComponent = new InventoryComponent(totalSlots);
             inventoryComponent.privateToOwner = false;
             entity.addComponent(inventoryComponent);
@@ -101,7 +90,8 @@ public class MachineCommonSystem extends BaseComponentSystem {
                 }
                 if (machineDefinition.fluidOutputSlotVolumes.size() > 0) {
                     categorizedInventory.output.put(FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY,
-                            createSlotRange(machineDefinition.fluidInputSlotVolumes.size(), machineDefinition.fluidOutputSlotVolumes.size()));
+                            createSlotRange(machineDefinition.fluidInputSlotVolumes.size(),
+                                    machineDefinition.fluidOutputSlotVolumes.size()));
                 }
             }
 

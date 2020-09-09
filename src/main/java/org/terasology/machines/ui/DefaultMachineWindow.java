@@ -6,18 +6,18 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.nui.UILayout;
-import org.terasology.utilities.Assets;
-import org.terasology.engine.Time;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.core.Time;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.logic.players.LocalPlayer;
+import org.terasology.engine.registry.CoreRegistry;
+import org.terasology.engine.rendering.nui.BaseInteractionScreen;
+import org.terasology.engine.utilities.Assets;
 import org.terasology.inGameHelp.InGameHelpClient;
-import org.terasology.logic.players.LocalPlayer;
+import org.terasology.inventory.rendering.nui.layers.ingame.InventoryGrid;
 import org.terasology.machines.components.MachineDefinitionComponent;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.rendering.nui.BaseInteractionScreen;
+import org.terasology.nui.UILayout;
 import org.terasology.nui.UIWidget;
 import org.terasology.nui.asset.UIElement;
-import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
 import org.terasology.nui.layouts.ColumnLayout;
 import org.terasology.nui.layouts.FlowLayout;
 import org.terasology.nui.widgets.ActivateEventListener;
@@ -62,6 +62,127 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
     private String validProcessId;
     private long nextProcessResultRefreshTime;
+
+    private static UILayout layoutOutputItems(WorkstationComponent workstation) {
+        WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+        InGameHelpClient helpClient = CoreRegistry.get(InGameHelpClient.class);
+
+        ColumnLayout itemsLayout = new ColumnLayout();
+        itemsLayout.setColumns(5);
+        itemsLayout.setAutoSizeColumns(true);
+        itemsLayout.setFillVerticalSpace(false);
+
+        Set<String> alreadyAddedResourceUrns = Sets.newHashSet();
+        for (WorkstationProcess process :
+                workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
+            if (process instanceof DescribeProcess) {
+                DescribeProcess describeProcess = (DescribeProcess) process;
+                List<ProcessPartDescription> processPartDescriptions =
+                        Lists.newArrayList(describeProcess.getOutputDescriptions());
+                // sort the processDescriptions so that visual order is the same all the time
+                processPartDescriptions.sort(new Comparator<ProcessPartDescription>() {
+                    @Override
+                    public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
+                        if (o1.getResourceUrn() == null) {
+                            return -1;
+                        }
+                        if (o2.getResourceUrn() == null) {
+                            return 1;
+                        }
+                        return o1.getResourceUrn().compareTo(o2.getResourceUrn());
+                    }
+                });
+                for (ProcessPartDescription processPartDescription : processPartDescriptions) {
+                    final String hyperlink = processPartDescription.getResourceUrn() != null ?
+                            processPartDescription.getResourceUrn().toString() : null;
+                    if (hyperlink == null || !alreadyAddedResourceUrns.contains(hyperlink)) {
+                        if (hyperlink != null) {
+                            alreadyAddedResourceUrns.add(hyperlink);
+                        }
+                        OverlapLayout overlapLayout = new OverlapLayout();
+                        overlapLayout.addWidget(processPartDescription.getWidget());
+                        overlapLayout.subscribe(x -> helpClient.showHelpForHyperlink(hyperlink));
+                        itemsLayout.addWidget(overlapLayout);
+                    }
+                }
+            }
+        }
+
+        return itemsLayout;
+    }
+
+    private static void initializeIoWidgets(UIContainer widgetContainer, EntityRef interactionTarget,
+                                            Set<String> machineWidgetUris) {
+        if (widgetContainer != null) {
+            if (machineWidgetUris.isEmpty()) {
+                widgetContainer.setContent(null);
+                widgetContainer.setVisible(false);
+            } else {
+                widgetContainer.setVisible(true);
+                FlowLayout widgetLayout = new FlowLayout();
+                for (String widgetUri : machineWidgetUris) {
+                    UIElement widgetUIElement;
+                    Optional<UIElement> uiElementOptional = Assets.getUIElement(widgetUri);
+                    if (!uiElementOptional.isPresent()) {
+                        continue;  // FIXME: log warnings here!
+                    }
+                    widgetUIElement = uiElementOptional.get();
+                    UIWidget widget = widgetUIElement.getRootWidget();
+
+                    if (widget instanceof WorkstationUI) {
+                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
+                    }
+                    widgetLayout.addWidget(widget, null);
+                }
+                widgetContainer.setContent(widgetLayout);
+            }
+        }
+    }
+
+    private static WorkstationProcess getMostComplexProcess(WorkstationComponent workstation,
+                                                            EntityRef interactionTarget) {
+        EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
+        WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
+        final Collection<WorkstationProcess> processes =
+                workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet());
+        // isolate the valid processes to one single process
+        WorkstationProcess mostComplexProcess = null;
+        for (WorkstationProcess process : processes) {
+            if (process instanceof ValidateProcess) {
+                ValidateProcess validateProcess = (ValidateProcess) process;
+                if (validateProcess.isValid(character, interactionTarget)) {
+                    if (process instanceof DescribeProcess) {
+                        if (mostComplexProcess == null || getComplexity((DescribeProcess) process) > getComplexity((DescribeProcess) mostComplexProcess)) {
+                            mostComplexProcess = process;
+                        }
+                    }
+                }
+            }
+        }
+        return mostComplexProcess;
+    }
+
+    private static void updateProgressBar(HorizontalProgressBar progressBar, EntityRef interactionTarget) {
+        Time time = CoreRegistry.get(Time.class);
+        long currentTime = time.getGameTimeInMs();
+
+        WorkstationProcessingComponent processing =
+                interactionTarget.getComponent(WorkstationProcessingComponent.class);
+        if (processing != null && processing.processes.size() > 0) {
+            for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
+                float value = 1.0f - (float) (processDef.processingFinishTime - currentTime)
+                        / (float) (processDef.processingFinishTime - processDef.processingStartTime);
+                progressBar.setValue(Math.max(value, 0f));
+                progressBar.setVisible(true);
+            }
+        } else {
+            progressBar.setVisible(false);
+        }
+    }
+
+    private static int getComplexity(DescribeProcess process) {
+        return process.getInputDescriptions().size();
+    }
 
     @Override
     public void initialise() {
@@ -144,7 +265,7 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
         if (executeButton != null) {
             // hide the button, if there aren't any manual processes
-            executeButton.setVisible(workstation.supportedProcessTypes.values().contains(false));
+            executeButton.setVisible(workstation.supportedProcessTypes.containsValue(false));
             executeButton.setText(machineDefinition.actionTitle);
         }
 
@@ -154,78 +275,6 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
 
         if (outputItems != null) {
             outputItems.setContent(layoutOutputItems(workstation));
-        }
-    }
-
-    private static UILayout layoutOutputItems(WorkstationComponent workstation) {
-        WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
-        InGameHelpClient helpClient = CoreRegistry.get(InGameHelpClient.class);
-
-        ColumnLayout itemsLayout = new ColumnLayout();
-        itemsLayout.setColumns(5);
-        itemsLayout.setAutoSizeColumns(true);
-        itemsLayout.setFillVerticalSpace(false);
-
-        Set<String> alreadyAddedResourceUrns = Sets.newHashSet();
-        for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
-            if (process instanceof DescribeProcess) {
-                DescribeProcess describeProcess = (DescribeProcess) process;
-                List<ProcessPartDescription> processPartDescriptions = Lists.newArrayList(describeProcess.getOutputDescriptions());
-                // sort the processDescriptions so that visual order is the same all the time
-                processPartDescriptions.sort(new Comparator<ProcessPartDescription>() {
-                    @Override
-                    public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
-                        if (o1.getResourceUrn() == null) {
-                            return -1;
-                        }
-                        if (o2.getResourceUrn() == null) {
-                            return 1;
-                        }
-                        return o1.getResourceUrn().compareTo(o2.getResourceUrn());
-                    }
-                });
-                for (ProcessPartDescription processPartDescription : processPartDescriptions) {
-                    final String hyperlink = processPartDescription.getResourceUrn() != null ? processPartDescription.getResourceUrn().toString() : null;
-                    if (hyperlink == null || !alreadyAddedResourceUrns.contains(hyperlink)) {
-                        if (hyperlink != null) {
-                            alreadyAddedResourceUrns.add(hyperlink);
-                        }
-                        OverlapLayout overlapLayout = new OverlapLayout();
-                        overlapLayout.addWidget(processPartDescription.getWidget());
-                        overlapLayout.subscribe(x -> helpClient.showHelpForHyperlink(hyperlink));
-                        itemsLayout.addWidget(overlapLayout);
-                    }
-                }
-            }
-        }
-
-        return itemsLayout;
-    }
-
-    private static void initializeIoWidgets(UIContainer widgetContainer, EntityRef interactionTarget, Set<String> machineWidgetUris) {
-        if (widgetContainer != null) {
-            if (machineWidgetUris.isEmpty()) {
-                widgetContainer.setContent(null);
-                widgetContainer.setVisible(false);
-            } else {
-                widgetContainer.setVisible(true);
-                FlowLayout widgetLayout = new FlowLayout();
-                for (String widgetUri : machineWidgetUris) {
-                    UIElement widgetUIElement;
-                    Optional<UIElement> uiElementOptional = Assets.getUIElement(widgetUri);
-                    if (!uiElementOptional.isPresent()) {
-                        continue;  // FIXME: log warnings here!
-                    }
-                    widgetUIElement = uiElementOptional.get();
-                    UIWidget widget = widgetUIElement.getRootWidget();
-
-                    if (widget instanceof WorkstationUI) {
-                        ((WorkstationUI) widget).initializeWorkstation(interactionTarget);
-                    }
-                    widgetLayout.addWidget(widget, null);
-                }
-                widgetContainer.setContent(widgetLayout);
-            }
         }
     }
 
@@ -273,14 +322,15 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
             validProcessId = mostComplexProcess.getId();
             if (mostComplexProcess instanceof DescribeProcess) {
                 FlowLayout flowLayout = new FlowLayout();
-                for (ProcessPartDescription processPartDescription : ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
+                for (ProcessPartDescription processPartDescription :
+                        ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
                     flowLayout.addWidget(processPartDescription.getWidget(), null);
                 }
                 resultContent = flowLayout;
             } else {
                 resultContent = new UILabel(validProcessId);
             }
-            buttonVisible = workstation.supportedProcessTypes.values().contains(false);
+            buttonVisible = workstation.supportedProcessTypes.containsValue(false);
         } else {
             validProcessId = null;
         }
@@ -290,48 +340,6 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         if (executeButton != null) {
             executeButton.setVisible(buttonVisible);
         }
-    }
-
-    private static WorkstationProcess getMostComplexProcess(WorkstationComponent workstation, EntityRef interactionTarget) {
-        EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
-        WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
-        final Collection<WorkstationProcess> processes = workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet());
-        // isolate the valid processes to one single process
-        WorkstationProcess mostComplexProcess = null;
-        for (WorkstationProcess process : processes) {
-            if (process instanceof ValidateProcess) {
-                ValidateProcess validateProcess = (ValidateProcess) process;
-                if (validateProcess.isValid(character, interactionTarget)) {
-                    if (process instanceof DescribeProcess) {
-                        if (mostComplexProcess == null || getComplexity((DescribeProcess) process) > getComplexity((DescribeProcess) mostComplexProcess)) {
-                            mostComplexProcess = process;
-                        }
-                    }
-                }
-            }
-        }
-        return mostComplexProcess;
-    }
-
-    private static void updateProgressBar(HorizontalProgressBar progressBar, EntityRef interactionTarget) {
-        Time time = CoreRegistry.get(Time.class);
-        long currentTime = time.getGameTimeInMs();
-
-        WorkstationProcessingComponent processing = interactionTarget.getComponent(WorkstationProcessingComponent.class);
-        if (processing != null && processing.processes.size() > 0) {
-            for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
-                float value = 1.0f - (float) (processDef.processingFinishTime - currentTime)
-                        / (float) (processDef.processingFinishTime - processDef.processingStartTime);
-                progressBar.setValue(Math.max(value, 0f));
-                progressBar.setVisible(true);
-            }
-        } else {
-            progressBar.setVisible(false);
-        }
-    }
-
-    private static int getComplexity(DescribeProcess process) {
-        return process.getInputDescriptions().size();
     }
 
     @Override

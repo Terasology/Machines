@@ -1,11 +1,14 @@
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 package org.terasology.entityNetwork.systems;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.terasology.engine.math.Side;
+import org.terasology.engine.math.SideBitFlag;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
-import org.terasology.math.Side;
-import org.terasology.math.SideBitFlag;
 import org.terasology.math.geom.Vector3i;
 
 import static org.junit.Assert.assertEquals;
@@ -17,6 +20,19 @@ public class SimpleNetworkTest {
     private BlockNetwork network;
     private byte allDirections;
     private byte upOnly;
+
+    public static BlockNetwork createDegenerateNetwork(
+            NetworkNode networkNode1,
+            NetworkNode networkNode2) {
+        if (!networkNode1.isConnectedTo(networkNode2)) {
+            throw new IllegalArgumentException("These two nodes are not connected");
+        }
+
+        BlockNetwork network = new BlockNetwork();
+        network.addNetworkingBlock(networkNode1);
+        network.addNetworkingBlock(networkNode2);
+        return network;
+    }
 
     @Before
     public void setup() {
@@ -35,29 +51,17 @@ public class SimpleNetworkTest {
         assertEquals(1, network.getNetworkSize());
     }
 
-    public static BlockNetwork createDegenerateNetwork(
-            NetworkNode networkNode1,
-            NetworkNode networkNode2) {
-        if (!networkNode1.isConnectedTo(networkNode2)) {
-            throw new IllegalArgumentException("These two nodes are not connected");
-        }
-
-        BlockNetwork network = new BlockNetwork();
-        network.addNetworkingBlock(networkNode1);
-        network.addNetworkingBlock(networkNode2);
-        return network;
-    }
-
-
     @Test
     public void creatingDegenerateNetwork() {
-        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 1), allDirections), toNode(new Vector3i(0, 0, 0), allDirections));
+        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 1), allDirections), toNode(new Vector3i(0, 0, 0),
+                allDirections));
         assertEquals(2, network.getNetworkSize());
     }
 
     @Test
     public void cantAddLeafNodeToDegeneratedNetwork() {
-        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 1), allDirections), toNode(new Vector3i(0, 0, 0), allDirections));
+        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 1), allDirections), toNode(new Vector3i(0, 0, 0),
+                allDirections));
         network.addNetworkingBlock(toNode(new Vector3i(0, 0, 2), allDirections));
         assertEquals(3, network.getNetworkSize());
         assertEquals(1, network.getNetworks().size());
@@ -129,7 +133,8 @@ public class SimpleNetworkTest {
 
     @Test
     public void removeLeafNodeFromConnectedNetworkWithOnlyLeafNodes() {
-        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1), allDirections));
+        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1),
+                allDirections));
 
         network.removeNetworkingBlock(toNode(new Vector3i(0, 0, 0), allDirections));
         assertEquals(1, network.getNetworkSize());
@@ -140,16 +145,21 @@ public class SimpleNetworkTest {
         network.addNetworkingBlock(toNode(new Vector3i(0, 0, 1), allDirections));
         network.addNetworkingBlock(toNode(new Vector3i(0, 0, 0), allDirections));
 
-        assertTrue(network.isInDistance(0, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 0), allDirections)));
-        assertEquals(0, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 0), allDirections)));
+        assertTrue(network.isInDistance(0, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 0)
+                , allDirections)));
+        assertEquals(0, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0,
+                0), allDirections)));
     }
 
     @Test
     public void distanceForDegeneratedNetwork() {
-        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1), allDirections));
+        network = createDegenerateNetwork(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1),
+                allDirections));
 
-        assertTrue(network.isInDistance(1, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1), allDirections)));
-        assertEquals(1, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1), allDirections)));
+        assertTrue(network.isInDistance(1, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 1)
+                , allDirections)));
+        assertEquals(1, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0,
+                1), allDirections)));
     }
 
     @Test
@@ -175,10 +185,14 @@ public class SimpleNetworkTest {
         network.addNetworkingBlock(secondLeaf);
         network.addNetworkingBlock(firstLeaf);
 
-        assertTrue(network.isInDistance(2, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.FRONT, secondLeaf.location)));
-        assertFalse(network.isInDistance(2, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
-        assertFalse(network.isInDistance(3, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
-        assertTrue(network.isInDistance(4, firstLeaf, secondLeaf, SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
+        assertTrue(network.isInDistance(2, firstLeaf, secondLeaf,
+                SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.FRONT, secondLeaf.location)));
+        assertFalse(network.isInDistance(2, firstLeaf, secondLeaf,
+                SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
+        assertFalse(network.isInDistance(3, firstLeaf, secondLeaf,
+                SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
+        assertTrue(network.isInDistance(4, firstLeaf, secondLeaf,
+                SidedBlockLocationNetworkNode.createSideConnectivityFilter(Side.TOP, secondLeaf.location)));
     }
 
     @Test
@@ -187,9 +201,12 @@ public class SimpleNetworkTest {
             network.addNetworkingBlock(toNode(new Vector3i(0, 0, i), allDirections));
         }
 
-        assertTrue(network.isInDistance(9, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 9), allDirections)));
-        assertFalse(network.isInDistance(8, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 9), allDirections)));
-        assertEquals(9, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 9), allDirections)));
+        assertTrue(network.isInDistance(9, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0, 9)
+                , allDirections)));
+        assertFalse(network.isInDistance(8, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0,
+                9), allDirections)));
+        assertEquals(9, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(0, 0,
+                9), allDirections)));
     }
 
     @Test
@@ -202,9 +219,12 @@ public class SimpleNetworkTest {
             network.addNetworkingBlock(toNode(new Vector3i(i, 0, 5), allDirections));
         }
 
-        assertTrue(network.isInDistance(10, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(5, 0, 5), allDirections)));
-        assertFalse(network.isInDistance(9, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(5, 0, 5), allDirections)));
-        assertEquals(10, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(5, 0, 5), allDirections)));
+        assertTrue(network.isInDistance(10, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(5, 0,
+                5), allDirections)));
+        assertFalse(network.isInDistance(9, toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(5, 0,
+                5), allDirections)));
+        assertEquals(10, network.getDistance(toNode(new Vector3i(0, 0, 0), allDirections), toNode(new Vector3i(5, 0,
+                5), allDirections)));
 
     }
 }

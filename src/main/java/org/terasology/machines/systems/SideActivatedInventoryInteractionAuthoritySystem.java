@@ -1,59 +1,43 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.machines.systems;
 
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.input.binds.inventory.UseItemButton;
-import org.terasology.logic.characters.CharacterComponent;
-import org.terasology.logic.common.ActivateEvent;
-import org.terasology.logic.inventory.InventoryComponent;
-import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.InventoryUtils;
-import org.terasology.logic.inventory.ItemComponent;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.input.binds.inventory.UseItemButton;
+import org.terasology.engine.logic.characters.CharacterComponent;
+import org.terasology.engine.logic.common.ActivateEvent;
+import org.terasology.engine.logic.inventory.ItemComponent;
+import org.terasology.engine.math.Direction;
+import org.terasology.engine.math.Side;
+import org.terasology.engine.physics.CollisionGroup;
+import org.terasology.engine.physics.Physics;
+import org.terasology.engine.physics.StandardCollisionGroup;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.BlockEntityRegistry;
+import org.terasology.engine.world.block.BlockComponent;
+import org.terasology.engine.world.block.family.BlockFamily;
+import org.terasology.engine.world.block.family.SideDefinedBlockFamily;
+import org.terasology.inventory.logic.InventoryComponent;
+import org.terasology.inventory.logic.InventoryManager;
 import org.terasology.machines.components.SideActivatedInventoryInteractionComponent;
-import org.terasology.math.Direction;
-import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3f;
-import org.terasology.physics.CollisionGroup;
-import org.terasology.physics.Physics;
-import org.terasology.physics.StandardCollisionGroup;
-import org.terasology.registry.In;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
-import org.terasology.world.BlockEntityRegistry;
-import org.terasology.world.block.BlockComponent;
-import org.terasology.world.block.family.BlockFamily;
-import org.terasology.world.block.family.SideDefinedBlockFamily;
 
 import java.util.List;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class SideActivatedInventoryInteractionAuthoritySystem extends BaseComponentSystem {
+    private static final CollisionGroup[] filter = {StandardCollisionGroup.DEFAULT, StandardCollisionGroup.WORLD};
     @In
     InventoryManager inventoryManager;
     @In
     BlockEntityRegistry blockEntityRegistry;
     @In
     Physics physics;
-
-    private static CollisionGroup[] filter = {StandardCollisionGroup.DEFAULT, StandardCollisionGroup.WORLD};
-
 
     /// Capture the raw button event manually so that we can do this inventory interaction with an empty hand
     @ReceiveEvent(components = {CharacterComponent.class, InventoryComponent.class})
@@ -88,7 +72,8 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
     }
 
     void doInventoryInteraction(Vector3f hitNormal, EntityRef heldItem, EntityRef target, EntityRef instigator) {
-        SideActivatedInventoryInteractionComponent interactionComponent = target.getComponent(SideActivatedInventoryInteractionComponent.class);
+        SideActivatedInventoryInteractionComponent interactionComponent =
+                target.getComponent(SideActivatedInventoryInteractionComponent.class);
         BlockComponent blockComponent = target.getComponent(BlockComponent.class);
         InventoryComponent blockInventoryComponent = target.getComponent(InventoryComponent.class);
         if (interactionComponent != null && blockComponent != null && blockInventoryComponent != null) {
@@ -110,16 +95,19 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
                 int heldItemSlot = inventoryManager.findSlotWithItem(instigator, heldItem);
                 if (heldItem.exists()) {
                     // we are holding an item, and would like to place it into this block
-                    List<Integer> slots = WorkstationInventoryUtils.getAssignedSlots(target, interactionComponent.inputIsOutputType, interactionComponent.inputType);
+                    List<Integer> slots = WorkstationInventoryUtils.getAssignedSlots(target,
+                            interactionComponent.inputIsOutputType, interactionComponent.inputType);
                     inventoryManager.moveItemToSlots(instigator, instigator, heldItemSlot, target, slots);
                 } else {
 
                     // we are not holding an item, and would like to retrieve an item from this block
-                    List<Integer> slots = WorkstationInventoryUtils.getAssignedSlots(target, interactionComponent.outputIsOutputType, interactionComponent.outputType);
+                    List<Integer> slots = WorkstationInventoryUtils.getAssignedSlots(target,
+                            interactionComponent.outputIsOutputType, interactionComponent.outputType);
                     for (Integer slot : slots) {
                         EntityRef itemInSlot = inventoryManager.getItemInSlot(target, slot);
                         if (itemInSlot.exists()) {
-                            inventoryManager.moveItem(target, instigator, slot, instigator, heldItemSlot, inventoryManager.getStackSize(itemInSlot));
+                            inventoryManager.moveItem(target, instigator, slot, instigator, heldItemSlot,
+                                    inventoryManager.getStackSize(itemInSlot));
                             break;
                         }
                     }

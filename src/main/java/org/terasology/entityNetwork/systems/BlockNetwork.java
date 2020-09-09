@@ -1,3 +1,6 @@
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
+
 package org.terasology.entityNetwork.systems;
 
 import com.google.common.collect.Iterables;
@@ -22,11 +25,11 @@ import java.util.function.BiPredicate;
 class BlockNetwork {
     private static final Logger logger = LoggerFactory.getLogger(BlockNetwork.class);
 
-    private Map<Network, Set<NetworkNode>> allNetworks = Maps.newHashMap();
+    private final Map<Network, Set<NetworkNode>> allNetworks = Maps.newHashMap();
     // an adjacency list of nodes connecting to each other
-    private Map<NetworkNode, Set<NetworkNode>> adjacencyList = Maps.newHashMap();
+    private final Map<NetworkNode, Set<NetworkNode>> adjacencyList = Maps.newHashMap();
 
-    private Set<NetworkTopologyListener> listeners = Sets.newLinkedHashSet();
+    private final Set<NetworkTopologyListener> listeners = Sets.newLinkedHashSet();
 
     public void addTopologyListener(NetworkTopologyListener listener) {
         listeners.add(listener);
@@ -37,7 +40,7 @@ class BlockNetwork {
     }
 
     public void addNetworkingBlock(NetworkNode networkNode) {
-        adjacencyList.put(networkNode, Sets.<NetworkNode>newHashSet());
+        adjacencyList.put(networkNode, Sets.newHashSet());
 
         // loop through all the nodes and find connections
         for (NetworkNode existingNode : adjacencyList.keySet()) {
@@ -52,7 +55,8 @@ class BlockNetwork {
     }
 
     private void addToNetwork(NetworkNode networkNode) {
-        // check the nodes connecting to this one, see if they are all from the same network.  If they are not, merge the networks together
+        // check the nodes connecting to this one, see if they are all from the same network.  If they are not, merge
+        // the networks together
         Set<NetworkNode> connectedNodes = adjacencyList.get(networkNode);
         Network network = null;
         for (NetworkNode connectedNode : Iterables.filter(connectedNodes, x -> !x.isLeaf())) {
@@ -72,7 +76,7 @@ class BlockNetwork {
 
         if (network == null) {
             network = new BasicNetwork();
-            allNetworks.put(network, Sets.<NetworkNode>newHashSet());
+            allNetworks.put(network, Sets.newHashSet());
             notifyNetworkAdded(network);
         }
 
@@ -140,7 +144,8 @@ class BlockNetwork {
             // ensure that the network is still intact, if not,  split it up
             // touch all nodes in the starting from each of the connected nodes to the removed node
             // if a nodes is found in a previously touched list, it connects to that network
-            Map<NetworkNode, NetworkNode> visitedNodes = Maps.newHashMap(); // where Key = a node in the network, Value = the connected node it originated from
+            Map<NetworkNode, NetworkNode> visitedNodes = Maps.newHashMap(); // where Key = a node in the network,
+            // Value = the connected node it originated from
             for (NetworkNode connectedNode : connectedNodes) {
                 visitedNodes.put(connectedNode, connectedNode);
             }
@@ -231,9 +236,6 @@ class BlockNetwork {
         return allNetworks.get(network);
     }
 
-    private class BasicNetwork implements Network {
-    }
-
     public boolean hasNetworkingNode(Network network, NetworkNode networkNode) {
         return allNetworks.get(network).contains(networkNode);
     }
@@ -259,7 +261,8 @@ class BlockNetwork {
         return isInDistance(distance, from, to, null);
     }
 
-    public boolean isInDistance(int distance, NetworkNode from, NetworkNode to, BiPredicate<NetworkNode, NetworkNode> edgeFilter) {
+    public boolean isInDistance(int distance, NetworkNode from, NetworkNode to,
+                                BiPredicate<NetworkNode, NetworkNode> edgeFilter) {
         return getDistance(from, to, edgeFilter) <= distance;
     }
 
@@ -270,7 +273,8 @@ class BlockNetwork {
     /*
      * Further optimizations: there is no heuristic part of this to avoid searching through all nodes
      */
-    public List<NetworkNode> getPath(NetworkNode start, NetworkNode end, BiPredicate<NetworkNode, NetworkNode> edgeFilter) {
+    public List<NetworkNode> getPath(NetworkNode start, NetworkNode end,
+                                     BiPredicate<NetworkNode, NetworkNode> edgeFilter) {
         if (start.equals(end)) {
             // we win already
             return Lists.newArrayList();
@@ -318,6 +322,9 @@ class BlockNetwork {
         Collections.reverse(path);
 
         return path;
+    }
+
+    private class BasicNetwork implements Network {
     }
 
 }

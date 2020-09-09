@@ -1,28 +1,15 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
 import com.google.common.collect.Iterables;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.math.IntegerRange;
+import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
-import org.terasology.logic.inventory.InventoryAccessComponent;
-import org.terasology.math.IntegerRange;
-import org.terasology.registry.CoreRegistry;
+import org.terasology.inventory.logic.InventoryAccessComponent;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
 import org.terasology.workstation.process.fluid.FluidInputProcessPartCommonSystem;
 import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;
@@ -42,7 +29,8 @@ public final class ExtendedFluidManager {
 
     public static float giveFluid(EntityRef entity, float volume, String fluidType, boolean forInput) {
         FluidManager fluidManager = CoreRegistry.get(FluidManager.class);
-        float amountToGive = Math.min(volume, getFirstFluidSlotMaximumVolume(entity, forInput) - getTankFluidVolume(entity, forInput));
+        float amountToGive = Math.min(volume,
+                getFirstFluidSlotMaximumVolume(entity, forInput) - getTankFluidVolume(entity, forInput));
         if (volume > 0 && fluidType != null && fluidManager.addFluid(entity, entity, fluidType, amountToGive)) {
             return amountToGive;
         } else {
@@ -100,9 +88,11 @@ public final class ExtendedFluidManager {
             InventoryAccessComponent inventoryAccessComponent = entity.getComponent(InventoryAccessComponent.class);
             if (inventoryAccessComponent != null) {
                 if (forInput) {
-                    slotRange = WorkstationInventoryUtils.getAssignedInputSlots(entity, FluidInputProcessPartCommonSystem.FLUIDINPUTCATEGORY);
+                    slotRange = WorkstationInventoryUtils.getAssignedInputSlots(entity,
+                            FluidInputProcessPartCommonSystem.FLUIDINPUTCATEGORY);
                 } else {
-                    slotRange = WorkstationInventoryUtils.getAssignedOutputSlots(entity, FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY);
+                    slotRange = WorkstationInventoryUtils.getAssignedOutputSlots(entity,
+                            FluidOutputProcessPartCommonSystem.FLUIDOUTPUTCATEGORY);
                 }
             } else {
                 // use all slots

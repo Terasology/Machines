@@ -1,18 +1,5 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.entityNetwork.systems;
 
 import com.google.common.collect.HashMultimap;
@@ -20,25 +7,25 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.prefab.Prefab;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.logic.console.commandSystem.annotations.Command;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.registry.Share;
+import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.components.EntityNetworkComponent;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.prefab.Prefab;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.gestalt.assets.management.AssetManager;
-import org.terasology.logic.console.commandSystem.annotations.Command;
-import org.terasology.registry.In;
-import org.terasology.registry.Share;
-import org.terasology.world.block.BlockComponent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +35,8 @@ import java.util.Optional;
 
 @RegisterSystem
 @Share(EntityNetworkManager.class)
-public class EntityNetworkCommonSystem extends BaseComponentSystem implements UpdateSubscriberSystem, EntityNetworkManager {
+public class EntityNetworkCommonSystem extends BaseComponentSystem implements UpdateSubscriberSystem,
+        EntityNetworkManager {
 
     Map<String, BlockNetwork> blockNetworks = Maps.newHashMap();
     Multimap<EntityRef, NetworkNodeBuilder> pendingEntitiesToBeAdded = HashMultimap.create();
@@ -61,7 +49,8 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
     EntityManager entityManager;
 
     @ReceiveEvent
-    public void onRemovedEntityNetwork(BeforeDeactivateComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+    public void onRemovedEntityNetwork(BeforeDeactivateComponent event, EntityRef entityRef,
+                                       EntityNetworkComponent entityNetworkComponent) {
         removeEntityFromNetworks(entityRef);
     }
 
@@ -117,23 +106,27 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
      * Treat block entities differently as they do not follow normal entity creation with an expected parentPrefab
      */
     @ReceiveEvent
-    public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent, BlockComponent blockComponent) {
+    public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef,
+                                        EntityNetworkComponent entityNetworkComponent, BlockComponent blockComponent) {
         addEntityToNetworks(entityRef);
     }
 
     @ReceiveEvent
-    public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+    public void onActivateEntityNetwork(OnActivatedComponent event, EntityRef entityRef,
+                                        EntityNetworkComponent entityNetworkComponent) {
         addEntityToNetworks(entityRef);
     }
 
     @ReceiveEvent
-    public void onChangedEntityNetwork(OnChangedComponent event, EntityRef entityRef, EntityNetworkComponent entityNetworkComponent) {
+    public void onChangedEntityNetwork(OnChangedComponent event, EntityRef entityRef,
+                                       EntityNetworkComponent entityNetworkComponent) {
         removeEntityFromNetworks(entityRef);
         addEntityToNetworks(entityRef);
     }
 
     private void addToNetworkViaBuilders(EntityRef entityRef, Prefab entityPrefab) {
-        for (NetworkNodeBuilder builder : Iterables.filter(entityPrefab.iterateComponents(), NetworkNodeBuilder.class)) {
+        for (NetworkNodeBuilder builder : Iterables.filter(entityPrefab.iterateComponents(),
+                NetworkNodeBuilder.class)) {
             NetworkNode newNetworkNode = builder.build(entityRef);
             if (newNetworkNode != null) {
                 // we could already determine the type of network node, add it to the network

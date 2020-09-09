@@ -1,18 +1,18 @@
 {
   "type": "Machines:TankScreen",
   "contents": {
-      "type": "RelativeLayout",
-      "contents": [
+    "type": "RelativeLayout",
+    "contents": [
       {
         "type": "UILabel",
         "id": "fluidWidget",
         "layoutInfo": {
-            "use-content-width": true,
-            "use-content-height": true,
-            "position-vertical-center": {},
-            "position-horizontal-center": {}
+          "use-content-width": true,
+          "use-content-height": true,
+          "position-vertical-center": {},
+          "position-horizontal-center": {}
         }
       }
-      ]
+    ]
   }
 }

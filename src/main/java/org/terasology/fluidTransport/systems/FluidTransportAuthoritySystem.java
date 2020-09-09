@@ -1,52 +1,39 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2020 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.engine.Time;
+import org.terasology.engine.core.Time;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.logic.location.LocationComponent;
+import org.terasology.engine.math.Side;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.BlockEntityRegistry;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidPipeComponent;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.components.FluidTankDropsFluidComponent;
-import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.math.geom.Vector3i;
-import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.event.WorkstationStateChanged;
-import org.terasology.world.BlockEntityRegistry;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.BlockComponent;
 
 import java.util.Comparator;
 import java.util.SortedMap;
@@ -112,7 +99,9 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
 
                 // gather the tanks for this network
-                for (BlockLocationNetworkNode node : Iterables.filter(fluidTransportBlockNetwork.getNetworkNodes(network), BlockLocationNetworkNode.class)) {
+                for (BlockLocationNetworkNode node :
+                        Iterables.filter(fluidTransportBlockNetwork.getNetworkNodes(network),
+                                BlockLocationNetworkNode.class)) {
                     EntityRef entity = blockEntityRegistry.getExistingEntityAt(node.location);
                     if (ExtendedFluidManager.isTank(entity)) {
                         tanksFromBottomUp.put(node.location.y, entity);
@@ -130,7 +119,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                         EntityRef tankBelow = blockEntityRegistry.getEntityAt(tankBelowLocation);
                         String fluidType = ExtendedFluidManager.getTankFluidType(tank, true);
                         if (tankBelow.hasComponent(FluidInventoryComponent.class)) {
-                            float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow, ExtendedFluidManager.getTankFluidVolume(tank, true), fluidType, true);
+                            float volumeGiven = ExtendedFluidManager.giveFluid(tankBelow,
+                                    ExtendedFluidManager.getTankFluidVolume(tank, true), fluidType, true);
                             ExtendedFluidManager.removeFluid(tank, volumeGiven, fluidType);
                         }
                     }
@@ -145,7 +135,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                     for (EntityRef downstreamTank : tanksFromTopDown.values()) {
                         if (!downstreamTank.equals(tank) && getTankElevation(downstreamTank) < tankElevation && remainingFlow > 0) {
-                            float volumeTransfered = ExtendedFluidManager.giveFluid(downstreamTank, remainingFlow, fluidType, true);
+                            float volumeTransfered = ExtendedFluidManager.giveFluid(downstreamTank, remainingFlow,
+                                    fluidType, true);
                             totalVolumeTransfered += volumeTransfered;
                             remainingFlow -= volumeTransfered;
                         }
@@ -182,7 +173,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                         // distribute this fluid
                         for (EntityRef tank : tanksFromBottomUp.values()) {
                             if (!tank.equals(sourceTank) && getTankElevation(tank) <= pumpWorldPressure && remainingFlow > 0) {
-                                float volumeTransfered = ExtendedFluidManager.giveFluid(tank, remainingFlow, fluidType, true);
+                                float volumeTransfered = ExtendedFluidManager.giveFluid(tank, remainingFlow,
+                                        fluidType, true);
                                 remainingFlow -= volumeTransfered;
                                 totalVolumeTransfered += volumeTransfered;
                             }

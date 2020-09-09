@@ -2,35 +2,35 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.mechanicalPower.systems;
 
-import org.terasology.engine.Time;
+import org.terasology.engine.core.Time;
+import org.terasology.engine.entitySystem.entity.EntityBuilder;
+import org.terasology.engine.entitySystem.entity.EntityManager;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnAddedComponent;
+import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnChangedComponent;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.engine.logic.inventory.ItemCommonSystem;
+import org.terasology.engine.logic.location.LocationComponent;
+import org.terasology.engine.math.Roll;
+import org.terasology.engine.math.Rotation;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.block.BlockComponent;
+import org.terasology.engine.world.block.BlockManager;
+import org.terasology.engine.world.block.items.BlockItemComponent;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
-import org.terasology.entitySystem.entity.EntityBuilder;
-import org.terasology.entitySystem.entity.EntityManager;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnAddedComponent;
-import org.terasology.entitySystem.entity.lifecycleEvents.OnChangedComponent;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.entitySystem.systems.UpdateSubscriberSystem;
+import org.terasology.inventory.rendering.nui.layers.ingame.GetItemTooltip;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
-import org.terasology.logic.inventory.ItemCommonSystem;
-import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.Roll;
-import org.terasology.math.Rotation;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
-import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
-import org.terasology.registry.In;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
 import org.terasology.nui.widgets.TooltipLine;
-import org.terasology.world.block.BlockComponent;
-import org.terasology.world.block.BlockManager;
-import org.terasology.world.block.items.BlockItemComponent;
+import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 
 @RegisterSystem(RegisterMode.CLIENT)
 public class MechanicalPowerClientSystem extends BaseComponentSystem implements UpdateSubscriberSystem {
@@ -59,14 +59,17 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
     }
 
     @ReceiveEvent
-    public void getItemTooltip(GetItemTooltip event, EntityRef entityRef, MechanicalPowerProducerComponent mechanicalPowerProducerComponent) {
-        if( mechanicalPowerProducerComponent.active) {
-            event.getTooltipLines().add(new TooltipLine("Producing: " + mechanicalPowerProducerComponent.power + " mechanical power"));
+    public void getItemTooltip(GetItemTooltip event, EntityRef entityRef,
+                               MechanicalPowerProducerComponent mechanicalPowerProducerComponent) {
+        if (mechanicalPowerProducerComponent.active) {
+            event.getTooltipLines().add(new TooltipLine("Producing: " + mechanicalPowerProducerComponent.power + " " +
+                    "mechanical power"));
         }
     }
 
     @ReceiveEvent
-    public void createRenderedAxle(OnAddedComponent event, EntityRef entity, RotatingAxleComponent rotatingAxle, LocationComponent location, BlockComponent block) {
+    public void createRenderedAxle(OnAddedComponent event, EntityRef entity, RotatingAxleComponent rotatingAxle,
+                                   LocationComponent location, BlockComponent block) {
         EntityBuilder renderedEntityBuilder = entityManager.newBuilder("RotatingAxle");
         renderedEntityBuilder.setOwner(entity);
         renderedEntityBuilder.setPersistent(false);
@@ -79,7 +82,8 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
         ItemCommonSystem.addOrUpdateBlockMeshComponent(blockItem, renderedEntityBuilder);
 
-        // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
+        // rotate the block so that the rendered entity can be rotated independently while respecting the block 
+        // placement rotation
         Rotation rotation = block.getBlock().getRotation();
         location.setWorldRotation(rotation.getQuat4f());
         entity.saveComponent(location);
@@ -89,14 +93,16 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
     }
 
     @ReceiveEvent
-    public void removeRenderedAxle(BeforeDeactivateComponent event, EntityRef entityRef, RotatingAxleComponent rotatingAxle) {
+    public void removeRenderedAxle(BeforeDeactivateComponent event, EntityRef entityRef,
+                                   RotatingAxleComponent rotatingAxle) {
         if (rotatingAxle.renderedEntity != null) {
             rotatingAxle.renderedEntity.destroy();
         }
     }
 
     @ReceiveEvent
-    public void updateAxlesInNetwork(OnChangedComponent event, EntityRef entity, MechanicalPowerProducerComponent powerProducer, BlockComponent block) {
+    public void updateAxlesInNetwork(OnChangedComponent event, EntityRef entity,
+                                     MechanicalPowerProducerComponent powerProducer, BlockComponent block) {
         for (NetworkNode node : mechanicalPowerBlockNetwork.getNodesForEntity(entity)) {
             for (Network network : mechanicalPowerBlockNetwork.getNetworks(node)) {
                 updateAxlesInNetwork(network);
@@ -111,11 +117,13 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
             for (NetworkNode node : mechanicalPowerBlockNetwork.getNetworkNodes(network)) {
                 EntityRef nodeEntity = mechanicalPowerBlockNetwork.getEntityForNode(node);
-                MechanicalPowerProducerComponent producer = nodeEntity.getComponent(MechanicalPowerProducerComponent.class);
+                MechanicalPowerProducerComponent producer =
+                        nodeEntity.getComponent(MechanicalPowerProducerComponent.class);
                 if (producer != null) {
                     totalPower += producer.active ? producer.power : 0f;
                 }
-                PotentialEnergyDeviceComponent potentialEnergyDeviceComponent = nodeEntity.getComponent(PotentialEnergyDeviceComponent.class);
+                PotentialEnergyDeviceComponent potentialEnergyDeviceComponent =
+                        nodeEntity.getComponent(PotentialEnergyDeviceComponent.class);
                 if (potentialEnergyDeviceComponent != null) {
                     totalConsumers++;
                 }

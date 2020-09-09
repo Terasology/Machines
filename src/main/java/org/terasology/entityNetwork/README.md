@@ -40,7 +40,7 @@ Add the ```BlockLocationNetworkNodeComponent``` to your entity to add an block e
 ##Creating a Sided Block Location Network
 Add the ```SidedBlockLocationNetworkNodeComponent``` to your entity to add an block entity (a placed block will have the required ```BlockComponent```) based on its distance from the sides specified.  Once added and the conditions are met, this entity will be added to the in memory network that can be queried with ```EntityNetworkManager```.
 
-The directions are one of ```org.terasology.math.Direction``` and will rotate themselves with the block's rotation if it's BlockFamily is a ```SideDefinedBlockFamily```.
+The directions are one of ```org.terasology.engine.math.Direction``` and will rotate themselves with the block's rotation if it's BlockFamily is a ```SideDefinedBlockFamily```.
 
 ###Minimal usage on a prefab
 ```
