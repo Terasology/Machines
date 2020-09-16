@@ -12,7 +12,7 @@ import org.terasology.engine.world.OnChangedBlock;
 import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.block.family.UpdatesWithNeighboursFamily;
-import org.terasology.entityNetwork.components.EntityNetworkComponent;
+import org.terasology.machines.entityNetwork.components.EntityNetworkComponent;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class SameNetworkByBlockBlockFamilyAuthoritySystem extends BaseComponentSystem {

@@ -6,7 +6,7 @@ See the forum for discussion: http://forum.terasology.org/threads/machines.938/
 ## Entity Network
 - A set of components and systems to join entities together in a group.  These groups can then be queried so that interactions between joined entites can be orchestrated.
 
-[Entity Network Readme](src/main/java/org/terasology/entityNetwork/README.md)
+[Entity Network Readme](src/main/java/org/terasology/machines/entityNetwork/README.md)
 
 ## Fluid
 see Fluid
@@ -27,4 +27,4 @@ see Fluid
 ## Mechanical Power
 - Uses the EntityNetwork submodule and PotentialEnergyDevices module to enable transfer, storage, and production of energy
 
-[Mechanical Power Readme](src/main/java/org/terasology/mechanicalPower/README.md)
+[Mechanical Power Readme](src/main/java/org/terasology/machines/mechanicalPower/README.md)

@@ -17,10 +17,10 @@ import org.terasology.engine.world.block.family.BlockSections;
 import org.terasology.engine.world.block.family.MultiConnectFamily;
 import org.terasology.engine.world.block.family.RegisterBlockFamily;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
-import org.terasology.entityNetwork.Network;
-import org.terasology.entityNetwork.NetworkNode;
-import org.terasology.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.gestalt.naming.Name;
+import org.terasology.machines.entityNetwork.Network;
+import org.terasology.machines.entityNetwork.NetworkNode;
+import org.terasology.machines.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.math.geom.Vector3i;
 
 import java.util.List;
