@@ -18,6 +18,7 @@ package org.terasology.machines.world;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import org.joml.Vector3ic;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
@@ -51,7 +52,8 @@ public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
         this(family, blockBuilder, x -> true);
     }
 
-    protected SameNetworkByBlockBlockFamily(BlockFamilyDefinition definition, BlockBuilderHelper blockBuilder, Predicate<NetworkNode> nodeFilter) {
+    protected SameNetworkByBlockBlockFamily(BlockFamilyDefinition definition, BlockBuilderHelper blockBuilder,
+                                            Predicate<NetworkNode> nodeFilter) {
         super(definition, blockBuilder);
         this.nodeFilter = nodeFilter;
 
@@ -63,14 +65,22 @@ public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
         this.blocks.put((byte) 0, block);
 
         this.registerBlock(blockUri, definition, blockBuilder, "no_connections", (byte) 0, Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "one_connection", SideBitFlag.getSides(Side.BACK), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "line_connection", SideBitFlag.getSides(Side.BACK, Side.FRONT), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "2d_corner", SideBitFlag.getSides(Side.LEFT, Side.BACK), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "3d_corner", SideBitFlag.getSides(Side.LEFT, Side.BACK, Side.TOP), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "2d_t", SideBitFlag.getSides(Side.LEFT, Side.BACK, Side.FRONT), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "cross", SideBitFlag.getSides(Side.RIGHT, Side.LEFT, Side.BACK, Side.FRONT), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "3d_side", SideBitFlag.getSides(Side.LEFT, Side.BACK, Side.FRONT, Side.TOP), Rotation.allValues());
-        this.registerBlock(blockUri, definition, blockBuilder, "five_connections", SideBitFlag.getSides(Side.LEFT, Side.BACK, Side.FRONT, Side.TOP, Side.BOTTOM), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "one_connection", SideBitFlag.getSides(Side.BACK),
+            Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "line_connection", SideBitFlag.getSides(Side.BACK,
+            Side.FRONT), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "2d_corner", SideBitFlag.getSides(Side.LEFT,
+            Side.BACK), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "3d_corner", SideBitFlag.getSides(Side.LEFT, Side.BACK
+            , Side.TOP), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "2d_t", SideBitFlag.getSides(Side.LEFT, Side.BACK,
+            Side.FRONT), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "cross", SideBitFlag.getSides(Side.RIGHT, Side.LEFT,
+            Side.BACK, Side.FRONT), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "3d_side", SideBitFlag.getSides(Side.LEFT, Side.BACK,
+            Side.FRONT, Side.TOP), Rotation.allValues());
+        this.registerBlock(blockUri, definition, blockBuilder, "five_connections", SideBitFlag.getSides(Side.LEFT,
+            Side.BACK, Side.FRONT, Side.TOP, Side.BOTTOM), Rotation.allValues());
         this.registerBlock(blockUri, definition, blockBuilder, "all", (byte) 63, Rotation.allValues());
     }
 
@@ -93,7 +103,8 @@ public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
     protected boolean connectionCondition(Vector3i blockLocation, Side connectSide) {
         EntityRef thisEntity = blockEntityRegistry.getBlockEntityAt(blockLocation);
         List<Network> thisNetworks = Lists.newArrayList();
-        for (NetworkNode networkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(thisEntity), x -> nodeFilter.test(x))) {
+        for (NetworkNode networkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(thisEntity),
+            x -> nodeFilter.test(x))) {
             thisNetworks.addAll(entityNetworkManager.getNetworks(networkNode));
         }
 
@@ -101,7 +112,8 @@ public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
         neighborLocation.add(connectSide.getVector3i());
         EntityRef neighborEntity = blockEntityRegistry.getBlockEntityAt(neighborLocation);
 
-        for (NetworkNode neighborNetworkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(neighborEntity), x -> nodeFilter.test(x))) {
+        for (NetworkNode neighborNetworkNode :
+            Iterables.filter(entityNetworkManager.getNodesForEntity(neighborEntity), x -> nodeFilter.test(x))) {
             for (Network neighborNetwork : entityNetworkManager.getNetworks(neighborNetworkNode)) {
                 if (thisNetworks.contains(neighborNetwork)) {
                     return true;
@@ -109,6 +121,30 @@ public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
             }
         }
 
+        return false;
+    }
+
+    @Override
+    protected boolean connectionCondition(Vector3ic blockLocation, Side connectSide) {
+        EntityRef thisEntity = blockEntityRegistry.getBlockEntityAt(blockLocation);
+        List<Network> thisNetworks = Lists.newArrayList();
+        for (NetworkNode networkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(thisEntity),
+            x -> nodeFilter.test(x))) {
+            thisNetworks.addAll(entityNetworkManager.getNetworks(networkNode));
+        }
+
+        org.joml.Vector3i neighborLocation = new org.joml.Vector3i(blockLocation);
+        neighborLocation.add(connectSide.direction());
+        EntityRef neighborEntity = blockEntityRegistry.getBlockEntityAt(neighborLocation);
+
+        for (NetworkNode neighborNetworkNode :
+            Iterables.filter(entityNetworkManager.getNodesForEntity(neighborEntity), x -> nodeFilter.test(x))) {
+            for (Network neighborNetwork : entityNetworkManager.getNetworks(neighborNetworkNode)) {
+                if (thisNetworks.contains(neighborNetwork)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 }
