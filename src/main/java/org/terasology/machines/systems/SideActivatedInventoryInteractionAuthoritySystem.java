@@ -25,10 +25,10 @@ import org.terasology.logic.characters.CharacterComponent;
 import org.terasology.logic.common.ActivateEvent;
 import org.terasology.logic.inventory.InventoryComponent;
 import org.terasology.logic.inventory.InventoryManager;
-import org.terasology.logic.inventory.InventoryUtils;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.machines.components.SideActivatedInventoryInteractionComponent;
 import org.terasology.math.Direction;
+import org.terasology.math.JomlUtil;
 import org.terasology.math.Side;
 import org.terasology.math.geom.Vector3f;
 import org.terasology.physics.CollisionGroup;
@@ -84,7 +84,7 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
     public void onSideActivated(ActivateEvent event, EntityRef heldItem, ItemComponent itemComponent) {
         EntityRef target = event.getTarget();
         EntityRef instigator = event.getInstigator();
-        doInventoryInteraction(event.getHitNormal(), heldItem, target, instigator);
+        doInventoryInteraction(JomlUtil.from(event.getHitNormal()), heldItem, target, instigator);
     }
 
     void doInventoryInteraction(Vector3f hitNormal, EntityRef heldItem, EntityRef target, EntityRef instigator) {
