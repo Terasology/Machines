@@ -2,28 +2,27 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.machines.ui;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.terasology.nui.UILayout;
-import org.terasology.utilities.Assets;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.inGameHelp.InGameHelpClient;
 import org.terasology.logic.players.LocalPlayer;
 import org.terasology.machines.components.MachineDefinitionComponent;
-import org.terasology.registry.CoreRegistry;
-import org.terasology.rendering.nui.BaseInteractionScreen;
+import org.terasology.nui.UILayout;
 import org.terasology.nui.UIWidget;
 import org.terasology.nui.asset.UIElement;
-import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
 import org.terasology.nui.layouts.ColumnLayout;
 import org.terasology.nui.layouts.FlowLayout;
 import org.terasology.nui.widgets.ActivateEventListener;
 import org.terasology.nui.widgets.UIButton;
 import org.terasology.nui.widgets.UIImage;
 import org.terasology.nui.widgets.UILabel;
+import org.terasology.registry.CoreRegistry;
+import org.terasology.rendering.nui.BaseInteractionScreen;
+import org.terasology.rendering.nui.layers.ingame.inventory.InventoryGrid;
+import org.terasology.utilities.Assets;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.component.WorkstationProcessingComponent;
 import org.terasology.workstation.event.WorkstationProcessRequest;
@@ -37,7 +36,6 @@ import org.terasology.workstation.ui.WorkstationUI;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -167,25 +165,17 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         itemsLayout.setFillVerticalSpace(false);
 
         Set<String> alreadyAddedResourceUrns = Sets.newHashSet();
-        for (WorkstationProcess process : workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet())) {
-            if (process instanceof DescribeProcess) {
-                DescribeProcess describeProcess = (DescribeProcess) process;
-                List<ProcessPartDescription> processPartDescriptions = Lists.newArrayList(describeProcess.getOutputDescriptions());
-                // sort the processDescriptions so that visual order is the same all the time
-                processPartDescriptions.sort(new Comparator<ProcessPartDescription>() {
-                    @Override
-                    public int compare(ProcessPartDescription o1, ProcessPartDescription o2) {
-                        if (o1.getResourceUrn() == null) {
-                            return -1;
-                        }
-                        if (o2.getResourceUrn() == null) {
-                            return 1;
-                        }
-                        return o1.getResourceUrn().compareTo(o2.getResourceUrn());
-                    }
-                });
-                for (ProcessPartDescription processPartDescription : processPartDescriptions) {
-                    final String hyperlink = processPartDescription.getResourceUrn() != null ? processPartDescription.getResourceUrn().toString() : null;
+
+        Collection<WorkstationProcess> processes =
+                workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet());
+
+        processes.stream()
+                .filter(process -> process instanceof DescribeProcess)
+                .flatMap(process -> ((DescribeProcess) process).getOutputDescriptions().stream())
+                .sorted(Comparator.comparing(ProcessPartDescription::getDisplayName))
+                .forEach(processPartDescription -> {
+                    final String hyperlink = processPartDescription.getResourceUrn() != null ?
+                            processPartDescription.getResourceUrn().toString() : null;
                     if (hyperlink == null || !alreadyAddedResourceUrns.contains(hyperlink)) {
                         if (hyperlink != null) {
                             alreadyAddedResourceUrns.add(hyperlink);
@@ -195,14 +185,13 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
                         overlapLayout.subscribe(x -> helpClient.showHelpForHyperlink(hyperlink));
                         itemsLayout.addWidget(overlapLayout);
                     }
-                }
-            }
-        }
+                });
 
         return itemsLayout;
     }
 
-    private static void initializeIoWidgets(UIContainer widgetContainer, EntityRef interactionTarget, Set<String> machineWidgetUris) {
+    private static void initializeIoWidgets(UIContainer widgetContainer, EntityRef interactionTarget,
+                                            Set<String> machineWidgetUris) {
         if (widgetContainer != null) {
             if (machineWidgetUris.isEmpty()) {
                 widgetContainer.setContent(null);
@@ -273,7 +262,8 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
             validProcessId = mostComplexProcess.getId();
             if (mostComplexProcess instanceof DescribeProcess) {
                 FlowLayout flowLayout = new FlowLayout();
-                for (ProcessPartDescription processPartDescription : ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
+                for (ProcessPartDescription processPartDescription :
+                        ((DescribeProcess) mostComplexProcess).getOutputDescriptions()) {
                     flowLayout.addWidget(processPartDescription.getWidget(), null);
                 }
                 resultContent = flowLayout;
@@ -292,10 +282,12 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         }
     }
 
-    private static WorkstationProcess getMostComplexProcess(WorkstationComponent workstation, EntityRef interactionTarget) {
+    private static WorkstationProcess getMostComplexProcess(WorkstationComponent workstation,
+                                                            EntityRef interactionTarget) {
         EntityRef character = CoreRegistry.get(LocalPlayer.class).getCharacterEntity();
         WorkstationRegistry workstationRegistry = CoreRegistry.get(WorkstationRegistry.class);
-        final Collection<WorkstationProcess> processes = workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet());
+        final Collection<WorkstationProcess> processes =
+                workstationRegistry.getWorkstationProcesses(workstation.supportedProcessTypes.keySet());
         // isolate the valid processes to one single process
         WorkstationProcess mostComplexProcess = null;
         for (WorkstationProcess process : processes) {
@@ -317,7 +309,8 @@ public class DefaultMachineWindow extends BaseInteractionScreen {
         Time time = CoreRegistry.get(Time.class);
         long currentTime = time.getGameTimeInMs();
 
-        WorkstationProcessingComponent processing = interactionTarget.getComponent(WorkstationProcessingComponent.class);
+        WorkstationProcessingComponent processing =
+                interactionTarget.getComponent(WorkstationProcessingComponent.class);
         if (processing != null && processing.processes.size() > 0) {
             for (WorkstationProcessingComponent.ProcessDef processDef : processing.processes.values()) {
                 float value = 1.0f - (float) (processDef.processingFinishTime - currentTime)
