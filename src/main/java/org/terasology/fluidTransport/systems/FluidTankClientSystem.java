@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
+import org.joml.Vector3i;
 import org.terasology.fluid.system.FluidContainerAssetResolver;
+import org.terasology.math.JomlUtil;
 import org.terasology.utilities.Assets;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.entitySystem.entity.EntityBuilder;
@@ -175,17 +177,17 @@ public class FluidTankClientSystem extends BaseComponentSystem {
             }
         });
 
-        Vector3f size;
-        Vector3f min;
+        org.joml.Vector3f size;
+        org.joml.Vector3f min;
         if (entityRef.hasComponent(BlockRegionComponent.class)) {
             BlockRegionComponent blockRegion = entityRef.getComponent(BlockRegionComponent.class);
             LocationComponent location = entityRef.getComponent(LocationComponent.class);
-            size = blockRegion.region.size().toVector3f();
-            min = new Vector3f(blockRegion.region.min().toVector3f()).sub(location.getWorldPosition());
+            size = new org.joml.Vector3f(blockRegion.region.getSize(new Vector3i()));
+            min = new org.joml.Vector3f(blockRegion.region.getMin(new Vector3i())).sub(location.getWorldPosition(new org.joml.Vector3f()));
 
         } else {
-            size = Vector3f.one();
-            min = Vector3f.zero();
+            size = new org.joml.Vector3f(1, 1, 1);
+            min = new org.joml.Vector3f();
         }
         // move from block grid coordinates into world space
         min.sub(0.5f, 0.5f, 0.5f);
@@ -195,9 +197,9 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         size.sub(0.02f, 0.02f, 0.02f);
 
         // deal will fullness
-        size.mulY(fullness);
+        size.mul(1, fullness, 1);
 
-        meshBuilder.addBox(min, size, 1f, 1f);
+        meshBuilder.addBox(JomlUtil.from(min), JomlUtil.from(size), 1f, 1f);
         return meshBuilder.build();
     }
 
