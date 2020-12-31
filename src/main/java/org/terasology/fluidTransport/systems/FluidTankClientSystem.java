@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.joml.Vector3i;
-import org.terasology.fluid.system.FluidContainerAssetResolver;
-import org.terasology.math.JomlUtil;
-import org.terasology.utilities.Assets;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.entitySystem.entity.EntityBuilder;
 import org.terasology.entitySystem.entity.EntityManager;
@@ -18,13 +17,13 @@ import org.terasology.entitySystem.systems.BaseComponentSystem;
 import org.terasology.entitySystem.systems.RegisterMode;
 import org.terasology.entitySystem.systems.RegisterSystem;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.fluid.system.FluidContainerAssetResolver;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidDisplayComponent;
 import org.terasology.fluidTransport.components.FluidTankDisplayComponent;
 import org.terasology.itemRendering.components.RenderItemComponent;
 import org.terasology.logic.location.LocationComponent;
-import org.terasology.math.geom.Vector2f;
-import org.terasology.math.geom.Vector3f;
+import org.terasology.nui.widgets.TooltipLine;
 import org.terasology.registry.In;
 import org.terasology.rendering.assets.material.Material;
 import org.terasology.rendering.assets.material.MaterialData;
@@ -33,7 +32,7 @@ import org.terasology.rendering.assets.mesh.MeshBuilder;
 import org.terasology.rendering.assets.texture.Texture;
 import org.terasology.rendering.logic.MeshComponent;
 import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.nui.widgets.TooltipLine;
+import org.terasology.utilities.Assets;
 import org.terasology.world.block.regions.BlockRegionComponent;
 
 import java.util.Optional;
@@ -144,12 +143,12 @@ public class FluidTankClientSystem extends BaseComponentSystem {
                     // Front face
                     case  0 : return new Vector2f(0f, 1f);
                     case  1 : return new Vector2f(1f, 1f);
-                    case  2 : return new Vector2f(1f, 1-fullness);
-                    case  3 : return new Vector2f(0f, 1-fullness);
+                    case  2 : return new Vector2f(1f, 1 - fullness);
+                    case  3 : return new Vector2f(0f, 1 - fullness);
                     // Back face
                     case  4 : return new Vector2f(1f, 1f);
-                    case  5 : return new Vector2f(1f, 1-fullness);
-                    case  6 : return new Vector2f(0f, 1-fullness);
+                    case  5 : return new Vector2f(1f, 1 - fullness);
+                    case  6 : return new Vector2f(0f, 1 - fullness);
                     case  7 : return new Vector2f(0f, 1f);
                     // Top face
                     case  8 : return new Vector2f(1f, 0f);
@@ -163,8 +162,8 @@ public class FluidTankClientSystem extends BaseComponentSystem {
                     case 15 : return new Vector2f(1f, 1f);
                     // Right face
                     case 16 : return new Vector2f(1f, 1f);
-                    case 17 : return new Vector2f(1f, 1-fullness);
-                    case 18 : return new Vector2f(0f, 1-fullness);
+                    case 17 : return new Vector2f(1f, 1 - fullness);
+                    case 18 : return new Vector2f(0f, 1 - fullness);
                     case 19 : return new Vector2f(0f, 1f);
                     // Left face
                     case 20 : return new Vector2f(0f, 0f);
@@ -177,17 +176,17 @@ public class FluidTankClientSystem extends BaseComponentSystem {
             }
         });
 
-        org.joml.Vector3f size;
-        org.joml.Vector3f min;
+        Vector3f size;
+        Vector3f min;
         if (entityRef.hasComponent(BlockRegionComponent.class)) {
             BlockRegionComponent blockRegion = entityRef.getComponent(BlockRegionComponent.class);
             LocationComponent location = entityRef.getComponent(LocationComponent.class);
-            size = new org.joml.Vector3f(blockRegion.region.getSize(new Vector3i()));
-            min = new org.joml.Vector3f(blockRegion.region.getMin(new Vector3i())).sub(location.getWorldPosition(new org.joml.Vector3f()));
+            size = new Vector3f(blockRegion.region.getSize(new Vector3i()));
+            min = new Vector3f(blockRegion.region.getMin(new Vector3i())).sub(location.getWorldPosition(new Vector3f()));
 
         } else {
-            size = new org.joml.Vector3f(1, 1, 1);
-            min = new org.joml.Vector3f();
+            size = new Vector3f(1, 1, 1);
+            min = new Vector3f();
         }
         // move from block grid coordinates into world space
         min.sub(0.5f, 0.5f, 0.5f);
@@ -199,7 +198,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         // deal will fullness
         size.mul(1, fullness, 1);
 
-        meshBuilder.addBox(JomlUtil.from(min), JomlUtil.from(size), 1f, 1f);
+        meshBuilder.addBox(min, size, 1f, 1f);
         return meshBuilder.build();
     }
 
