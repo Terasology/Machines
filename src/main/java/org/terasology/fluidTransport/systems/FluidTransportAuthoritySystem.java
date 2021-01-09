@@ -17,6 +17,9 @@ package org.terasology.fluidTransport.systems;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
+import org.joml.RoundingMode;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.terasology.engine.Time;
@@ -39,8 +42,6 @@ import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.components.FluidTankDropsFluidComponent;
 import org.terasology.logic.location.LocationComponent;
 import org.terasology.math.Side;
-import org.terasology.math.geom.Vector3f;
-import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.workstation.component.WorkstationComponent;
 import org.terasology.workstation.event.WorkstationStateChanged;
@@ -126,7 +127,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
                 // let tanks drop their fluid to a tank below
                 for (EntityRef tank : tanksFromBottomUp.values()) {
                     if (tank.hasComponent(FluidTankDropsFluidComponent.class)) {
-                        Vector3i tankBelowLocation = Side.BOTTOM.getAdjacentPos(getLocation(tank));
+                        Vector3i tankBelowLocation = Side.BOTTOM.getAdjacentPos(getLocation(tank), new Vector3i());
                         EntityRef tankBelow = blockEntityRegistry.getEntityAt(tankBelowLocation);
                         String fluidType = ExtendedFluidManager.getTankFluidType(tank, true);
                         if (tankBelow.hasComponent(FluidInventoryComponent.class)) {
@@ -165,7 +166,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
 
                     // check each side for a valid source of liquid
                     for (Side side : Side.values()) {
-                        Vector3i sidePosition = side.getAdjacentPos(getLocation(pump));
+                        Vector3i sidePosition = side.getAdjacentPos(getLocation(pump), new Vector3i());
 
                         //TODO: Implement ability to pump from source blocks
 
@@ -206,7 +207,7 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
     private float getTankFlowAvailable(EntityRef tank, boolean forInput) {
         float totalFlow = 0;
         for (Side side : Side.values()) {
-            Vector3i sidePosition = side.getAdjacentPos(getLocation(tank));
+            Vector3i sidePosition = side.getAdjacentPos(getLocation(tank), new Vector3i());
 
             // check for a pipe block
             EntityRef sideEntity = blockEntityRegistry.getEntityAt(sidePosition);
@@ -222,10 +223,10 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
     private Vector3i getLocation(EntityRef entity) {
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
         if (blockComponent != null) {
-            return blockComponent.getPosition();
+            return blockComponent.getPosition(new Vector3i());
         } else {
             LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
-            return new Vector3i(new Vector3f(locationComponent.getWorldPosition()).sub(0.5f, 0.5f, 0.5f));
+            return new Vector3i(new Vector3f(locationComponent.getWorldPosition(new Vector3f())).sub(0.5f, 0.5f, 0.5f), RoundingMode.FLOOR);
         }
 
     }
