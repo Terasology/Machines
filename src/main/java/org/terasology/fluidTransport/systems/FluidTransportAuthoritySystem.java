@@ -226,9 +226,8 @@ public class FluidTransportAuthoritySystem extends BaseComponentSystem implement
             return blockComponent.getPosition(new Vector3i());
         } else {
             LocationComponent locationComponent = entity.getComponent(LocationComponent.class);
-            return new Vector3i(new Vector3f(locationComponent.getWorldPosition(new Vector3f())).sub(0.5f, 0.5f, 0.5f), RoundingMode.FLOOR);
+            return new Vector3i(locationComponent.getWorldPosition(new Vector3f()).sub(0.5f, 0.5f, 0.5f), RoundingMode.FLOOR);
         }
-
     }
 
     private float getTankElevation(EntityRef entity) {
