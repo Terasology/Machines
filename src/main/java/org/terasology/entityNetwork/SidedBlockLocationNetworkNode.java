@@ -1,34 +1,40 @@
 package org.terasology.entityNetwork;
 
+import org.joml.Vector3f;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
-import org.terasology.math.geom.Vector3i;
 
 import java.util.function.BiPredicate;
 
 public class SidedBlockLocationNetworkNode extends BlockLocationNetworkNode {
     public final byte connectionSides;
 
-    public SidedBlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, byte connectionSides) {
+    public SidedBlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3ic location, byte connectionSides) {
         super(networkId, isLeaf, location);
         this.connectionSides = connectionSides;
     }
 
-    public SidedBlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location, Side... sides) {
+    public SidedBlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3ic location, Side... sides) {
         this(networkId, isLeaf, location, SideBitFlag.getSides(sides));
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SidedBlockLocationNetworkNode)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof SidedBlockLocationNetworkNode)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
 
         SidedBlockLocationNetworkNode that = (SidedBlockLocationNetworkNode) o;
 
-        if (connectionSides != that.connectionSides) return false;
-
-        return true;
+        return connectionSides == that.connectionSides;
     }
 
     @Override
@@ -56,10 +62,10 @@ public class SidedBlockLocationNetworkNode extends BlockLocationNetworkNode {
         return false;
     }
 
-    private static boolean areConnected(Vector3i lhsLocation, byte lhsSide, Vector3i rhsLocation, byte rhsSide) {
+    private static boolean areConnected(Vector3ic lhsLocation, byte lhsSide, Vector3ic rhsLocation, byte rhsSide) {
         Vector3i sideVector = new Vector3i(rhsLocation);
         sideVector.sub(lhsLocation);
-        Side side = Side.inDirection(sideVector.toVector3f());
+        Side side = Side.inDirection(new Vector3f(sideVector));
         byte sideBit = SideBitFlag.getSide(side);
 
         return (sideBit & lhsSide) == sideBit && (SideBitFlag.getReverse(sideBit) & rhsSide) == SideBitFlag.getReverse(sideBit);
@@ -69,11 +75,12 @@ public class SidedBlockLocationNetworkNode extends BlockLocationNetworkNode {
     public Side connectionSide(SidedBlockLocationNetworkNode node) {
         Vector3i sideVector = new Vector3i(node.location);
         sideVector.sub(location);
-        Side side = Side.inDirection(sideVector.toVector3f());
+        Side side = Side.inDirection(new Vector3f(sideVector));
         return side;
     }
 
-    public static BiPredicate<NetworkNode, NetworkNode> createSideConnectivityFilter(Side targetSide, Vector3i targetLocation) {
+    public static BiPredicate<NetworkNode, NetworkNode> createSideConnectivityFilter(Side targetSide,
+                                                                                     Vector3i targetLocation) {
         return new SideConnectivityFilter(targetSide, targetLocation);
     }
 

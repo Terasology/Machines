@@ -16,6 +16,7 @@
 package org.terasology.itemTransport.systems;
 
 import com.google.common.collect.Lists;
+import org.joml.Vector3i;
 import org.terasology.engine.Time;
 import org.terasology.entitySystem.entity.EntityManager;
 import org.terasology.entitySystem.entity.EntityRef;
@@ -39,7 +40,6 @@ import org.terasology.logic.inventory.events.InventorySlotStackSizeChangedEvent;
 import org.terasology.machines.ExtendedInventoryManager;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
-import org.terasology.math.geom.Vector3i;
 import org.terasology.monitoring.PerformanceMonitor;
 import org.terasology.registry.In;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
@@ -101,7 +101,7 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
         Side side = getRelativeSide(entity, pullInventory.direction);
 
         // get target inventory
-        Vector3i adjacentPos = side.getAdjacentPos(blockComponent.getPosition());
+        Vector3i adjacentPos = side.getAdjacentPos(blockComponent.getPosition(new Vector3i()), new Vector3i());
         EntityRef targetEntity = blockEntityRegistry.getExistingBlockEntityAt(adjacentPos);
 
         if (targetEntity.hasComponent(InventoryComponent.class)) {
@@ -137,7 +137,7 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
         Side side = getRelativeSide(entity, pushInventory.direction);
 
         // get target inventory
-        Vector3i adjacentPos = side.getAdjacentPos(blockComponent.getPosition());
+        Vector3i adjacentPos = side.getAdjacentPos(blockComponent.getPosition(new Vector3i()), new Vector3i());
         EntityRef targetEntity = blockEntityRegistry.getExistingBlockEntityAt(adjacentPos);
 
         if (targetEntity.hasComponent(InventoryComponent.class)) {
@@ -239,9 +239,9 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
     }
 
     private void checkAdjacentBlocksForPushFinish(BlockComponent block) {
-        Vector3i position = block.getPosition();
+        Vector3i position = block.getPosition(new Vector3i());
         for (Side side : Side.values()) {
-            Vector3i adjacentPos = side.getAdjacentPos(position);
+            Vector3i adjacentPos = side.getAdjacentPos(position, new Vector3i());
             EntityRef blockEntityAt = blockEntityRegistry.getExistingBlockEntityAt(adjacentPos);
             if (blockEntityAt.hasComponent(PushInventoryInDirectionComponent.class)) {
                 PushInventoryInDirectionComponent pushInventory = blockEntityAt.getComponent(PushInventoryInDirectionComponent.class);
@@ -287,9 +287,9 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
     }
 
     private void checkAdjacentBlocksForPulling(BlockComponent block) {
-        Vector3i position = block.getPosition();
+        Vector3i position = block.getPosition(new Vector3i());
         for (Side side : Side.values()) {
-            EntityRef adjacentEntity = blockEntityRegistry.getExistingBlockEntityAt(side.getAdjacentPos(position));
+            EntityRef adjacentEntity = blockEntityRegistry.getExistingBlockEntityAt(side.getAdjacentPos(position, new Vector3i()));
             if (adjacentEntity.hasComponent(PullInventoryInDirectionComponent.class)) {
                 PullInventoryInDirectionComponent pullInventory = adjacentEntity.getComponent(PullInventoryInDirectionComponent.class);
                 if (side.reverse() == getRelativeSide(adjacentEntity, pullInventory.direction)) {

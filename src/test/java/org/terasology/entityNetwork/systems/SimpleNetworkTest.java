@@ -1,12 +1,13 @@
 package org.terasology.entityNetwork.systems;
 
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.junit.Before;
 import org.junit.Test;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
-import org.terasology.math.geom.Vector3i;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -25,7 +26,7 @@ public class SimpleNetworkTest {
         upOnly = SideBitFlag.addSide((byte) 0, Side.TOP);
     }
 
-    private SidedBlockLocationNetworkNode toNode(Vector3i location, byte sides) {
+    private SidedBlockLocationNetworkNode toNode(Vector3ic location, byte sides) {
         return new SidedBlockLocationNetworkNode(NETWORK_ID, false, location, sides);
     }
 

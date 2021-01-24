@@ -15,6 +15,7 @@
  */
 package org.terasology.machines.systems;
 
+import org.joml.Vector3fc;
 import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.entitySystem.event.ReceiveEvent;
 import org.terasology.entitySystem.systems.BaseComponentSystem;
@@ -30,7 +31,6 @@ import org.terasology.machines.components.SideActivatedInventoryInteractionCompo
 import org.terasology.math.Direction;
 import org.terasology.math.JomlUtil;
 import org.terasology.math.Side;
-import org.terasology.math.geom.Vector3f;
 import org.terasology.physics.CollisionGroup;
 import org.terasology.physics.Physics;
 import org.terasology.physics.StandardCollisionGroup;
@@ -84,10 +84,10 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
     public void onSideActivated(ActivateEvent event, EntityRef heldItem, ItemComponent itemComponent) {
         EntityRef target = event.getTarget();
         EntityRef instigator = event.getInstigator();
-        doInventoryInteraction(JomlUtil.from(event.getHitNormal()), heldItem, target, instigator);
+        doInventoryInteraction(event.getHitNormal(), heldItem, target, instigator);
     }
 
-    void doInventoryInteraction(Vector3f hitNormal, EntityRef heldItem, EntityRef target, EntityRef instigator) {
+    void doInventoryInteraction(Vector3fc hitNormal, EntityRef heldItem, EntityRef target, EntityRef instigator) {
         SideActivatedInventoryInteractionComponent interactionComponent = target.getComponent(SideActivatedInventoryInteractionComponent.class);
         BlockComponent blockComponent = target.getComponent(BlockComponent.class);
         InventoryComponent blockInventoryComponent = target.getComponent(InventoryComponent.class);

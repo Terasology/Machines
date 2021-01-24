@@ -15,6 +15,8 @@
  */
 package org.terasology.entityNetwork;
 
+import java.util.Objects;
+
 public class NetworkNode {
     public String networkId;
     public boolean isLeaf;
@@ -26,15 +28,19 @@ public class NetworkNode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof NetworkNode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof NetworkNode)) {
+            return false;
+        }
 
         NetworkNode that = (NetworkNode) o;
 
-        if (isLeaf != that.isLeaf) return false;
-        if (networkId != null ? !networkId.equals(that.networkId) : that.networkId != null) return false;
-
-        return true;
+        if (isLeaf != that.isLeaf) {
+            return false;
+        }
+        return Objects.equals(networkId, that.networkId);
     }
 
     @Override
