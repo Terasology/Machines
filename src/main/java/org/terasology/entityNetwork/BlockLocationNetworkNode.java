@@ -15,39 +15,42 @@
  */
 package org.terasology.entityNetwork;
 
-import org.terasology.math.geom.Vector3i;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 
 public class BlockLocationNetworkNode extends NetworkNode {
-    public final Vector3i location;
+    public final Vector3i location = new Vector3i();
     int maximumGridDistance = 1;
 
-    public BlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3i location) {
+    public BlockLocationNetworkNode(String networkId, boolean isLeaf, Vector3ic location) {
         super(networkId, isLeaf);
-        this.location = location;
+        this.location.set(location);
     }
 
-    public BlockLocationNetworkNode(String networkId, boolean isLeaf, int maximumGridDistance, Vector3i location) {
+    public BlockLocationNetworkNode(String networkId, boolean isLeaf, int maximumGridDistance, Vector3ic location) {
         this(networkId, isLeaf, location);
         this.maximumGridDistance = maximumGridDistance;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof BlockLocationNetworkNode)) return false;
-        if (!super.equals(o)) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BlockLocationNetworkNode)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         BlockLocationNetworkNode that = (BlockLocationNetworkNode) o;
-
-        if (location != null ? !location.equals(that.location) : that.location != null) return false;
-
-        return true;
+        return location.equals(that.location);
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (location != null ? location.hashCode() : 0);
+        result = 31 * result + location.hashCode();
         return result;
     }
 
@@ -58,7 +61,9 @@ public class BlockLocationNetworkNode extends NetworkNode {
 
     @Override
     public boolean isConnectedTo(NetworkNode networkNode) {
-        if (networkNode == null || !(networkNode instanceof BlockLocationNetworkNode)) return false;
+        if (!(networkNode instanceof BlockLocationNetworkNode)) {
+            return false;
+        }
         BlockLocationNetworkNode locationNetworkNode = (BlockLocationNetworkNode) networkNode;
         return locationNetworkNode.location.gridDistance(location) <= maximumGridDistance;
     }

@@ -16,6 +16,7 @@
 package org.terasology.entityNetwork.components;
 
 import com.google.common.collect.Sets;
+import org.joml.Vector3i;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
@@ -25,7 +26,6 @@ import org.terasology.machines.BlockFamilyUtil;
 import org.terasology.math.Direction;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
-import org.terasology.math.geom.Vector3i;
 import org.terasology.world.block.BlockComponent;
 
 import java.util.Set;
@@ -39,7 +39,7 @@ public class SidedBlockLocationNetworkNodeComponent implements Component, Networ
     public NetworkNode build(EntityRef entityRef) {
         BlockComponent blockComponent = entityRef.getComponent(BlockComponent.class);
         if (blockComponent != null) {
-            return new SidedBlockLocationNetworkNode(networkId, isLeaf, new Vector3i(blockComponent.getPosition()), calculateConnectionSides(blockComponent));
+            return new SidedBlockLocationNetworkNode(networkId, isLeaf, blockComponent.getPosition(new Vector3i()), calculateConnectionSides(blockComponent));
         } else {
             return null;
         }
@@ -53,7 +53,6 @@ public class SidedBlockLocationNetworkNodeComponent implements Component, Networ
             Direction direction = Direction.valueOf(directionString);
             sides.add(blockDirection.getRelativeSide(direction));
         }
-        byte connectionSides = SideBitFlag.getSides(sides);
-        return connectionSides;
+        return SideBitFlag.getSides(sides);
     }
 }

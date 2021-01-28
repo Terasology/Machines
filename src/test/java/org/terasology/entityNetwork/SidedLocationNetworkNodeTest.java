@@ -15,11 +15,11 @@
  */
 package org.terasology.entityNetwork;
 
+import org.joml.Vector3i;
 import org.junit.Before;
 import org.junit.Test;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
-import org.terasology.math.geom.Vector3i;
 
 import java.util.function.BiPredicate;
 

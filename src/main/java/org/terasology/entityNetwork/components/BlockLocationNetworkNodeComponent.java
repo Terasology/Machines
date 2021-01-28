@@ -15,6 +15,7 @@
  */
 package org.terasology.entityNetwork.components;
 
+import org.joml.Vector3i;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
@@ -31,7 +32,7 @@ public class BlockLocationNetworkNodeComponent implements Component, NetworkNode
     public NetworkNode build(EntityRef entityRef) {
         BlockComponent blockComponent = entityRef.getComponent(BlockComponent.class);
         if (blockComponent != null) {
-            return new BlockLocationNetworkNode(networkId, isLeaf, maximumGridDistance, blockComponent.getPosition());
+            return new BlockLocationNetworkNode(networkId, isLeaf, maximumGridDistance, blockComponent.getPosition(new Vector3i()));
         } else {
             return null;
         }
