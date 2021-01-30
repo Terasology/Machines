@@ -24,10 +24,10 @@ import org.terasology.math.Roll;
 import org.terasology.math.Rotation;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
+import org.terasology.nui.widgets.TooltipLine;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.registry.In;
 import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
-import org.terasology.nui.widgets.TooltipLine;
 import org.terasology.world.block.BlockComponent;
 import org.terasology.world.block.BlockManager;
 import org.terasology.world.block.items.BlockItemComponent;
@@ -81,7 +81,7 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
         Rotation rotation = block.getBlock().getRotation();
-        location.setWorldRotation(rotation.getQuat4f());
+        location.setWorldRotation(rotation.orientation());
         entity.saveComponent(location);
 
         rotatingAxle.renderedEntity = renderedEntityBuilder.build();
