@@ -90,38 +90,8 @@ public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
     }
 
     @Override
-    public Block getBlockForNeighborUpdate(Vector3i location, Block oldBlock) {
-        return super.getBlockForNeighborUpdate(location, oldBlock);
-    }
-
-    @Override
     public Block getArchetypeBlock() {
         return blocks.get((byte) 0);
-    }
-
-    @Override
-    protected boolean connectionCondition(Vector3i blockLocation, Side connectSide) {
-        EntityRef thisEntity = blockEntityRegistry.getBlockEntityAt(blockLocation);
-        List<Network> thisNetworks = Lists.newArrayList();
-        for (NetworkNode networkNode : Iterables.filter(entityNetworkManager.getNodesForEntity(thisEntity),
-            x -> nodeFilter.test(x))) {
-            thisNetworks.addAll(entityNetworkManager.getNetworks(networkNode));
-        }
-
-        Vector3i neighborLocation = new Vector3i(blockLocation);
-        neighborLocation.add(connectSide.getVector3i());
-        EntityRef neighborEntity = blockEntityRegistry.getBlockEntityAt(neighborLocation);
-
-        for (NetworkNode neighborNetworkNode :
-            Iterables.filter(entityNetworkManager.getNodesForEntity(neighborEntity), x -> nodeFilter.test(x))) {
-            for (Network neighborNetwork : entityNetworkManager.getNetworks(neighborNetworkNode)) {
-                if (thisNetworks.contains(neighborNetwork)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     @Override

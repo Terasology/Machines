@@ -16,10 +16,10 @@
 package org.terasology.fluidTransport.world;
 
 
+import org.joml.Vector3ic;
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
 import org.terasology.machines.world.SameNetworkByBlockBlockFamily;
 import org.terasology.math.Side;
-import org.terasology.math.geom.Vector3i;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
 import org.terasology.world.block.BlockBuilderHelper;
@@ -36,7 +36,7 @@ public class FluidPumpBlockBlockFamily extends SameNetworkByBlockBlockFamily {
     }
 
     @Override
-    protected boolean connectionCondition(Vector3i blockLocation, Side connectSide) {
+    protected boolean connectionCondition(Vector3ic blockLocation, Side connectSide) {
         boolean result = super.connectionCondition(blockLocation, connectSide);
         /* Removed as a part of PR MovingBlocks/Terasology
          * TODO: Re-implement connections when the side is a liquid
