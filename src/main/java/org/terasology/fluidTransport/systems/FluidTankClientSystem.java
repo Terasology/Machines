@@ -4,6 +4,7 @@ package org.terasology.fluidTransport.systems;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.joml.Vector3i;
 import org.terasology.assets.ResourceUrn;
 import org.terasology.entitySystem.entity.EntityBuilder;
@@ -133,7 +134,7 @@ public class FluidTankClientSystem extends BaseComponentSystem {
         MeshBuilder meshBuilder = new MeshBuilder();
         meshBuilder.setTextureMapper(new MeshBuilder.TextureMapper() {
             @Override
-            public void initialize(Vector3f offset, Vector3f size) {
+            public void initialize(Vector3fc offset, Vector3fc size) {
 
             }
 
