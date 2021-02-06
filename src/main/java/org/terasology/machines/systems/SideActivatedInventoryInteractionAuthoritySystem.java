@@ -1,18 +1,5 @@
-/*
- * Copyright 2015 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.machines.systems;
 
 import org.joml.Vector3fc;
@@ -29,7 +16,6 @@ import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.logic.inventory.ItemComponent;
 import org.terasology.machines.components.SideActivatedInventoryInteractionComponent;
 import org.terasology.math.Direction;
-import org.terasology.math.JomlUtil;
 import org.terasology.math.Side;
 import org.terasology.physics.CollisionGroup;
 import org.terasology.physics.Physics;
@@ -97,10 +83,10 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
             Side blockRelativeSideHit = blockSideHit;
 
             // if this is a rotatable block, ensure we are using its rotated side
-            BlockFamily blockFamily = blockComponent.getBlock().getBlockFamily();
+            BlockFamily blockFamily = blockComponent.block.getBlockFamily();
             if (blockFamily instanceof SideDefinedBlockFamily) {
                 SideDefinedBlockFamily sideDefinedBlockFamily = (SideDefinedBlockFamily) blockFamily;
-                blockRelativeSideHit = sideDefinedBlockFamily.getSide(blockComponent.getBlock());
+                blockRelativeSideHit = sideDefinedBlockFamily.getSide(blockComponent.block);
             }
 
             if (direction.equals(blockRelativeSideHit.toDirection())) {

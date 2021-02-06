@@ -1,18 +1,5 @@
-/*
- * Copyright 2014 MovingBlocks
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Copyright 2021 The Terasology Foundation
+// SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.systems;
 
 import org.joml.Vector3i;
@@ -28,7 +15,6 @@ import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
 import org.terasology.fluid.system.FluidRegistry;
-import org.terasology.fluid.system.FluidUtils;
 import org.terasology.fluidTransport.components.FluidInletOutletComponent;
 import org.terasology.math.JomlUtil;
 import org.terasology.math.Side;
@@ -69,7 +55,7 @@ public class FluidInletOutletSystem extends BaseComponentSystem implements Updat
     @Override
     public void update(float delta) {
         for (EntityRef machine : entityManager.getEntitiesWith(FluidInletOutletComponent.class, BlockComponent.class, FluidInventoryComponent.class)) {
-            Vector3ic pos = JomlUtil.from(machine.getComponent(BlockComponent.class).position);
+            Vector3ic pos = machine.getComponent(BlockComponent.class).getPosition();
             FluidInletOutletComponent inletOutlet = machine.getComponent(FluidInletOutletComponent.class);
             FluidInventoryComponent tank = machine.getComponent(FluidInventoryComponent.class);
             inletOutlet.inletVolume = Math.min(FLUID_PER_BLOCK, inletOutlet.inletVolume + delta * inletOutlet.inletRate);
