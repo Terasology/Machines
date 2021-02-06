@@ -1,4 +1,4 @@
-// Copyright 2020 The Terasology Foundation
+// Copyright 2021 The Terasology Foundation
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.mechanicalPower.systems;
 
@@ -73,14 +73,14 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         // set the look of the rendered entity
         BlockItemComponent blockItem = renderedEntityBuilder.getComponent(BlockItemComponent.class);
 
-        blockItem.blockFamily = block.getBlock().getBlockFamily();
+        blockItem.blockFamily = block.block.getBlockFamily();
         renderedEntityBuilder.saveComponent(blockItem);
 
 
         ItemCommonSystem.addOrUpdateBlockMeshComponent(blockItem, renderedEntityBuilder);
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
-        Rotation rotation = block.getBlock().getRotation();
+        Rotation rotation = block.block.getRotation();
         location.setWorldRotation(rotation.orientation());
         entity.saveComponent(location);
 
