@@ -16,7 +16,6 @@ import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluidTransport.components.FluidInletOutletComponent;
-import org.terasology.math.JomlUtil;
 import org.terasology.math.Side;
 import org.terasology.registry.In;
 import org.terasology.world.WorldProvider;
@@ -76,14 +75,14 @@ public class FluidInletOutletSystem extends BaseComponentSystem implements Updat
                         Vector3ic adjPos = side.getAdjacentPos(pos, new Vector3i());
                         Block adjBlock = worldProvider.getBlock(adjPos);
                         if (liquid == null ? adjBlock.isLiquid() : adjBlock == liquid) {
-                            byte status = (byte) worldProvider.getExtraData(flowIndex, JomlUtil.from(adjPos));
+                            byte status = (byte) worldProvider.getExtraData(flowIndex, adjPos);
                             int externalHeight = LiquidData.getHeight(status) - LiquidData.getRate(status);
                             int flowRate = (side == Side.TOP) ? Math.min(externalHeight, LiquidData.MAX_HEIGHT - internalHeight - 1) : (externalHeight - internalHeight) / 2;
                             if (flowRate > 0) {
                                 if (flowRate == externalHeight) {
                                     worldProvider.setBlock(adjPos, air);
                                 } else {
-                                    worldProvider.setExtraData(flowIndex, JomlUtil.from(adjPos), LiquidData.setHeight(status, LiquidData.getHeight(status) - flowRate));
+                                    worldProvider.setExtraData(flowIndex, adjPos, LiquidData.setHeight(status, LiquidData.getHeight(status) - flowRate));
                                 }
                                 float volume = flowRate * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
                                 fluidManager.addFluid(EntityRef.NULL, machine, i, fluidRegistry.getCorrespondingFluid(adjBlock), volume);
@@ -102,14 +101,14 @@ public class FluidInletOutletSystem extends BaseComponentSystem implements Updat
                         Vector3ic adjPos = side.getAdjacentPos(pos, new Vector3i());
                         Block adjBlock = worldProvider.getBlock(adjPos);
                         if (adjBlock == air || adjBlock == liquid) {
-                            byte status = adjBlock == air ? LiquidData.FULL : (byte) worldProvider.getExtraData(flowIndex, JomlUtil.from(adjPos));
+                            byte status = adjBlock == air ? LiquidData.FULL : (byte) worldProvider.getExtraData(flowIndex, adjPos);
                             int externalHeight = adjBlock == air ? 0 : LiquidData.getHeight(status);
                             int flowRate = (side == Side.BOTTOM) ? Math.min(LiquidData.MAX_HEIGHT - externalHeight, internalHeight - 1) : (internalHeight - externalHeight) / 2;
                             if (flowRate > 0) {
                                 if (adjBlock == air) {
                                     worldProvider.setBlock(adjPos, liquid);
                                 }
-                                worldProvider.setExtraData(flowIndex, JomlUtil.from(adjPos), LiquidData.setHeight(status, externalHeight + flowRate));
+                                worldProvider.setExtraData(flowIndex, adjPos, LiquidData.setHeight(status, externalHeight + flowRate));
                                 float volume = flowRate * FLUID_PER_BLOCK / LiquidData.MAX_HEIGHT;
                                 fluidManager.removeFluid(EntityRef.NULL, machine, i, fluid.fluidType, volume);
                                 inletOutlet.outletVolume -= volume;
