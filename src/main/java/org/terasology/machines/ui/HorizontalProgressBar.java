@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.machines.ui;
 
-import org.terasology.math.JomlUtil;
+import org.terasology.joml.geom.Rectanglei;
 import org.terasology.utilities.Assets;
 import org.terasology.math.TeraMath;
 import org.joml.Vector2i;
@@ -26,7 +26,7 @@ public class HorizontalProgressBar extends CoreWidget {
 
             Vector2i size = canvas.size();
             int drawWidth = Math.round(result * fillTexture.getWidth());
-            canvas.drawTextureRaw(fillTexture, JomlUtil.rectangleiFromMinAndSize(0, 0, drawWidth, size.y), ScaleMode.STRETCH,
+            canvas.drawTextureRaw(fillTexture, new Rectanglei(0, 0).setSize(drawWidth, size.y), ScaleMode.STRETCH,
                     0f, 0f, result, 1f);
         }
     }
