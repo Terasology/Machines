@@ -5,7 +5,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.Network;
@@ -16,8 +16,8 @@ import org.terasology.math.Side;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class BlockNetworkTest {
@@ -26,7 +26,7 @@ public class BlockNetworkTest {
     private TestListener listener;
     private byte allDirections;
 
-    @BeforeAll
+    @BeforeEach
     public void setup() {
         blockNetwork = new BlockNetwork();
         listener = new TestListener();

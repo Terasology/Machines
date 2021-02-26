@@ -2,7 +2,7 @@ package org.terasology.entityNetwork.systems;
 
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
@@ -19,7 +19,7 @@ public class SimpleNetworkTest {
     private byte allDirections;
     private byte upOnly;
 
-    @BeforeAll
+    @BeforeEach
     public void setup() {
         network = new BlockNetwork();
         allDirections = 63;

@@ -16,22 +16,22 @@
 package org.terasology.entityNetwork;
 
 import org.joml.Vector3i;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
 
 import java.util.function.BiPredicate;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SidedLocationNetworkNodeTest {
     static final String NETWORK_ID = "test";
     private byte allDirections;
 
-    @BeforeAll
+    @BeforeEach
     public void setup() {
         allDirections = 63;
     }
