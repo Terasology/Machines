@@ -2,16 +2,16 @@ package org.terasology.entityNetwork.systems;
 
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
 import org.terasology.math.Side;
 import org.terasology.math.SideBitFlag;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SimpleNetworkTest {
     static final String NETWORK_ID = "test";
@@ -19,7 +19,7 @@ public class SimpleNetworkTest {
     private byte allDirections;
     private byte upOnly;
 
-    @Before
+    @BeforeEach
     public void setup() {
         network = new BlockNetwork();
         allDirections = 63;
