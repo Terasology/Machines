@@ -64,7 +64,7 @@ public class EntityNetworkCommonSystem extends BaseComponentSystem implements Up
         // Treat block entities differently as they do not follow normal entity creation with an expected parentPrefab
         BlockComponent blockComponent = entityRef.getComponent(BlockComponent.class);
         if (blockComponent != null) {
-            entityPrefab = blockComponent.block.getPrefab().get();
+            entityPrefab = blockComponent.getBlock().getPrefab().get();
         }
 
         if (entityPrefab != null) {

@@ -33,7 +33,7 @@ public class SidedBlockLocationNetworkNodeComponent implements Component, Networ
     }
 
     private byte calculateConnectionSides(BlockComponent block) {
-        Side blockDirection = BlockFamilyUtil.getSideDefinedDirection(block.block);
+        Side blockDirection = BlockFamilyUtil.getSideDefinedDirection(block.getBlock());
         // convert these directions to sides relative to the facing of the block
         Set<Side> sides = Sets.newHashSet();
         for (String directionString : directions) {

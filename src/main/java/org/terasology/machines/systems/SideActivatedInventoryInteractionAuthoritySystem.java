@@ -83,10 +83,10 @@ public class SideActivatedInventoryInteractionAuthoritySystem extends BaseCompon
             Side blockRelativeSideHit = blockSideHit;
 
             // if this is a rotatable block, ensure we are using its rotated side
-            BlockFamily blockFamily = blockComponent.block.getBlockFamily();
+            BlockFamily blockFamily = blockComponent.getBlock().getBlockFamily();
             if (blockFamily instanceof SideDefinedBlockFamily) {
                 SideDefinedBlockFamily sideDefinedBlockFamily = (SideDefinedBlockFamily) blockFamily;
-                blockRelativeSideHit = sideDefinedBlockFamily.getSide(blockComponent.block);
+                blockRelativeSideHit = sideDefinedBlockFamily.getSide(blockComponent.getBlock());
             }
 
             if (direction.equals(blockRelativeSideHit.toDirection())) {

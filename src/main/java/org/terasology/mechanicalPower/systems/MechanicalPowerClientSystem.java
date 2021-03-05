@@ -73,14 +73,14 @@ public class MechanicalPowerClientSystem extends BaseComponentSystem implements 
         // set the look of the rendered entity
         BlockItemComponent blockItem = renderedEntityBuilder.getComponent(BlockItemComponent.class);
 
-        blockItem.blockFamily = block.block.getBlockFamily();
+        blockItem.blockFamily = block.getBlock().getBlockFamily();
         renderedEntityBuilder.saveComponent(blockItem);
 
 
         ItemCommonSystem.addOrUpdateBlockMeshComponent(blockItem, renderedEntityBuilder);
 
         // rotate the block so that the rendered entity can be rotated independently while respecting the block placement rotation
-        Rotation rotation = block.block.getRotation();
+        Rotation rotation = block.getBlock().getRotation();
         location.setWorldRotation(rotation.orientation());
         entity.saveComponent(location);
 

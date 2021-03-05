@@ -304,7 +304,7 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
     private Side getRelativeSide(EntityRef entity, Direction direction) {
         // find out what way this block is pointed
         BlockComponent blockComponent = entity.getComponent(BlockComponent.class);
-        Block block = blockComponent.block;
+        Block block = blockComponent.getBlock();
         return block.getDirection().getRelativeSide(direction);
     }
 }
