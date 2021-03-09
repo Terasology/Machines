@@ -15,8 +15,8 @@
  */
 package org.terasology.itemTransport.components;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.math.Direction;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.math.Direction;
 
 public class PullInventoryInDirectionComponent implements Component {
     public Direction direction = Direction.FORWARD;

@@ -16,7 +16,7 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
-import org.terasology.entitySystem.Component;
+import org.terasology.engine.entitySystem.Component;
 
 import java.util.List;
 

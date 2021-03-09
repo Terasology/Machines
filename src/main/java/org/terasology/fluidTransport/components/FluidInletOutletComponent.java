@@ -15,9 +15,8 @@
  */
 package org.terasology.fluidTransport.components;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
-import org.terasology.world.block.ForceBlockActive;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.world.block.ForceBlockActive;
 
 /**
  * Marks a block that also has a FluidInventoryComponent as able to exchange fluid with adjacent liquid blocks.

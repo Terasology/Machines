@@ -15,9 +15,9 @@
  */
 package org.terasology.fluidTransport.components;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.Owns;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.entitySystem.Owns;
+import org.terasology.engine.entitySystem.entity.EntityRef;
 
 public class FluidDisplayComponent implements Component {
     @Owns

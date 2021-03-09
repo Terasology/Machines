@@ -15,7 +15,7 @@
  */
 package org.terasology.mechanicalPower.processParts;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.engine.entitySystem.Component;
 
 public class ActivateEngineOutputComponent implements Component {
     public long activateTime;

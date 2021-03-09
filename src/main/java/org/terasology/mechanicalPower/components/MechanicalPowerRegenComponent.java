@@ -15,8 +15,8 @@
  */
 package org.terasology.mechanicalPower.components;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.network.Replicate;
 
 public class MechanicalPowerRegenComponent implements Component {
     @Replicate

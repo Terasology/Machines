@@ -7,11 +7,11 @@ import org.joml.Vector3i;
 import org.joml.Vector3ic;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.terasology.engine.math.Side;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
-import org.terasology.math.Side;
 
 import java.util.Set;
 

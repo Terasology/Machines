@@ -15,7 +15,7 @@
  */
 package org.terasology.entityNetwork.components;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.engine.entitySystem.Component;
 
 public class EntityNetworkComponent implements Component {
 }

@@ -16,12 +16,12 @@
 package org.terasology.entityNetwork.components;
 
 import org.joml.Vector3i;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.entityNetwork.BlockLocationNetworkNode;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
-import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.world.block.BlockComponent;
 
 public class BlockLocationNetworkNodeComponent implements Component, NetworkNodeBuilder {
     public String networkId;

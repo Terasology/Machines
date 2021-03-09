@@ -15,17 +15,17 @@
  */
 package org.terasology.machines.systems;
 
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
+import org.terasology.engine.entitySystem.systems.RegisterMode;
+import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.engine.registry.In;
+import org.terasology.engine.world.OnChangedBlock;
+import org.terasology.engine.world.WorldProvider;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.block.family.UpdatesWithNeighboursFamily;
 import org.terasology.entityNetwork.components.EntityNetworkComponent;
-import org.terasology.entitySystem.entity.EntityRef;
-import org.terasology.entitySystem.event.ReceiveEvent;
-import org.terasology.entitySystem.systems.BaseComponentSystem;
-import org.terasology.entitySystem.systems.RegisterMode;
-import org.terasology.entitySystem.systems.RegisterSystem;
-import org.terasology.registry.In;
-import org.terasology.world.OnChangedBlock;
-import org.terasology.world.WorldProvider;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.family.UpdatesWithNeighboursFamily;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class SameNetworkByBlockBlockFamilyAuthoritySystem extends BaseComponentSystem {

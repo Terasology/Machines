@@ -15,7 +15,7 @@
  */
 package org.terasology.fluidTransport.processParts;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.engine.entitySystem.Component;
 
 public class MechanicalPowerToPressureComponent implements Component {
 }

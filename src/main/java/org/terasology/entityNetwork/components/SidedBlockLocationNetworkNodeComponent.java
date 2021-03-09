@@ -4,16 +4,16 @@ package org.terasology.entityNetwork.components;
 
 import com.google.common.collect.Sets;
 import org.joml.Vector3i;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.math.Direction;
+import org.terasology.engine.math.Side;
+import org.terasology.engine.math.SideBitFlag;
+import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
-import org.terasology.entitySystem.Component;
-import org.terasology.entitySystem.entity.EntityRef;
 import org.terasology.machines.BlockFamilyUtil;
-import org.terasology.math.Direction;
-import org.terasology.math.Side;
-import org.terasology.math.SideBitFlag;
-import org.terasology.world.block.BlockComponent;
 
 import java.util.Set;
 

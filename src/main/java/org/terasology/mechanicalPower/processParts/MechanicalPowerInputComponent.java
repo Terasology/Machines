@@ -15,7 +15,7 @@
  */
 package org.terasology.mechanicalPower.processParts;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.engine.entitySystem.Component;
 
 public class MechanicalPowerInputComponent implements Component {
     public float power;

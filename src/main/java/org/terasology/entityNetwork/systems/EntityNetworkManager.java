@@ -15,9 +15,9 @@
  */
 package org.terasology.entityNetwork.systems;
 
+import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
-import org.terasology.entitySystem.entity.EntityRef;
 
 import java.util.Collection;
 

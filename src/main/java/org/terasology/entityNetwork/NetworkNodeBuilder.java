@@ -15,7 +15,7 @@
  */
 package org.terasology.entityNetwork;
 
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.EntityRef;
 
 public interface NetworkNodeBuilder {
     NetworkNode build(EntityRef entityRef);

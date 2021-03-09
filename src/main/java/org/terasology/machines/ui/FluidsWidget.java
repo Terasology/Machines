@@ -3,12 +3,12 @@
 package org.terasology.machines.ui;
 
 
-import org.terasology.entitySystem.entity.EntityRef;
+import org.joml.Vector2i;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidRegistry;
 import org.terasology.fluid.ui.FluidContainerWidget;
-import org.joml.Vector2i;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.nui.Canvas;
 import org.terasology.nui.CoreWidget;
 import org.terasology.nui.UIWidget;

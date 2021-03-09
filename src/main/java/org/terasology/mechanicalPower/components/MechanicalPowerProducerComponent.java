@@ -15,9 +15,9 @@
  */
 package org.terasology.mechanicalPower.components;
 
-import org.terasology.entitySystem.Component;
-import org.terasology.network.Replicate;
-import org.terasology.world.block.ForceBlockActive;
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.network.Replicate;
+import org.terasology.engine.world.block.ForceBlockActive;
 
 @ForceBlockActive
 public class MechanicalPowerProducerComponent implements Component {

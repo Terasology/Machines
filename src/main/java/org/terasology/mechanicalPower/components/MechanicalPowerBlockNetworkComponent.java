@@ -15,10 +15,10 @@
  */
 package org.terasology.mechanicalPower.components;
 
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.world.block.ForceBlockActive;
 import org.terasology.entityNetwork.components.BlockLocationNetworkNodeComponent;
-import org.terasology.entitySystem.Component;
 import org.terasology.mechanicalPower.systems.MechanicalPowerAuthoritySystem;
-import org.terasology.world.block.ForceBlockActive;
 
 @ForceBlockActive
 public class MechanicalPowerBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component {

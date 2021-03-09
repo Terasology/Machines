@@ -15,7 +15,7 @@
  */
 package org.terasology.machines.components;
 
-import org.terasology.entitySystem.Component;
+import org.terasology.engine.entitySystem.Component;
 
 public class NestedMachineComponent implements Component {
 }

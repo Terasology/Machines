@@ -16,13 +16,13 @@
 package org.terasology.fluidTransport.systems;
 
 import com.google.common.collect.Iterables;
-import org.terasology.entitySystem.entity.EntityRef;
+import org.terasology.engine.entitySystem.entity.EntityRef;
+import org.terasology.engine.logic.inventory.InventoryAccessComponent;
+import org.terasology.engine.math.IntegerRange;
+import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.fluid.component.FluidComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
 import org.terasology.fluid.system.FluidManager;
-import org.terasology.logic.inventory.InventoryAccessComponent;
-import org.terasology.math.IntegerRange;
-import org.terasology.registry.CoreRegistry;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
 import org.terasology.workstation.process.fluid.FluidInputProcessPartCommonSystem;
 import org.terasology.workstation.process.fluid.FluidOutputProcessPartCommonSystem;

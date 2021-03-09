@@ -15,8 +15,8 @@
  */
 package org.terasology.machines;
 
-import org.terasology.entitySystem.event.Event;
-import org.terasology.network.NoReplicate;
+import org.terasology.engine.entitySystem.event.Event;
+import org.terasology.engine.network.NoReplicate;
 
 public abstract class AbstractResultEvent<T> implements Event {
     @NoReplicate

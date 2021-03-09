@@ -15,10 +15,10 @@
  */
 package org.terasology.machines;
 
-import org.terasology.math.Side;
-import org.terasology.world.block.Block;
-import org.terasology.world.block.family.BlockFamily;
-import org.terasology.world.block.family.SideDefinedBlockFamily;
+import org.terasology.engine.math.Side;
+import org.terasology.engine.world.block.Block;
+import org.terasology.engine.world.block.family.BlockFamily;
+import org.terasology.engine.world.block.family.SideDefinedBlockFamily;
 
 public class BlockFamilyUtil {
     public static Side getSideDefinedDirection(Block block) {

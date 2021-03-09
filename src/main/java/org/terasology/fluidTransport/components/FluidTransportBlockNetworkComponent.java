@@ -15,10 +15,10 @@
  */
 package org.terasology.fluidTransport.components;
 
+import org.terasology.engine.entitySystem.Component;
+import org.terasology.engine.world.block.ForceBlockActive;
 import org.terasology.entityNetwork.components.BlockLocationNetworkNodeComponent;
-import org.terasology.entitySystem.Component;
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
-import org.terasology.world.block.ForceBlockActive;
 
 @ForceBlockActive
 public class FluidTransportBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component {
