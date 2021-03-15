@@ -18,7 +18,7 @@ package org.terasology.machines;
 import com.google.common.collect.Lists;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.logic.inventory.InventoryManager;
+import org.terasology.logic.inventory.InventoryManager;
 import org.terasology.engine.logic.inventory.ItemComponent;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
 
