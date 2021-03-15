@@ -19,7 +19,7 @@ import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.math.Roll;
 import org.terasology.engine.math.Rotation;
 import org.terasology.engine.registry.In;
-import org.terasology.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.module.inventory.ui.GetItemTooltip;
 import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.engine.world.block.BlockManager;
 import org.terasology.engine.world.block.items.BlockItemComponent;
