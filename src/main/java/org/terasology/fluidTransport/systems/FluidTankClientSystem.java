@@ -25,7 +25,7 @@ import org.terasology.engine.rendering.assets.mesh.Mesh;
 import org.terasology.engine.rendering.assets.mesh.MeshBuilder;
 import org.terasology.engine.rendering.assets.texture.Texture;
 import org.terasology.engine.rendering.logic.MeshComponent;
-import org.terasology.engine.rendering.nui.layers.ingame.inventory.GetItemTooltip;
+import org.terasology.module.inventory.ui.GetItemTooltip;
 import org.terasology.engine.utilities.Assets;
 import org.terasology.engine.world.block.regions.BlockRegionComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;

@@ -23,7 +23,7 @@ import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
-import org.terasology.engine.logic.inventory.InventoryAccessComponent;
+import org.terasology.module.inventory.components.InventoryAccessComponent;
 import org.terasology.itemRendering.components.RenderInventorySlotsComponent;
 import org.terasology.machines.components.RenderInventoryInCategoryComponent;
 import org.terasology.workstation.process.WorkstationInventoryUtils;

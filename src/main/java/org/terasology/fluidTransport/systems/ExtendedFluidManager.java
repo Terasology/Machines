@@ -17,7 +17,7 @@ package org.terasology.fluidTransport.systems;
 
 import com.google.common.collect.Iterables;
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.logic.inventory.InventoryAccessComponent;
+import org.terasology.module.inventory.components.InventoryAccessComponent;
 import org.terasology.engine.math.IntegerRange;
 import org.terasology.engine.registry.CoreRegistry;
 import org.terasology.fluid.component.FluidComponent;
