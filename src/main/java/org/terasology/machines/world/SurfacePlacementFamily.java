@@ -18,7 +18,7 @@ import org.terasology.engine.world.block.family.MultiSections;
 import org.terasology.engine.world.block.family.RegisterBlockFamily;
 import org.terasology.engine.world.block.family.SideDefinedBlockFamily;
 import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
-import org.terasology.naming.Name;
+import org.terasology.gestalt.naming.Name;
 
 import java.util.ArrayList;
 import java.util.Locale;
