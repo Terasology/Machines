@@ -21,7 +21,7 @@ import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
 import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.systems.EntityNetworkManager;
-import org.terasology.naming.Name;
+import org.terasology.gestalt.naming.Name;
 
 import java.util.List;
 import java.util.function.Predicate;

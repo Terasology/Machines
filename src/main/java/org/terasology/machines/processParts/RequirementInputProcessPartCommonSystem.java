@@ -3,7 +3,7 @@
 package org.terasology.machines.processParts;
 
 import com.google.common.collect.Lists;
-import org.terasology.assets.ResourceUrn;
+import org.terasology.gestalt.assets.ResourceUrn;
 import org.terasology.engine.core.Time;
 import org.terasology.engine.entitySystem.entity.EntityBuilder;
 import org.terasology.engine.entitySystem.entity.EntityManager;
