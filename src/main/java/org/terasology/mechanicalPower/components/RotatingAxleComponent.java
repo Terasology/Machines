@@ -9,4 +9,9 @@ import org.terasology.gestalt.entitysystem.component.Component;
 public class RotatingAxleComponent implements Component<RotatingAxleComponent> {
     @Owns
     public EntityRef renderedEntity;
+
+    @Override
+    public void copy(RotatingAxleComponent other) {
+        this.renderedEntity = other.renderedEntity;
+    }
 }

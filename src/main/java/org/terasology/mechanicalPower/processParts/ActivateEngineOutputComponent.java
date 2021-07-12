@@ -6,4 +6,9 @@ import org.terasology.gestalt.entitysystem.component.Component;
 
 public class ActivateEngineOutputComponent implements Component<ActivateEngineOutputComponent> {
     public long activateTime;
+
+    @Override
+    public void copy(ActivateEngineOutputComponent other) {
+        this.activateTime = other.activateTime;
+    }
 }

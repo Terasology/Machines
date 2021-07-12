@@ -23,4 +23,19 @@ public class MachineDefinitionComponent implements Component<MachineDefinitionCo
     public Set<String> inputWidgets = Sets.newHashSet();
     public List<Float> fluidInputSlotVolumes = Lists.newLinkedList();
     public List<Float> fluidOutputSlotVolumes = Lists.newLinkedList();
+
+    @Override
+    public void copy(MachineDefinitionComponent other) {
+            this.inputSlots = other.inputSlots;
+            this.inputSlotsTitle = other.inputSlotsTitle;
+            this.requirementSlots = other.requirementSlots;
+            this.requirementSlotsTitle = other.requirementSlotsTitle;
+            this.outputSlots = other.outputSlots;
+            this.outputSlotsTitle = other.outputSlotsTitle;
+            this.actionTitle = other.actionTitle;
+            this.outputWidgets = Sets.newHashSet(other.outputWidgets);
+            this.inputWidgets = Sets.newHashSet(other.inputWidgets);
+            this.fluidInputSlotVolumes = Lists.newLinkedList(other.fluidInputSlotVolumes);
+            this.fluidOutputSlotVolumes = Lists.newLinkedList(other.fluidOutputSlotVolumes);
+    }
 }

@@ -42,4 +42,12 @@ public class SidedBlockLocationNetworkNodeComponent implements Component<SidedBl
         }
         return SideBitFlag.getSides(sides);
     }
+
+    @Override
+    public void copy(SidedBlockLocationNetworkNodeComponent other) {
+        this.networkId = other.networkId;
+        this.isLeaf = other.isLeaf;
+        this.directions.clear();
+        this.directions.addAll(other.directions);
+    }
 }

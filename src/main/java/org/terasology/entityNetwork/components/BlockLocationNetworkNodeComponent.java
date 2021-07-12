@@ -24,4 +24,11 @@ public class BlockLocationNetworkNodeComponent implements Component<BlockLocatio
             return null;
         }
     }
+
+    @Override
+    public void copy(BlockLocationNetworkNodeComponent other) {
+        this.networkId = other.networkId;
+        this.isLeaf = other.isLeaf;
+        this.maximumGridDistance = other.maximumGridDistance;
+    }
 }

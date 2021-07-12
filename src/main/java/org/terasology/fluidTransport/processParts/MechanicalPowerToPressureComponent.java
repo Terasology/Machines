@@ -5,4 +5,8 @@ package org.terasology.fluidTransport.processParts;
 import org.terasology.gestalt.entitysystem.component.Component;
 
 public class MechanicalPowerToPressureComponent implements Component<MechanicalPowerToPressureComponent> {
+    @Override
+    public void copy(MechanicalPowerToPressureComponent other) {
+
+    }
 }

@@ -9,4 +9,9 @@ import org.terasology.gestalt.entitysystem.component.Component;
 public class FluidDisplayComponent implements Component<FluidDisplayComponent> {
     @Owns
     public EntityRef renderedEntity;
+
+    @Override
+    public void copy(FluidDisplayComponent other) {
+
+    }
 }

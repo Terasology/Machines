@@ -5,4 +5,8 @@ package org.terasology.entityNetwork.components;
 import org.terasology.gestalt.entitysystem.component.Component;
 
 public class EntityNetworkComponent implements Component<EntityNetworkComponent> {
+    @Override
+    public void copy(EntityNetworkComponent other) {
+
+    }
 }

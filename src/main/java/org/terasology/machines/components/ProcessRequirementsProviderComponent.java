@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.terasology.engine.network.Replicate;
 import org.terasology.gestalt.entitysystem.component.Component;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class ProcessRequirementsProviderComponent implements Component<ProcessRequirementsProviderComponent> {
@@ -15,10 +16,8 @@ public class ProcessRequirementsProviderComponent implements Component<ProcessRe
 
     public ProcessRequirementsProviderComponent() {
     }
-
-    public ProcessRequirementsProviderComponent(String... requirements) {
-        for (String requirement : requirements) {
-            this.requirements.add(requirement);
-        }
+    @Override
+    public void copy(ProcessRequirementsProviderComponent other) {
+        this.requirements = Lists.newArrayList(other.requirements);
     }
 }

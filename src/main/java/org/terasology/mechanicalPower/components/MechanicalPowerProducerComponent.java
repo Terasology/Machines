@@ -12,4 +12,10 @@ public class MechanicalPowerProducerComponent implements Component<MechanicalPow
     public float power;
     @Replicate
     public boolean active;
+
+    @Override
+    public void copy(MechanicalPowerProducerComponent other) {
+        this.power = other.power;
+        this.active = other.active;
+    }
 }

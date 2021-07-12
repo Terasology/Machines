@@ -14,4 +14,12 @@ public class PushInventoryInDirectionComponent implements Component<PushInventor
     public PushInventoryInDirectionComponent() {
 
     }
+
+    @Override
+    public void copy(PushInventoryInDirectionComponent other) {
+        this.direction = other.direction;
+        this.animateMovingItem = other.animateMovingItem;
+        this.timeToDestination = other.timeToDestination;
+        this.pushFinishTime = other.pushFinishTime;
+    }
 }

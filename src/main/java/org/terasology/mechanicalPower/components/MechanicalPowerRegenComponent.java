@@ -8,4 +8,9 @@ import org.terasology.gestalt.entitysystem.component.Component;
 public class MechanicalPowerRegenComponent implements Component<MechanicalPowerRegenComponent> {
     @Replicate
     public float power;
+
+    @Override
+    public void copy(MechanicalPowerRegenComponent other) {
+        this.power = other.power;
+    }
 }

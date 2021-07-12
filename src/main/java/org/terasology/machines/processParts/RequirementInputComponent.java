@@ -9,4 +9,10 @@ import java.util.List;
 
 public class RequirementInputComponent implements Component<RequirementInputComponent> {
     public List<String> requirements = Lists.newArrayList();
+
+    @Override
+    public void copy(RequirementInputComponent other) {
+        this.requirements.clear();
+        this.requirements.addAll(other.requirements);
+    }
 }

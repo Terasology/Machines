@@ -12,16 +12,16 @@ import java.util.List;
 @ForceBlockActive
 public class ProcessRequirementsProviderFromWorkstationComponent implements Component<ProcessRequirementsProviderFromWorkstationComponent> {
 
-    @Replicate
-    public List<String> requirements = Lists.newArrayList();
-
     public ProcessRequirementsProviderFromWorkstationComponent() {
     }
 
-    public ProcessRequirementsProviderFromWorkstationComponent(String... requirements) {
-        for (String requirement : requirements) {
-            this.requirements.add(requirement);
-        }
-    }
+    @Replicate
+    public List<String> requirements = Lists.newArrayList();
 
+
+
+    @Override
+    public void copy(ProcessRequirementsProviderFromWorkstationComponent other) {
+        this.requirements = Lists.newArrayList(other.requirements);
+    }
 }

@@ -6,4 +6,9 @@ import org.terasology.gestalt.entitysystem.component.Component;
 
 public class FluidPipeComponent implements Component<FluidPipeComponent> {
     public float maximumFlowRate;
+
+    @Override
+    public void copy(FluidPipeComponent other) {
+        this.maximumFlowRate = other.maximumFlowRate;
+    }
 }

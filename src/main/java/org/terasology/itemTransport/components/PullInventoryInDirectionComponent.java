@@ -7,4 +7,9 @@ import org.terasology.gestalt.entitysystem.component.Component;
 
 public class PullInventoryInDirectionComponent implements Component<PullInventoryInDirectionComponent> {
     public Direction direction = Direction.FORWARD;
+
+    @Override
+    public void copy(PullInventoryInDirectionComponent other) {
+        this.direction = other.direction;
+    }
 }

@@ -5,4 +5,8 @@ package org.terasology.fluidTransport.components;
 import org.terasology.gestalt.entitysystem.component.Component;
 
 public class FluidTankDisplayComponent implements Component<FluidTankDisplayComponent> {
+    @Override
+    public void copy(FluidTankDisplayComponent other) {
+
+    }
 }

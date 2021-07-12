@@ -8,7 +8,7 @@ import org.terasology.gestalt.entitysystem.component.Component;
 import org.terasology.mechanicalPower.systems.MechanicalPowerAuthoritySystem;
 
 @ForceBlockActive
-public class MechanicalPowerBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component<MechanicalPowerBlockNetworkComponent extends BlockLocationNetworkNodeComponent> {
+public class MechanicalPowerBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component<BlockLocationNetworkNodeComponent> {
     public MechanicalPowerBlockNetworkComponent() {
         networkId = MechanicalPowerAuthoritySystem.NETWORK_ID;
     }

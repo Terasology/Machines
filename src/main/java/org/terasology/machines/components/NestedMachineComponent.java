@@ -5,4 +5,8 @@ package org.terasology.machines.components;
 import org.terasology.gestalt.entitysystem.component.Component;
 
 public class NestedMachineComponent implements Component<NestedMachineComponent> {
+    @Override
+    public void copy(NestedMachineComponent other) {
+
+    }
 }

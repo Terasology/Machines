@@ -8,7 +8,7 @@ import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
 import org.terasology.gestalt.entitysystem.component.Component;
 
 @ForceBlockActive
-public class FluidTransportBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component<FluidTransportBlockNetworkComponent extends BlockLocationNetworkNodeComponent> {
+public class FluidTransportBlockNetworkComponent extends BlockLocationNetworkNodeComponent implements Component<BlockLocationNetworkNodeComponent> {
     public FluidTransportBlockNetworkComponent() {
         this.networkId = FluidTransportAuthoritySystem.NETWORK_ID;
     }
