@@ -26,7 +26,7 @@ import org.terasology.gestalt.naming.Name;
 import java.util.List;
 import java.util.function.Predicate;
 
-@RegisterBlockFamily("Machines:SameNetworkByBlock")
+@RegisterBlockFamily("SameNetworkByBlock")
 @BlockSections({"no_connections", "one_connection", "line_connection", "2d_corner", "3d_corner", "2d_t", "cross", "3d_side", "five_connections", "all"})
 public class SameNetworkByBlockBlockFamily extends MultiConnectFamily {
     @In
