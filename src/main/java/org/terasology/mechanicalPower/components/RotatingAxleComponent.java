@@ -11,7 +11,7 @@ public class RotatingAxleComponent implements Component<RotatingAxleComponent> {
     public EntityRef renderedEntity;
 
     @Override
-    public void copy(RotatingAxleComponent other) {
+    public void copyFrom(RotatingAxleComponent other) {
         this.renderedEntity = other.renderedEntity;
     }
 }

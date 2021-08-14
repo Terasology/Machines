@@ -19,7 +19,7 @@ public class FluidInletOutletComponent implements Component<FluidInletOutletComp
     public float outletVolume;
 
     @Override
-    public void copy(FluidInletOutletComponent other) {
+    public void copyFrom(FluidInletOutletComponent other) {
         this.inletRate = other.inletRate;
         this.outletRate = other.outletRate;
         this.inletVolume = other.inletVolume;

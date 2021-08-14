@@ -8,7 +8,7 @@ public class MechanicalPowerInputComponent implements Component<MechanicalPowerI
     public float power;
 
     @Override
-    public void copy(MechanicalPowerInputComponent other) {
+    public void copyFrom(MechanicalPowerInputComponent other) {
         this.power = other.power;
     }
 }

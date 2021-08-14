@@ -21,7 +21,7 @@ public class ProcessRequirementsProviderFromWorkstationComponent implements Comp
 
 
     @Override
-    public void copy(ProcessRequirementsProviderFromWorkstationComponent other) {
+    public void copyFrom(ProcessRequirementsProviderFromWorkstationComponent other) {
         this.requirements = Lists.newArrayList(other.requirements);
     }
 }

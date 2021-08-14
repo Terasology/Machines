@@ -14,7 +14,7 @@ public class MechanicalPowerProducerComponent implements Component<MechanicalPow
     public boolean active;
 
     @Override
-    public void copy(MechanicalPowerProducerComponent other) {
+    public void copyFrom(MechanicalPowerProducerComponent other) {
         this.power = other.power;
         this.active = other.active;
     }

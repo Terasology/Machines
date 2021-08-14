@@ -8,7 +8,7 @@ public class FluidPipeComponent implements Component<FluidPipeComponent> {
     public float maximumFlowRate;
 
     @Override
-    public void copy(FluidPipeComponent other) {
+    public void copyFrom(FluidPipeComponent other) {
         this.maximumFlowRate = other.maximumFlowRate;
     }
 }

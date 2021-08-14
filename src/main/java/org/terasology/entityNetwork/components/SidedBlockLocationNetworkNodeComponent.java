@@ -44,7 +44,7 @@ public class SidedBlockLocationNetworkNodeComponent implements Component<SidedBl
     }
 
     @Override
-    public void copy(SidedBlockLocationNetworkNodeComponent other) {
+    public void copyFrom(SidedBlockLocationNetworkNodeComponent other) {
         this.networkId = other.networkId;
         this.isLeaf = other.isLeaf;
         this.directions.clear();

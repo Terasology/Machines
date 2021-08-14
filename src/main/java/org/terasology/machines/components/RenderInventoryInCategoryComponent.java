@@ -14,7 +14,7 @@ public class RenderInventoryInCategoryComponent extends RenderOwnedEntityDetails
     public boolean isOutputCategory;
 
     @Override
-    public void copy(RenderInventoryInCategoryComponent other) {
+    public void copyFrom(RenderInventoryInCategoryComponent other) {
         this.category = other.category;
         this.isOutputCategory = other.isOutputCategory;
     }

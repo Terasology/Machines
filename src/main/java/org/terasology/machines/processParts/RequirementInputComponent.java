@@ -11,7 +11,7 @@ public class RequirementInputComponent implements Component<RequirementInputComp
     public List<String> requirements = Lists.newArrayList();
 
     @Override
-    public void copy(RequirementInputComponent other) {
+    public void copyFrom(RequirementInputComponent other) {
         this.requirements.clear();
         this.requirements.addAll(other.requirements);
     }

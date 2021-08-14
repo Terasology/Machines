@@ -25,7 +25,7 @@ public class MachineDefinitionComponent implements Component<MachineDefinitionCo
     public List<Float> fluidOutputSlotVolumes = Lists.newLinkedList();
 
     @Override
-    public void copy(MachineDefinitionComponent other) {
+    public void copyFrom(MachineDefinitionComponent other) {
             this.inputSlots = other.inputSlots;
             this.inputSlotsTitle = other.inputSlotsTitle;
             this.requirementSlots = other.requirementSlots;

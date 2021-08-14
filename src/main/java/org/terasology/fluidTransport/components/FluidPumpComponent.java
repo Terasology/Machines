@@ -13,7 +13,7 @@ public class FluidPumpComponent implements Component<FluidPumpComponent> {
     public float maximumFlowRate;
 
     @Override
-    public void copy(FluidPumpComponent other) {
+    public void copyFrom(FluidPumpComponent other) {
         this.pressure = other.pressure;
         this.maximumFlowRate = other.maximumFlowRate;
     }

@@ -9,7 +9,7 @@ public class PullInventoryInDirectionComponent implements Component<PullInventor
     public Direction direction = Direction.FORWARD;
 
     @Override
-    public void copy(PullInventoryInDirectionComponent other) {
+    public void copyFrom(PullInventoryInDirectionComponent other) {
         this.direction = other.direction;
     }
 }

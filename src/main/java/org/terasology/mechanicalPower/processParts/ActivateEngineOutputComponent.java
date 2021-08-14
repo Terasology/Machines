@@ -8,7 +8,7 @@ public class ActivateEngineOutputComponent implements Component<ActivateEngineOu
     public long activateTime;
 
     @Override
-    public void copy(ActivateEngineOutputComponent other) {
+    public void copyFrom(ActivateEngineOutputComponent other) {
         this.activateTime = other.activateTime;
     }
 }

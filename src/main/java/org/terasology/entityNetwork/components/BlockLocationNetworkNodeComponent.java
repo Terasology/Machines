@@ -26,7 +26,7 @@ public class BlockLocationNetworkNodeComponent implements Component<BlockLocatio
     }
 
     @Override
-    public void copy(BlockLocationNetworkNodeComponent other) {
+    public void copyFrom(BlockLocationNetworkNodeComponent other) {
         this.networkId = other.networkId;
         this.isLeaf = other.isLeaf;
         this.maximumGridDistance = other.maximumGridDistance;

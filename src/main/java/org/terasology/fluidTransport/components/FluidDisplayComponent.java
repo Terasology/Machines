@@ -11,7 +11,7 @@ public class FluidDisplayComponent implements Component<FluidDisplayComponent> {
     public EntityRef renderedEntity;
 
     @Override
-    public void copy(FluidDisplayComponent other) {
+    public void copyFrom(FluidDisplayComponent other) {
 
     }
 }

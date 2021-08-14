@@ -12,7 +12,7 @@ public class SideActivatedInventoryInteractionComponent implements Component<Sid
     public Boolean outputIsOutputType;
 
     @Override
-    public void copy(SideActivatedInventoryInteractionComponent other) {
+    public void copyFrom(SideActivatedInventoryInteractionComponent other) {
         this.direction = other.direction;
         this.inputType = other.inputType;
         this.inputIsOutputType = other.inputIsOutputType;

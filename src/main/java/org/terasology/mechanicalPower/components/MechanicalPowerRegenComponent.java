@@ -10,7 +10,7 @@ public class MechanicalPowerRegenComponent implements Component<MechanicalPowerR
     public float power;
 
     @Override
-    public void copy(MechanicalPowerRegenComponent other) {
+    public void copyFrom(MechanicalPowerRegenComponent other) {
         this.power = other.power;
     }
 }
