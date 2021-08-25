@@ -4,7 +4,6 @@ package org.terasology.entityNetwork.components;
 
 import com.google.common.collect.Sets;
 import org.joml.Vector3i;
-import org.terasology.engine.entitySystem.Component;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.math.Direction;
 import org.terasology.engine.math.Side;
@@ -13,11 +12,12 @@ import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.SidedBlockLocationNetworkNode;
+import org.terasology.gestalt.entitysystem.component.Component;
 import org.terasology.machines.BlockFamilyUtil;
 
 import java.util.Set;
 
-public class SidedBlockLocationNetworkNodeComponent implements Component, NetworkNodeBuilder {
+public class SidedBlockLocationNetworkNodeComponent implements Component<SidedBlockLocationNetworkNodeComponent>, NetworkNodeBuilder {
     public String networkId;
     public boolean isLeaf;
     public Set<String> directions = Sets.newHashSet();
@@ -41,5 +41,13 @@ public class SidedBlockLocationNetworkNodeComponent implements Component, Networ
             sides.add(blockDirection.getRelativeSide(direction));
         }
         return SideBitFlag.getSides(sides);
+    }
+
+    @Override
+    public void copyFrom(SidedBlockLocationNetworkNodeComponent other) {
+        this.networkId = other.networkId;
+        this.isLeaf = other.isLeaf;
+        this.directions.clear();
+        this.directions.addAll(other.directions);
     }
 }
