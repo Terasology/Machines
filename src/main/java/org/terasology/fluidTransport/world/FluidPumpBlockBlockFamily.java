@@ -26,7 +26,7 @@ import org.terasology.engine.world.block.loader.BlockFamilyDefinition;
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
 import org.terasology.machines.world.SameNetworkByBlockBlockFamily;
 
-@RegisterBlockFamily("FluidTransport:FluidPumpBlock")
+@RegisterBlockFamily("FluidPumpBlock")
 public class FluidPumpBlockBlockFamily extends SameNetworkByBlockBlockFamily {
     @In
     WorldProvider worldProvider;
