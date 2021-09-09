@@ -4,7 +4,6 @@ package org.terasology.machines.systems;
 
 import org.joml.Vector3fc;
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
@@ -22,6 +21,7 @@ import org.terasology.engine.world.BlockEntityRegistry;
 import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.engine.world.block.family.BlockFamily;
 import org.terasology.engine.world.block.family.SideDefinedBlockFamily;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.machines.components.SideActivatedInventoryInteractionComponent;
 import org.terasology.module.inventory.components.InventoryComponent;
 import org.terasology.module.inventory.systems.InventoryManager;

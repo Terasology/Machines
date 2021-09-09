@@ -17,13 +17,13 @@ package org.terasology.machines.systems;
 
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnAddedComponent;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.engine.logic.common.RetainComponentsComponent;
 import org.terasology.engine.math.IntegerRange;
 import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.fluid.component.FluidInventoryComponent;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.machines.components.MachineDefinitionComponent;
 import org.terasology.machines.components.NestedMachineComponent;
 import org.terasology.machines.processParts.RequirementInputProcessPartCommonSystem;
