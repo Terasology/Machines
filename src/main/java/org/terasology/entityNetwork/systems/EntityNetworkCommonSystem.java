@@ -7,7 +7,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
-import org.terasology.gestalt.assets.management.AssetManager;
 import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.entity.lifecycleEvents.BeforeDeactivateComponent;
@@ -26,6 +25,7 @@ import org.terasology.entityNetwork.Network;
 import org.terasology.entityNetwork.NetworkNode;
 import org.terasology.entityNetwork.NetworkNodeBuilder;
 import org.terasology.entityNetwork.components.EntityNetworkComponent;
+import org.terasology.gestalt.assets.management.AssetManager;
 
 import java.util.ArrayList;
 import java.util.Collection;

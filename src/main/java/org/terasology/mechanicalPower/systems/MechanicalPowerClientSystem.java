@@ -19,7 +19,6 @@ import org.terasology.engine.logic.location.LocationComponent;
 import org.terasology.engine.math.Roll;
 import org.terasology.engine.math.Rotation;
 import org.terasology.engine.registry.In;
-import org.terasology.module.inventory.ui.GetItemTooltip;
 import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.engine.world.block.BlockManager;
 import org.terasology.engine.world.block.items.BlockItemComponent;
@@ -29,6 +28,7 @@ import org.terasology.entityNetwork.systems.EntityNetworkManager;
 import org.terasology.itemRendering.components.AnimateRotationComponent;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.mechanicalPower.components.RotatingAxleComponent;
+import org.terasology.module.inventory.ui.GetItemTooltip;
 import org.terasology.nui.widgets.TooltipLine;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 
