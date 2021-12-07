@@ -16,11 +16,11 @@
 package org.terasology.fluidTransport.processParts;
 
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.fluidTransport.components.FluidPumpComponent;
 import org.terasology.fluidTransport.systems.FluidTransportAuthoritySystem;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.potentialEnergyDevices.components.PotentialEnergyDeviceComponent;
 import org.terasology.workstation.process.ProcessPartDescription;
 import org.terasology.workstation.processPart.ProcessEntityGetDurationEvent;

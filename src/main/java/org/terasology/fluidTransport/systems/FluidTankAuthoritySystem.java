@@ -17,16 +17,17 @@ package org.terasology.fluidTransport.systems;
 
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.event.EventPriority;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.event.Priority;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.engine.logic.common.ActivateEvent;
-import org.terasology.module.inventory.systems.InventoryManager;
 import org.terasology.engine.logic.inventory.ItemComponent;
 import org.terasology.engine.registry.In;
 import org.terasology.fluid.component.FluidContainerItemComponent;
 import org.terasology.fluid.system.FluidUtils;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
+import org.terasology.module.inventory.systems.InventoryManager;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class FluidTankAuthoritySystem extends BaseComponentSystem {
@@ -34,7 +35,8 @@ public class FluidTankAuthoritySystem extends BaseComponentSystem {
     InventoryManager inventoryManager;
 
     // Prioritize interacting with tanks over other things
-    @ReceiveEvent(components = {ItemComponent.class}, priority = EventPriority.PRIORITY_HIGH)
+    @Priority(EventPriority.PRIORITY_HIGH)
+    @ReceiveEvent(components = {ItemComponent.class})
     public void fillFluidContainerItem(ActivateEvent event, EntityRef item,
                                        FluidContainerItemComponent fluidContainer) {
         EntityRef targetBlockEntity = event.getTarget();

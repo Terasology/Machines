@@ -3,9 +3,9 @@
 package org.terasology.mechanicalPower.processParts;
 
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.mechanicalPower.components.MechanicalPowerProducerComponent;
 import org.terasology.workstation.process.ProcessPartDescription;
 import org.terasology.workstation.processPart.ProcessEntityFinishExecutionEvent;

@@ -16,7 +16,6 @@
 package org.terasology.machines.systems;
 
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
@@ -26,6 +25,7 @@ import org.terasology.engine.world.WorldProvider;
 import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.block.family.UpdatesWithNeighboursFamily;
 import org.terasology.entityNetwork.components.EntityNetworkComponent;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 
 @RegisterSystem(RegisterMode.AUTHORITY)
 public class SameNetworkByBlockBlockFamilyAuthoritySystem extends BaseComponentSystem {

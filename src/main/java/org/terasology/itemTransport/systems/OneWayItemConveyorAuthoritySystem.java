@@ -9,18 +9,13 @@ import org.terasology.engine.entitySystem.entity.EntityManager;
 import org.terasology.engine.entitySystem.entity.EntityRef;
 import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnActivatedComponent;
 import org.terasology.engine.entitySystem.entity.lifecycleEvents.OnAddedComponent;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
+import org.terasology.engine.entitySystem.event.Activity;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.engine.entitySystem.systems.UpdateSubscriberSystem;
 import org.terasology.engine.logic.delay.DelayManager;
 import org.terasology.engine.logic.delay.DelayedActionTriggeredEvent;
-import org.terasology.module.inventory.components.InventoryComponent;
-import org.terasology.module.inventory.systems.InventoryManager;
-import org.terasology.module.inventory.systems.InventoryUtils;
-import org.terasology.module.inventory.events.InventorySlotChangedEvent;
-import org.terasology.module.inventory.events.InventorySlotStackSizeChangedEvent;
 import org.terasology.engine.math.Direction;
 import org.terasology.engine.math.Side;
 import org.terasology.engine.monitoring.PerformanceMonitor;
@@ -28,10 +23,16 @@ import org.terasology.engine.registry.In;
 import org.terasology.engine.world.BlockEntityRegistry;
 import org.terasology.engine.world.block.Block;
 import org.terasology.engine.world.block.BlockComponent;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.itemRendering.components.AnimatedMovingItemComponent;
 import org.terasology.itemTransport.components.PullInventoryInDirectionComponent;
 import org.terasology.itemTransport.components.PushInventoryInDirectionComponent;
 import org.terasology.machines.ExtendedInventoryManager;
+import org.terasology.module.inventory.components.InventoryComponent;
+import org.terasology.module.inventory.events.InventorySlotChangedEvent;
+import org.terasology.module.inventory.events.InventorySlotStackSizeChangedEvent;
+import org.terasology.module.inventory.systems.InventoryManager;
+import org.terasology.module.inventory.systems.InventoryUtils;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
 import org.terasology.workstation.process.inventory.InventoryOutputProcessPartCommonSystem;
 
@@ -148,8 +149,9 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
             }
         }
     }
-
-    @ReceiveEvent(activity = ACTIVITY)
+    
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pushInventoryGotItem(InventorySlotChangedEvent event, EntityRef entity, PushInventoryInDirectionComponent pushInventory,
                                      BlockComponent block, InventoryComponent inventory) {
         Side side = getRelativeSide(entity, pushInventory.direction);
@@ -199,7 +201,8 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
     // 2. Inventory of an adjacent block has changed (maybe there is space there now?)
     // 3. New inventory was placed or loaded in an adjacent block
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pushCondition1(DelayedActionTriggeredEvent event, EntityRef entity, PushInventoryInDirectionComponent pushInventory,
                                BlockComponent blockComponent, InventoryComponent inventory) {
         if (event.getActionId().equals("FINISHED_PUSHING")) {
@@ -207,19 +210,22 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
         }
     }
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pushCondition2(InventorySlotChangedEvent event, EntityRef entity, InventoryComponent inventory,
                                BlockComponent block) {
         checkAdjacentBlocksForPushFinish(block);
     }
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pushCondition2(InventorySlotStackSizeChangedEvent event, EntityRef entity, InventoryComponent inventory,
                                BlockComponent block) {
         checkAdjacentBlocksForPushFinish(block);
     }
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pushCondition3(OnActivatedComponent event, EntityRef entity, InventoryComponent inventory,
                                BlockComponent block) {
         checkAdjacentBlocksForPushFinish(block);
@@ -249,25 +255,29 @@ public class OneWayItemConveyorAuthoritySystem extends BaseComponentSystem imple
     // 3. Inventory of an adjacent block has changed (maybe there is something new to pull?)
     // 4. New inventory was placed or loaded in an adjacent block
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pullCondition1(InventorySlotChangedEvent event, EntityRef entity, PullInventoryInDirectionComponent pullInventory,
                                BlockComponent blockComponent, InventoryComponent inventory) {
         tryPullingAnItem(entity);
     }
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pullCondition2(OnAddedComponent event, EntityRef entity, PullInventoryInDirectionComponent pullInventory,
                                BlockComponent blockComponent, InventoryComponent inventory) {
         tryPullingAnItem(entity);
     }
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pullCondition3(InventorySlotChangedEvent event, EntityRef entity, InventoryComponent inventory,
                                BlockComponent block) {
         checkAdjacentBlocksForPulling(block);
     }
 
-    @ReceiveEvent(activity = ACTIVITY)
+    @Activity(ACTIVITY)
+    @ReceiveEvent
     public void pullCondition4(OnActivatedComponent event, EntityRef entity, InventoryComponent inventory,
                                BlockComponent block) {
         checkAdjacentBlocksForPulling(block);

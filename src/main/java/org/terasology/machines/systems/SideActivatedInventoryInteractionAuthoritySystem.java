@@ -4,15 +4,12 @@ package org.terasology.machines.systems;
 
 import org.joml.Vector3fc;
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.engine.entitySystem.event.ReceiveEvent;
 import org.terasology.engine.entitySystem.systems.BaseComponentSystem;
 import org.terasology.engine.entitySystem.systems.RegisterMode;
 import org.terasology.engine.entitySystem.systems.RegisterSystem;
 import org.terasology.engine.input.binds.inventory.UseItemButton;
 import org.terasology.engine.logic.characters.CharacterComponent;
 import org.terasology.engine.logic.common.ActivateEvent;
-import org.terasology.module.inventory.components.InventoryComponent;
-import org.terasology.module.inventory.systems.InventoryManager;
 import org.terasology.engine.logic.inventory.ItemComponent;
 import org.terasology.engine.math.Direction;
 import org.terasology.engine.math.Side;
@@ -24,7 +21,10 @@ import org.terasology.engine.world.BlockEntityRegistry;
 import org.terasology.engine.world.block.BlockComponent;
 import org.terasology.engine.world.block.family.BlockFamily;
 import org.terasology.engine.world.block.family.SideDefinedBlockFamily;
+import org.terasology.gestalt.entitysystem.event.ReceiveEvent;
 import org.terasology.machines.components.SideActivatedInventoryInteractionComponent;
+import org.terasology.module.inventory.components.InventoryComponent;
+import org.terasology.module.inventory.systems.InventoryManager;
 import org.terasology.workstation.process.WorkstationInventoryUtils;
 
 import java.util.List;
