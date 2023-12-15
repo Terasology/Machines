@@ -4,14 +4,9 @@ package org.terasology.fluidTransport.components;
 
 import org.terasology.engine.entitySystem.Owns;
 import org.terasology.engine.entitySystem.entity.EntityRef;
-import org.terasology.gestalt.entitysystem.component.Component;
+import org.terasology.gestalt.entitysystem.component.EmptyComponent;
 
-public class FluidDisplayComponent implements Component<FluidDisplayComponent> {
+public class FluidDisplayComponent extends EmptyComponent<FluidDisplayComponent> {
     @Owns
     public EntityRef renderedEntity;
-
-    @Override
-    public void copyFrom(FluidDisplayComponent other) {
-
-    }
 }

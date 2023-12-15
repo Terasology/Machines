@@ -2,11 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.processParts;
 
-import org.terasology.gestalt.entitysystem.component.Component;
+import org.terasology.gestalt.entitysystem.component.EmptyComponent;
 
-public class MechanicalPowerToPressureComponent implements Component<MechanicalPowerToPressureComponent> {
-    @Override
-    public void copyFrom(MechanicalPowerToPressureComponent other) {
-
-    }
+public class MechanicalPowerToPressureComponent extends EmptyComponent<MechanicalPowerToPressureComponent> {
 }

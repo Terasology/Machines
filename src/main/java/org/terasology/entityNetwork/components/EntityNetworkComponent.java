@@ -2,11 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.entityNetwork.components;
 
-import org.terasology.gestalt.entitysystem.component.Component;
+import org.terasology.gestalt.entitysystem.component.EmptyComponent;
 
-public class EntityNetworkComponent implements Component<EntityNetworkComponent> {
-    @Override
-    public void copyFrom(EntityNetworkComponent other) {
-
-    }
+public class EntityNetworkComponent extends EmptyComponent<EntityNetworkComponent> {
 }
