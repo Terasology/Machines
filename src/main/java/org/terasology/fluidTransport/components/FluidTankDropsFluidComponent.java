@@ -2,11 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 package org.terasology.fluidTransport.components;
 
-import org.terasology.gestalt.entitysystem.component.Component;
+import org.terasology.gestalt.entitysystem.component.EmptyComponent;
 
-public class FluidTankDropsFluidComponent implements Component<FluidTankDropsFluidComponent> {
-    @Override
-    public void copyFrom(FluidTankDropsFluidComponent other) {
-
-    }
+public class FluidTankDropsFluidComponent extends EmptyComponent<FluidTankDropsFluidComponent> {
 }
